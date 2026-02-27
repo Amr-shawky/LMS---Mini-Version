@@ -1,6 +1,6 @@
 # LMS - Mini Version
 
-## 🚀 Overview
+##  Overview
 
 The **LMS - Mini Version** is an educational .NET 8 Web API project designed for mentorship and bootcamp environments. It serves as a practical playground for students to explore **RESTful APIs**, **Entity Framework Core**, and common architectural patterns.
 
@@ -8,7 +8,7 @@ Unlike "perfect" production code, this repository is intentionally built with "l
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 * **Framework:** .NET 8.0.
 * **Database:** SQL Server via Entity Framework Core.
@@ -17,7 +17,7 @@ Unlike "perfect" production code, this repository is intentionally built with "l
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 Following the structure of the original "CarRentalApp" reference, this project is organized into clear domains:
 
