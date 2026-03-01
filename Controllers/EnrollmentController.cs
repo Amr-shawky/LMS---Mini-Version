@@ -54,7 +54,8 @@ namespace LMS___Mini_Version.Controllers
             IEnrollmentService enrollmentService,
             EnrollInternMediator enrollMediator,
             CancelEnrollmentMediator cancelMediator,
-            TransferEnrollmentMediator transferMediator)
+            TransferEnrollmentMediator transferMediator
+            )
         {
             _enrollmentService = enrollmentService;
             _enrollMediator = enrollMediator;
