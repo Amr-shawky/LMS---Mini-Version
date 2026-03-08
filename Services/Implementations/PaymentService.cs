@@ -31,23 +31,33 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<PaymentDto>> GetAllAsync()
         {
-            var payments = await _paymentRepository
-                .GetTable()
-                .Include(p => p.Enrollment)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return payments.Select(p => p.ToDto());
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var payments = await _paymentRepository
+            //     .GetTable()
+            //     .Include(p => p.Enrollment)
+            //     .ToListAsync()
+            //     .ConfigureAwait(false);
+            //
+            // return payments.Select(p => p.ToDto());
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetAllPaymentsQuery via MediatR.");
         }
 
         public async Task<PaymentDto?> GetByEnrollmentAsync(int enrollmentId)
         {
-            var payment = await _paymentRepository
-                .GetTable()
-                .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
-
-            return payment?.ToDto();
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var payment = await _paymentRepository
+            //     .GetTable()
+            //     .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
+            //     .ConfigureAwait(false);
+            //
+            // return payment?.ToDto();
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetPaymentByEnrollmentQuery via MediatR.");
         }
 
         /// <summary>

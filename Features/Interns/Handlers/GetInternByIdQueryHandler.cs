@@ -8,6 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Features.Interns.Handlers
 {
+    /// <summary>
+    /// [CQRS Assignment] Handler for GetInternByIdQuery.
+    /// YOUR TASK: Find an intern by Id (include Track navigation),
+    /// map to InternDetailViewModel, and return it (or null).
+    /// 
+    /// HINTS:
+    ///   - Use _internRepository.GetTable() with .Include(i => i.Track)
+    ///   - Use .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken)
+    ///   - Map using .ToDto().ToDetailViewModel()
+    ///   - Return null if not found
+    /// </summary>
     public class GetInternByIdQueryHandler
         : IRequestHandler<GetInternByIdQuery, InternDetailViewModel?>
     {
@@ -21,13 +32,14 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
         public async Task<InternDetailViewModel?> Handle(
             GetInternByIdQuery request, CancellationToken cancellationToken)
         {
-            var intern = await _internRepository
-                .GetTable()
-                .Include(i => i.Track)
-                .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken)
-                .ConfigureAwait(false);
-
-            return intern?.ToDto().ToDetailViewModel();
+            // ╔══════════════════════════════════════════════════════════════╗
+            // ║  🎯 ASSIGNMENT: Implement this handler                      ║
+            // ║                                                              ║
+            // ║  Find an Intern by request.Id (include Track)               ║
+            // ║  Map Intern entity → InternDto → InternDetailViewModel      ║
+            // ║  Return null if not found                                    ║
+            // ╚══════════════════════════════════════════════════════════════╝
+            throw new NotImplementedException("TODO: Implement this handler for the CQRS assignment");
         }
     }
 }

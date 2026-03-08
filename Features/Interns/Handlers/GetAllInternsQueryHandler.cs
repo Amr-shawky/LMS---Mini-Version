@@ -8,6 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Features.Interns.Handlers
 {
+    /// <summary>
+    /// [CQRS Assignment] Handler for GetAllInternsQuery.
+    /// YOUR TASK: Query the database for all interns (include Track navigation),
+    /// map them to InternSummaryViewModel, and return the list.
+    /// 
+    /// HINTS:
+    ///   - Use _internRepository.GetTable() to get IQueryable
+    ///   - Use .Include(i => i.Track) to load the Track navigation property
+    ///   - Use .ToListAsync(cancellationToken)
+    ///   - Map using .ToDto().ToSummaryViewModel()
+    /// </summary>
     public class GetAllInternsQueryHandler
         : IRequestHandler<GetAllInternsQuery, IEnumerable<InternSummaryViewModel>>
     {
@@ -21,13 +32,13 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
         public async Task<IEnumerable<InternSummaryViewModel>> Handle(
             GetAllInternsQuery request, CancellationToken cancellationToken)
         {
-            var interns = await _internRepository
-                .GetTable()
-                .Include(i => i.Track)
-                .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            return interns.Select(i => i.ToDto().ToSummaryViewModel());
+            // ╔══════════════════════════════════════════════════════════════╗
+            // ║  🎯 ASSIGNMENT: Implement this handler                      ║
+            // ║                                                              ║
+            // ║  Return ALL interns with their Track info included           ║
+            // ║  Map each Intern entity → InternDto → InternSummaryViewModel║
+            // ╚══════════════════════════════════════════════════════════════╝
+            throw new NotImplementedException("TODO: Implement this handler for the CQRS assignment");
         }
     }
 }

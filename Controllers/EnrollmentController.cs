@@ -55,6 +55,13 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("intern/{internId}")]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
         {
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 5: GetEnrollmentsByInternQuery
+            // ══════════════════════════════════════════════════════════════
+            // The handler logic has been removed. You need to:
+            // 1) Implement the business logic inside GetEnrollmentsByInternQueryHandler
+            // 2) The controller is already wired — just fix the handler!
+            // ══════════════════════════════════════════════════════════════
             var result = await _mediator
                 .Send(new GetEnrollmentsByInternQuery(internId))
                 .ConfigureAwait(false);

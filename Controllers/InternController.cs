@@ -23,6 +23,13 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 2: GetAllInternsQuery
+            // ══════════════════════════════════════════════════════════════
+            // The handler logic has been removed. You need to:
+            // 1) Implement the business logic inside GetAllInternsQueryHandler
+            // 2) The controller is already wired — just fix the handler!
+            // ══════════════════════════════════════════════════════════════
             var result = await _mediator.Send(new GetAllInternsQuery()).ConfigureAwait(false);
             return Ok(result);
         }
@@ -30,6 +37,13 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
         {
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 3: GetInternByIdQuery
+            // ══════════════════════════════════════════════════════════════
+            // The handler logic has been removed. You need to:
+            // 1) Implement the business logic inside GetInternByIdQueryHandler
+            // 2) The controller is already wired — just fix the handler!
+            // ══════════════════════════════════════════════════════════════
             var result = await _mediator.Send(new GetInternByIdQuery(id)).ConfigureAwait(false);
             if (result == null) return NotFound();
             return Ok(result);

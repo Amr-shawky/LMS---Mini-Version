@@ -36,19 +36,29 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<TrackDto>> GetAllAsync()
         {
-            var tracks = await _trackRepository
-                .GetTable()
-                .Include(t => t.Enrollments)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return tracks.Select(t => t.ToDto());
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var tracks = await _trackRepository
+            //     .GetTable()
+            //     .Include(t => t.Enrollments)
+            //     .ToListAsync()
+            //     .ConfigureAwait(false);
+            //
+            // return tracks.Select(t => t.ToDto());
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetAllTracksQuery via MediatR.");
         }
 
         public async Task<TrackDto?> GetByIdAsync(int id)
         {
-            var track = await _trackRepository.GetByIdAsync(id).ConfigureAwait(false);
-            return track?.ToDto();
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var track = await _trackRepository.GetByIdAsync(id).ConfigureAwait(false);
+            // return track?.ToDto();
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetTrackByIdQuery via MediatR.");
         }
 
         public async Task<TrackDto> CreateAsync(TrackDto dto)

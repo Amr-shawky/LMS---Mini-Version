@@ -32,8 +32,32 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 1: GetTrackByIdQuery
+            // ══════════════════════════════════════════════════════════════
+            // The handler logic has been removed. You need to:
+            // 1) Implement the business logic inside GetTrackByIdQueryHandler
+            // 2) The controller is already wired — just fix the handler!
+            // ══════════════════════════════════════════════════════════════
             var result = await _mediator.Send(new GetTrackByIdQuery(id)).ConfigureAwait(false);
             if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetActiveTracks()
+        {
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 4: GetActiveTracksQuery
+            // ══════════════════════════════════════════════════════════════
+            // TODO: The handler logic has not been implemented yet.
+            // Inject IMediator in the constructor and return the result using:
+            // await _mediator.Send(new GetActiveTracksQuery());
+            //
+            // But first, implement the handler logic inside
+            // GetActiveTracksQueryHandler to query only active tracks.
+            // ══════════════════════════════════════════════════════════════
+            var result = await _mediator.Send(new GetActiveTracksQuery()).ConfigureAwait(false);
             return Ok(result);
         }
 

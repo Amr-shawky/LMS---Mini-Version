@@ -75,15 +75,20 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<EnrollmentDto>> GetByInternAsync(int internId)
         {
-            var enrollments = await _enrollmentRepository
-                .GetTable()
-                .Include(e => e.Track)
-                .Include(e => e.Intern)
-                .Where(e => e.InternId == internId)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return enrollments.Select(e => e.ToDto());
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var enrollments = await _enrollmentRepository
+            //     .GetTable()
+            //     .Include(e => e.Track)
+            //     .Include(e => e.Intern)
+            //     .Where(e => e.InternId == internId)
+            //     .ToListAsync()
+            //     .ConfigureAwait(false);
+            //
+            // return enrollments.Select(e => e.ToDto());
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetEnrollmentsByInternQuery via MediatR.");
         }
 
         /// <summary>

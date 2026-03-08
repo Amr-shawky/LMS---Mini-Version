@@ -27,24 +27,34 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<InternDto>> GetAllAsync()
         {
-            var interns = await _internRepository
-                .GetTable()
-                .Include(i => i.Track)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return interns.Select(i => i.ToDto());
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var interns = await _internRepository
+            //     .GetTable()
+            //     .Include(i => i.Track)
+            //     .ToListAsync()
+            //     .ConfigureAwait(false);
+            //
+            // return interns.Select(i => i.ToDto());
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetAllInternsQuery via MediatR.");
         }
 
         public async Task<InternDto?> GetByIdAsync(int id)
         {
-            var intern = await _internRepository
-                .GetTable()
-                .Include(i => i.Track)
-                .FirstOrDefaultAsync(i => i.Id == id)
-                .ConfigureAwait(false);
-
-            return intern?.ToDto();
+            // ══════════════════════════════════════════════════════════
+            // [CQRS ASSIGNMENT] This service method has been disabled.
+            // The business logic now belongs in the MediatR Handler.
+            // ══════════════════════════════════════════════════════════
+            // var intern = await _internRepository
+            //     .GetTable()
+            //     .Include(i => i.Track)
+            //     .FirstOrDefaultAsync(i => i.Id == id)
+            //     .ConfigureAwait(false);
+            //
+            // return intern?.ToDto();
+            throw new NotImplementedException("This method has been migrated to CQRS. Use GetInternByIdQuery via MediatR.");
         }
 
         public async Task<InternDto> CreateAsync(InternDto dto)
