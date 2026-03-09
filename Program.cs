@@ -4,6 +4,7 @@ using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version
@@ -35,7 +36,7 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IInternService, InternService>();
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
-
+            builder.Services.AddMediatR(typeof(Program));
             // ─── Mediators (Action Coordinators) ──────────────────────────
             // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
             builder.Services.AddScoped<EnrollInternMediator>();
