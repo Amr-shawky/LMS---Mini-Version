@@ -1,39 +1,61 @@
 # 🎯 CQRS Practice Assignment — MediatR Query/Handler Migration
 
-> **Welcome, Intern!** Your mission is to migrate 7 Read operations from empty handler shells to fully working MediatR Query Handlers. Each handler currently throws `NotImplementedException`. Your job is to write the database query logic inside each handler, then verify it works via Swagger.
+> **Welcome, Intern!** Your mission is to migrate 7 Read operations to MediatR Query/Handler pairs.
+> Each endpoint currently throws `NotImplementedException`. Your job is to:
+> 1. Create the **Query record** class
+> 2. Create the **Handler** class (with the DB query logic)
+> 3. Wire the **Controller** endpoint using `_mediator.Send(...)`
+> 4. Test via **Swagger** to verify it returns 200 OK
 
 ---
 
 ## 🏗️ Architecture Overview
 
 ```
-Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Database
-     ↑                                       ↑
-  Already wired                        YOUR WORK HERE
+Controller  →  Query + IMediator.Send(Query)  →  Handler  →  Repository  →  Database
+     ↑                ↑                       ↑
+  STEP 3           STEP 1                  STEP 2
 ```
 
-**The Controller endpoints and Query records are already set up.** You only need to implement the `Handle()` method inside each Handler class.
+**You need to build all 3 pieces for each task.**
+
+---
+
+## 📚 Key Files to Reference
+
+| File | Purpose |
+|---|---|
+| `Domain/Entities/` | Entity classes (`Track`, `Intern`, `Enrollment`, `Payment`) |
+| `Domain/Repositories/IGeneralRepository.cs` | Repository interface — `GetTable()`, `GetByIdAsync()` |
+| `DTOs/` | DTO classes — `TrackDto`, `InternDto`, `EnrollmentDto`, `PaymentDto` |
+| `Mapping/MappingExtensions.cs` | Mapping methods — `.ToDto()` |
+| `Domain/Enums/PaymentStatus.cs` | Payment status enum (`Pending`, `Completed`, `Failed`, `Refunded`) |
+| `Features/Tracks/Queries/GetAllTracksQuery.cs` | Example of a working Query record |
+| `Features/Tracks/Handlers/GetAllTracksQueryHandler.cs` | Example of a working Handler |
 
 ---
 
 ## 📋 Assignment Tasks
 
+---
+
 ### Task 1: `GetTrackByIdQuery` → Get a Single Track by ID
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Tracks/Handlers/GetTrackByIdQueryHandler.cs` |
-| **🎯 Business Goal** | Admin needs to view the full details of a specific training track (name, fees, capacity, enrollment count). |
-| **📥 Input** | `int Id` (from the query record) |
-| **📤 Expected Output** | `TrackDetailViewModel?` (or `null` if not found) |
+| **📁 Query File** | `Features/Tracks/Queries/GetTrackByIdQuery.cs` (**already exists** — used by Orchestrators) |
+| **📁 Handler File** | Create: `Features/Tracks/Handlers/GetTrackByIdQueryHandler.cs` |
+| **📁 Controller** | Wire: `TrackController.GetById(int id)` |
+| **🎯 Business Goal** | Admin needs to view the full details of a specific training track. |
+| **📥 Query Input** | `int Id` |
+| **📤 Handler Returns** | `TrackDto` |
 | **🔗 Swagger Endpoint** | `GET /api/Track/{id}` |
 
-**Steps:**
-1. Open `GetTrackByIdQueryHandler.cs`
-2. Inside the `Handle()` method, use `_trackRepository.GetByIdAsync(request.Id)` to fetch the track
-3. Map the entity: `track?.ToDto().ToDetailViewModel()`
-4. Return the result (return `null` if not found)
-5. Run the app → Test via Swagger `GET /api/Track/1`
+**What to do:**
+1. The Query record **already exists** — open it to see the input/response types
+2. Create the Handler: implement `IRequestHandler<GetTrackByIdQuery, TrackDto>`
+3. Inside `Handle()`: use `_trackRepository.GetByIdAsync(request.Id)`, map with `.ToDto()`, return the result
+4. In the Controller: use `await _mediator.Send(new GetTrackByIdQuery(id))` and return with `Ok(...)` or `NotFound()`
 
 ---
 
@@ -41,19 +63,19 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Interns/Handlers/GetAllInternsQueryHandler.cs` |
+| **📁 Query File** | Create: `Features/Interns/Queries/GetAllInternsQuery.cs` |
+| **📁 Handler File** | Create: `Features/Interns/Handlers/GetAllInternsQueryHandler.cs` |
+| **📁 Controller** | Wire: `InternController.GetAll()` |
 | **🎯 Business Goal** | Admin needs to see a summary list of all registered interns with their assigned track names. |
-| **📥 Input** | None (parameterless query) |
-| **📤 Expected Output** | `IEnumerable<InternSummaryViewModel>` |
+| **📥 Query Input** | None (parameterless) |
+| **📤 Handler Returns** | `IEnumerable<InternDto>` |
 | **🔗 Swagger Endpoint** | `GET /api/Intern` |
 
-**Steps:**
-1. Open `GetAllInternsQueryHandler.cs`
-2. Use `_internRepository.GetTable()` to get `IQueryable<Intern>`
-3. Chain `.Include(i => i.Track)` to eager-load the Track navigation
-4. Chain `.ToListAsync(cancellationToken)` to execute the query
-5. Map: `interns.Select(i => i.ToDto().ToSummaryViewModel())`
-6. Run the app → Test via Swagger `GET /api/Intern`
+**What to do:**
+1. Create the Query: `public record GetAllInternsQuery : IRequest<IEnumerable<InternDto>>;`
+2. Create the Handler: implement `IRequestHandler<GetAllInternsQuery, IEnumerable<InternDto>>`
+3. Inside `Handle()`: use `_internRepository.GetTable()`, `.Include(i => i.Track)`, `.ToListAsync(cancellationToken)`, map with `.Select(i => i.ToDto())`
+4. In the Controller: use `await _mediator.Send(new GetAllInternsQuery())` and return with `Ok(...)`
 
 ---
 
@@ -61,18 +83,19 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Interns/Handlers/GetInternByIdQueryHandler.cs` |
+| **📁 Query File** | Create: `Features/Interns/Queries/GetInternByIdQuery.cs` |
+| **📁 Handler File** | Create: `Features/Interns/Handlers/GetInternByIdQueryHandler.cs` |
+| **📁 Controller** | Wire: `InternController.GetById(int id)` |
 | **🎯 Business Goal** | Admin needs to view full details of a specific intern (name, email, birth year, track info). |
-| **📥 Input** | `int Id` |
-| **📤 Expected Output** | `InternDetailViewModel?` (or `null` if not found) |
+| **📥 Query Input** | `int Id` |
+| **📤 Handler Returns** | `InternDto?` (nullable — null if not found) |
 | **🔗 Swagger Endpoint** | `GET /api/Intern/{id}` |
 
-**Steps:**
-1. Open `GetInternByIdQueryHandler.cs`
-2. Use `_internRepository.GetTable().Include(i => i.Track)`
-3. Chain `.FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken)`
-4. Map: `intern?.ToDto().ToDetailViewModel()`
-5. Run the app → Test via Swagger `GET /api/Intern/1`
+**What to do:**
+1. Create the Query: `public record GetInternByIdQuery(int Id) : IRequest<InternDto?>;`
+2. Create the Handler: implement `IRequestHandler<GetInternByIdQuery, InternDto?>`
+3. Inside `Handle()`: use `_internRepository.GetTable()`, `.Include(i => i.Track)`, `.FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken)`, map with `.ToDto()`
+4. In the Controller: use `await _mediator.Send(new GetInternByIdQuery(id))` and return with `Ok(...)` or `NotFound()`
 
 ---
 
@@ -80,19 +103,19 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Tracks/Handlers/GetActiveTracksQueryHandler.cs` |
-| **🎯 Business Goal** | When enrolling an intern, the system should only show tracks that are currently active (accepting new enrollments). |
-| **📥 Input** | None (parameterless query) |
-| **📤 Expected Output** | `IEnumerable<TrackSummaryViewModel>` |
+| **📁 Query File** | Create: `Features/Tracks/Queries/GetActiveTracksQuery.cs` |
+| **📁 Handler File** | Create: `Features/Tracks/Handlers/GetActiveTracksQueryHandler.cs` |
+| **📁 Controller** | Wire: `TrackController.GetActiveTracks()` |
+| **🎯 Business Goal** | When enrolling an intern, the system should only show tracks that are currently active. |
+| **📥 Query Input** | None (parameterless) |
+| **📤 Handler Returns** | `IEnumerable<TrackDto>` |
 | **🔗 Swagger Endpoint** | `GET /api/Track/active` |
 
-**Steps:**
-1. Open `GetActiveTracksQueryHandler.cs`
-2. Use `_trackRepository.GetTable()`
-3. Chain `.Where(t => t.IsActive)` to filter only active tracks
-4. Chain `.Include(t => t.Enrollments)` then `.ToListAsync(cancellationToken)`
-5. Map: `tracks.Select(t => t.ToDto().ToSummaryViewModel())`
-6. Run the app → Test via Swagger `GET /api/Track/active`
+**What to do:**
+1. Create the Query: `public record GetActiveTracksQuery : IRequest<IEnumerable<TrackDto>>;`
+2. Create the Handler: implement `IRequestHandler<GetActiveTracksQuery, IEnumerable<TrackDto>>`
+3. Inside `Handle()`: use `_trackRepository.GetTable()`, `.Where(t => t.IsActive)`, `.Include(t => t.Enrollments)`, `.ToListAsync(cancellationToken)`, map with `.Select(t => t.ToDto())`
+4. In the Controller: use `await _mediator.Send(new GetActiveTracksQuery())` and return with `Ok(...)`
 
 ---
 
@@ -100,20 +123,19 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Enrollments/Handlers/GetEnrollmentsByInternQueryHandler.cs` |
-| **🎯 Business Goal** | Admin needs to view the enrollment history of a particular intern (what tracks they enrolled in, enrollment dates, statuses). |
-| **📥 Input** | `int InternId` |
-| **📤 Expected Output** | `IEnumerable<EnrollmentViewModel>` |
+| **📁 Query File** | Create: `Features/Enrollments/Queries/GetEnrollmentsByInternQuery.cs` |
+| **📁 Handler File** | Create: `Features/Enrollments/Handlers/GetEnrollmentsByInternQueryHandler.cs` |
+| **📁 Controller** | Wire: `EnrollmentController.GetByIntern(int internId)` |
+| **🎯 Business Goal** | Admin needs to view the enrollment history of a particular intern. |
+| **📥 Query Input** | `int InternId` |
+| **📤 Handler Returns** | `IEnumerable<EnrollmentDto>` |
 | **🔗 Swagger Endpoint** | `GET /api/Enrollment/intern/{internId}` |
 
-**Steps:**
-1. Open `GetEnrollmentsByInternQueryHandler.cs`
-2. Use `_enrollmentRepository.GetTable()`
-3. Chain `.Include(e => e.Track).Include(e => e.Intern)` for navigation properties
-4. Chain `.Where(e => e.InternId == request.InternId)`
-5. Chain `.ToListAsync(cancellationToken)`
-6. Map: `enrollments.Select(e => e.ToDto().ToViewModel())`
-7. Run the app → Test via Swagger `GET /api/Enrollment/intern/1`
+**What to do:**
+1. Create the Query: `public record GetEnrollmentsByInternQuery(int InternId) : IRequest<IEnumerable<EnrollmentDto>>;`
+2. Create the Handler: implement `IRequestHandler<GetEnrollmentsByInternQuery, IEnumerable<EnrollmentDto>>`
+3. Inside `Handle()`: use `_enrollmentRepository.GetTable()`, `.Include(e => e.Track).Include(e => e.Intern)`, `.Where(e => e.InternId == request.InternId)`, `.ToListAsync(cancellationToken)`, map with `.Select(e => e.ToDto())`
+4. In the Controller: use `await _mediator.Send(new GetEnrollmentsByInternQuery(internId))` and return with `Ok(...)`
 
 ---
 
@@ -121,18 +143,19 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Payments/Handlers/GetPaymentByIdQueryHandler.cs` |
-| **🎯 Business Goal** | Finance team needs to look up a specific payment record by its ID to verify transaction details. |
-| **📥 Input** | `int Id` |
-| **📤 Expected Output** | `PaymentViewModel?` (or `null` if not found) |
+| **📁 Query File** | Create: `Features/Payments/Queries/GetPaymentByIdQuery.cs` |
+| **📁 Handler File** | Create: `Features/Payments/Handlers/GetPaymentByIdQueryHandler.cs` |
+| **📁 Controller** | Wire: `PaymentController.GetById(int id)` |
+| **🎯 Business Goal** | Finance team needs to look up a specific payment record to verify transaction details. |
+| **📥 Query Input** | `int Id` |
+| **📤 Handler Returns** | `PaymentDto?` (nullable — null if not found) |
 | **🔗 Swagger Endpoint** | `GET /api/Payment/{id}` |
 
-**Steps:**
-1. Open `GetPaymentByIdQueryHandler.cs`
-2. Use `_paymentRepository.GetByIdAsync(request.Id)` to find the payment
-3. Map: `payment?.ToDto().ToViewModel()`
-4. Return the result (return `null` if not found)
-5. Run the app → Test via Swagger `GET /api/Payment/1`
+**What to do:**
+1. Create the Query: `public record GetPaymentByIdQuery(int Id) : IRequest<PaymentDto?>;`
+2. Create the Handler: implement `IRequestHandler<GetPaymentByIdQuery, PaymentDto?>`
+3. Inside `Handle()`: use `_paymentRepository.GetByIdAsync(request.Id)`, map with `.ToDto()`
+4. In the Controller: use `await _mediator.Send(new GetPaymentByIdQuery(id))` and return with `Ok(...)` or `NotFound()`
 
 ---
 
@@ -140,19 +163,20 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 | | |
 |---|---|
-| **📁 Handler File** | `Features/Payments/Handlers/GetPendingPaymentsQueryHandler.cs` |
-| **🎯 Business Goal** | Finance team needs a dashboard view of all payments that haven't been completed yet, so they can follow up. |
-| **📥 Input** | None (parameterless query) |
-| **📤 Expected Output** | `IEnumerable<PaymentViewModel>` |
+| **📁 Query File** | Create: `Features/Payments/Queries/GetPendingPaymentsQuery.cs` |
+| **📁 Handler File** | Create: `Features/Payments/Handlers/GetPendingPaymentsQueryHandler.cs` |
+| **📁 Controller** | Wire: `PaymentController.GetPending()` |
+| **🎯 Business Goal** | Finance team needs a dashboard view of all payments that haven't been completed yet. |
+| **📥 Query Input** | None (parameterless) |
+| **📤 Handler Returns** | `IEnumerable<PaymentDto>` |
 | **🔗 Swagger Endpoint** | `GET /api/Payment/pending` |
 
-**Steps:**
-1. Open `GetPendingPaymentsQueryHandler.cs`
-2. Use `_paymentRepository.GetTable()`
-3. Chain `.Where(p => p.Status == PaymentStatus.Pending)` — you'll need `using LMS___Mini_Version.Domain.Enums;`
-4. Chain `.Include(p => p.Enrollment)` then `.ToListAsync(cancellationToken)`
-5. Map: `payments.Select(p => p.ToDto().ToViewModel())`
-6. Run the app → Test via Swagger `GET /api/Payment/pending`
+**What to do:**
+1. Create the Query: `public record GetPendingPaymentsQuery : IRequest<IEnumerable<PaymentDto>>;`
+2. Create the Handler: implement `IRequestHandler<GetPendingPaymentsQuery, IEnumerable<PaymentDto>>`
+3. Inside `Handle()`: use `_paymentRepository.GetTable()`, `.Where(p => p.Status == PaymentStatus.Pending)`, `.Include(p => p.Enrollment)`, `.ToListAsync(cancellationToken)`, map with `.Select(p => p.ToDto())`
+   - You'll need: `using LMS___Mini_Version.Domain.Enums;`
+4. In the Controller: use `await _mediator.Send(new GetPendingPaymentsQuery())` and return with `Ok(...)`
 
 ---
 
@@ -160,26 +184,16 @@ Controller  →  IMediator.Send(Query)  →  Handler  →  Repository  →  Data
 
 1. **Run the application**: `dotnet run` from the project root
 2. **Open Swagger**: Navigate to `https://localhost:{port}/swagger`
-3. **Test each endpoint**: 
+3. **Test each endpoint**:
    - ❌ **Before your fix**: The endpoint returns **500 Internal Server Error** (NotImplementedException)
    - ✅ **After your fix**: The endpoint returns **200 OK** with the correct JSON data
 
-## 📚 Key Files to Reference
-
-| File | Purpose |
-|---|---|
-| `Domain/Entities/` | Entity classes (Track, Intern, Enrollment, Payment) |
-| `Domain/Repositories/IGeneralRepository.cs` | Repository interface (`GetTable()`, `GetByIdAsync()`) |
-| `Mapping/MappingExtensions.cs` | All mapping methods (`.ToDto()`, `.ToViewModel()`, etc.) |
-| `ViewModels/` | Output shapes returned to the client |
-| `Domain/Enums/PaymentStatus.cs` | Payment status enum (Pending, Completed, Failed, Refunded) |
-
 ## 🚫 Rules
 
-- **DO NOT** modify the Query records — they are already correct
-- **DO NOT** modify the Controllers — they are already wired to MediatR
-- **ONLY** implement the `Handle()` method inside the Handler files
-- Use `async/await` and `ConfigureAwait(false)` for all DB calls
+- **DO NOT** use `ConfigureAwait(false)` — it's the default in modern .NET
+- Handlers return **DTOs** (e.g., `TrackDto`, `InternDto`) — NOT ViewModels
+- Use `async/await` for all DB calls
 - Pass `cancellationToken` to all async EF Core methods
+- Look at existing working examples (e.g., `GetAllTracksQueryHandler`) for reference
 
 Good luck! 🚀

@@ -7,15 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [CQRS Fix] This controller injects ONLY IMediator.
-    /// 
-    /// Before (The Trap):  4 dependencies — IEnrollmentService + 3 manual Mediators
-    /// After  (The Fix):   1 dependency  — IMediator
-    ///
-    /// Read operations dispatch Queries.
-    /// Write operations dispatch Orchestrator Requests (which coordinate atomic steps internally).
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
@@ -35,8 +26,7 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
         {
             var result = await _mediator
-                .Send(new GetAllEnrollmentsQuery())
-                .ConfigureAwait(false);
+                .Send(new GetAllEnrollmentsQuery());
 
             return Ok(result);
         }
@@ -45,44 +35,36 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
         {
             var result = await _mediator
-                .Send(new GetEnrollmentByIdQuery(id))
-                .ConfigureAwait(false);
+                .Send(new GetEnrollmentByIdQuery(id));
 
             if (result == null) return NotFound();
             return Ok(result);
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
+        public async Task<ActionResult> GetByIntern(int internId)
         {
             // ══════════════════════════════════════════════════════════════
             // 🎯 CQRS ASSIGNMENT — Task 5: GetEnrollmentsByInternQuery
             // ══════════════════════════════════════════════════════════════
-            // The handler logic has been removed. You need to:
-            // 1) Implement the business logic inside GetEnrollmentsByInternQueryHandler
-            // 2) The controller is already wired — just fix the handler!
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Enrollments/Queries/
+            // 2) Create the Handler class in Features/Enrollments/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
             // ══════════════════════════════════════════════════════════════
-            var result = await _mediator
-                .Send(new GetEnrollmentsByInternQuery(internId))
-                .ConfigureAwait(false);
-
-            return Ok(result);
+            throw new NotImplementedException("Task 5: Wire this endpoint using IMediator");
         }
 
         // ═══════════════════════════════════════════════════════
         //  ACTION ENDPOINTS (dispatched as Orchestrator Requests)
         // ═══════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Enrolls an intern in a track.
-        /// The EnrollInternOrchestratorHandler coordinates all steps internally.
-        /// </summary>
         [HttpPost]
         public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
         {
             var result = await _mediator
-                .Send(new EnrollInternOrchestratorRequest(vm.InternId, vm.TrackId))
-                .ConfigureAwait(false);
+                .Send(new EnrollInternOrchestratorRequest(vm.InternId, vm.TrackId));
 
             if (!result.IsSuccess)
             {
@@ -92,16 +74,11 @@ namespace LMS___Mini_Version.Controllers
             return Ok(result.Enrollment!.ToViewModel());
         }
 
-        /// <summary>
-        /// Cancels an enrollment and refunds the payment.
-        /// The CancelEnrollmentOrchestratorHandler coordinates all steps internally.
-        /// </summary>
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
         {
             var result = await _mediator
-                .Send(new CancelEnrollmentOrchestratorRequest(id))
-                .ConfigureAwait(false);
+                .Send(new CancelEnrollmentOrchestratorRequest(id));
 
             if (!result.IsSuccess)
             {
@@ -111,16 +88,11 @@ namespace LMS___Mini_Version.Controllers
             return Ok(new { message = result.Message });
         }
 
-        /// <summary>
-        /// Transfers an enrollment to a different track.
-        /// The TransferEnrollmentOrchestratorHandler coordinates all steps internally.
-        /// </summary>
         [HttpPost("{id}/transfer/{newTrackId}")]
         public async Task<ActionResult> Transfer(int id, int newTrackId)
         {
             var result = await _mediator
-                .Send(new TransferEnrollmentOrchestratorRequest(id, newTrackId))
-                .ConfigureAwait(false);
+                .Send(new TransferEnrollmentOrchestratorRequest(id, newTrackId));
 
             if (!result.IsSuccess)
             {

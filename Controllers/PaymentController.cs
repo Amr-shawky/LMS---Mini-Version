@@ -5,11 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [CQRS Fix] Read-only controller for Payment data.
-    /// Injects ONLY IMediator — no more IPaymentService.
-    /// Payments are created through the EnrollInternOrchestrator — not directly.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
@@ -32,46 +27,40 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<PaymentViewModel>> GetByEnrollment(int enrollmentId)
         {
             var result = await _mediator
-                .Send(new GetPaymentByEnrollmentQuery(enrollmentId))
-                .ConfigureAwait(false);
+                .Send(new GetPaymentByEnrollmentQuery(enrollmentId));
 
             if (result == null) return NotFound();
             return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<PaymentViewModel>> GetById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
             // ══════════════════════════════════════════════════════════════
             // 🎯 CQRS ASSIGNMENT — Task 6: GetPaymentByIdQuery
             // ══════════════════════════════════════════════════════════════
-            // TODO: The handler logic has not been implemented yet.
-            // Inject IMediator in the constructor and return the result using:
-            // await _mediator.Send(new GetPaymentByIdQuery(id));
-            //
-            // But first, implement the handler logic inside
-            // GetPaymentByIdQueryHandler to find a payment by its Id.
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Payments/Queries/
+            // 2) Create the Handler class in Features/Payments/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
             // ══════════════════════════════════════════════════════════════
-            var result = await _mediator.Send(new GetPaymentByIdQuery(id)).ConfigureAwait(false);
-            if (result == null) return NotFound();
-            return Ok(result);
+            throw new NotImplementedException("Task 6: Wire this endpoint using IMediator");
         }
 
         [HttpGet("pending")]
-        public async Task<ActionResult<IEnumerable<PaymentViewModel>>> GetPending()
+        public async Task<ActionResult> GetPending()
         {
             // ══════════════════════════════════════════════════════════════
             // 🎯 CQRS ASSIGNMENT — Task 7: GetPendingPaymentsQuery
             // ══════════════════════════════════════════════════════════════
-            // TODO: The handler logic has not been implemented yet.
-            // Inject IMediator in the constructor and return the result using:
-            // await _mediator.Send(new GetPendingPaymentsQuery());
-            //
-            // But first, implement the handler logic inside
-            // GetPendingPaymentsQueryHandler to filter payments by Pending status.
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Payments/Queries/
+            // 2) Create the Handler class in Features/Payments/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
             // ══════════════════════════════════════════════════════════════
-            var result = await _mediator.Send(new GetPendingPaymentsQuery()).ConfigureAwait(false);
-            return Ok(result);
+            throw new NotImplementedException("Task 7: Wire this endpoint using IMediator");
         }
     }
 }

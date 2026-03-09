@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [CQRS Fix] This controller injects ONLY IMediator.
-    /// All operations are dispatched as Commands (writes) or Queries (reads).
-    /// No Services, no Repositories, no UnitOfWork — just a single mediator.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
@@ -25,54 +20,47 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
-            var result = await _mediator.Send(new GetAllTracksQuery()).ConfigureAwait(false);
+            var result = await _mediator.Send(new GetAllTracksQuery());
             return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
             // ══════════════════════════════════════════════════════════════
             // 🎯 CQRS ASSIGNMENT — Task 1: GetTrackByIdQuery
             // ══════════════════════════════════════════════════════════════
-            // The handler logic has been removed. You need to:
-            // 1) Implement the business logic inside GetTrackByIdQueryHandler
-            // 2) The controller is already wired — just fix the handler!
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Tracks/Queries/
+            //    (NOTE: GetTrackByIdQuery.cs already exists — create the Handler)
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
             // ══════════════════════════════════════════════════════════════
-            var trackdto = await _mediator.Send(new GetTrackByIdQuery(id));
-            return trackdto == null ? NotFound() : Ok(trackdto);
+            throw new NotImplementedException("Task 1: Wire this endpoint using IMediator");
         }
-        #region answer
-        //var result = await _mediator.Send(new GetTrackByIdQuery(id)).ConfigureAwait(false);
-        //if (result == null) return NotFound();
-        //return Ok(result);
-        #endregion
+
         [HttpGet("active")]
-        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetActiveTracks()
+        public async Task<ActionResult> GetActiveTracks()
         {
             // ══════════════════════════════════════════════════════════════
             // 🎯 CQRS ASSIGNMENT — Task 4: GetActiveTracksQuery
             // ══════════════════════════════════════════════════════════════
-            // TODO: The handler logic has not been implemented yet.
-            // Inject IMediator in the constructor and return the result using:
-            // await _mediator.Send(new GetActiveTracksQuery());
-            //
-            // But first, implement the handler logic inside
-            // GetActiveTracksQueryHandler to query only active tracks.
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Tracks/Queries/
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
             // ══════════════════════════════════════════════════════════════
-            var activeTracks = await _mediator.Send(new GetActiveTracksQuery());
-            return Ok(activeTracks);
+            throw new NotImplementedException("Task 4: Wire this endpoint using IMediator");
         }
-        #region
-        //var result = await _mediator.Send(new GetActiveTracksQuery()).ConfigureAwait(false);
-        //return Ok(result);
-        #endregion
+
         [HttpPost]
         public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
         {
             var result = await _mediator.Send(new CreateTrackCommand(
                 vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
-            )).ConfigureAwait(false);
+            ));
 
             return Ok(result);
         }
@@ -82,7 +70,7 @@ namespace LMS___Mini_Version.Controllers
         {
             var updated = await _mediator.Send(new UpdateTrackCommand(
                 id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
-            )).ConfigureAwait(false);
+            ));
 
             if (!updated) return NotFound();
             return NoContent();
@@ -91,7 +79,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _mediator.Send(new DeleteTrackCommand(id)).ConfigureAwait(false);
+            var deleted = await _mediator.Send(new DeleteTrackCommand(id));
             if (!deleted) return NotFound();
             return NoContent();
         }
