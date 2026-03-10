@@ -82,31 +82,31 @@ Client Request
      │
      ▼
 ┌─────────────┐   ViewModels    ┌─────────────────┐
-│  Controller  │ ──────────────► │    Mediator      │ (multi-step actions)
-│             │                 │ (Coordinator)    │
-└──────┬──────┘                 └────────┬─────────┘
+│  Controller │ ──────────────► │    Mediator     │ (multi-step actions)
+│             │                 │ (Coordinator)   │
+└──────┬──────┘                 └────────┬────────┘
        │                                 │
        │  (simple CRUD)                  │  orchestrates
        │                                 │
        ▼                                 ▼
 ┌─────────────┐   DTOs          ┌─────────────────┐
-│   Service    │ ◄──────────────│    Service(s)    │
-│  (Steps)    │                 │    (Steps)       │
-└──────┬──────┘                 └────────┬─────────┘
+│   Service   │ ◄────────────── │    Service(s)   │
+│  (Steps)    │                 │    (Steps)      │
+└──────┬──────┘                 └────────┬────────┘
        │                                 │
        │  IQueryable                     │
        ▼                                 ▼
 ┌─────────────────────────────────────────────────┐
-│              IUnitOfWork                         │
+│              IUnitOfWork                        │
 │  ┌──────────────┐  ┌──────────────────────────┐ │
-│  │ Repository<T> │  │ CompleteAsync()           │ │
-│  │ (Change Track)│  │ (single SaveChangesAsync)│ │
+│  │Repository<T> │  │ CompleteAsync()          │ │
+│  │(Change Track)│  │ (single SaveChangesAsync)│ │
 │  └──────────────┘  └──────────────────────────┘ │
 └──────────────────────┬──────────────────────────┘
                        │
                        ▼
                  ┌───────────┐
-                 │ Database   │
+                 │ Database  │
                  └───────────┘
 ```
 
