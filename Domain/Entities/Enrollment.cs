@@ -9,7 +9,7 @@ namespace LMS___Mini_Version.Domain.Entities
     public class Enrollment
     {
         public int Id { get; set; }
-
+        
         public int InternId { get; set; }
         public Intern Intern { get; set; } = null!;
 
@@ -21,5 +21,7 @@ namespace LMS___Mini_Version.Domain.Entities
 
         // Navigation: one enrollment can have one payment
         public Payment? Payment { get; set; }
-    }
+        
+        public List<Intern>? Interns = new List<Intern>();
+        }
 }

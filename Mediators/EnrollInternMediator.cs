@@ -75,25 +75,58 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 4: Create enrollment (staged in Change Tracker, NOT saved yet)
-            var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto).ConfigureAwait(false);
-
+            await using var transaction = await _unitOfWork.BeginTransactionAsync()
+                .ConfigureAwait(false);
+            
             // Step 5: If the track has fees, create a payment record (also staged, NOT saved)
-            PaymentDto? payment = null;
-            if (track.Fees > 0)
-            {
-                payment = await _paymentService.CreatePaymentAsync(new PaymentDto
+            try
+            {   
+                var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto).ConfigureAwait(false);
+                
+                // enrollment.Id is now a real DB-generated ID
+                await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+                
+                // Step 6: Now we can use the real Id - no DTO pollution, no entity passing 
+                PaymentDto? payment = null;
+                if (track.Fees > 0)
                 {
-                    EnrollmentId = 0, // Will be resolved by EF after SaveChanges
-                    Amount = track.Fees,
-                    Method = PaymentMethod.Cash,
-                    Status = PaymentStatus.Pending
-                }).ConfigureAwait(false);
+                    payment = await _paymentService.CreatePaymentAsync(new PaymentDto
+                    {
+                        EnrollmentId = enrollment.Id,
+                        Amount = track.Fees,
+                        Method = PaymentMethod.Cash,
+                        Status = PaymentStatus.Pending
+                    }).ConfigureAwait(false);
+                    await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+                }
+                // 7 Step: All good finish both
+                await transaction.CommitAsync().ConfigureAwait(false);
+                return EnrollmentResultDto.Succeed(enrollment, payment);
             }
+            catch 
+            {
+                await transaction.RollbackAsync().ConfigureAwait(false);
+                throw;
+            }
+            
+            
+            
+            // PaymentDto? payment = null;
+            // if (track.Fees > 0)
+            // {
+            //     payment = await _paymentService.CreatePaymentAsync(new PaymentDto
+            //     {
+            //         EnrollmentId = 0, // Will be resolved by EF after SaveChanges
+            //         Amount = track.Fees,
+            //         Method = PaymentMethod.Cash,
+            //         Status = PaymentStatus.Pending
+            //     }).ConfigureAwait(false);
+            // }
 
             // Step 6: ATOMIC COMMIT — everything saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-
-            return EnrollmentResultDto.Succeed(enrollment, payment);
+            // await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            //
+            // return EnrollmentResultDto.Succeed(enrollment, payment);
         }
     }
 

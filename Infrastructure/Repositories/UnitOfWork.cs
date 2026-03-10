@@ -1,6 +1,8 @@
+using System.Transactions;
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
@@ -24,7 +26,6 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         private IGeneralRepository<Intern>? _interns;
         private IGeneralRepository<Enrollment>? _enrollments;
         private IGeneralRepository<Payment>? _payments;
-
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -48,7 +49,10 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// </summary>
         public async Task<int> CompleteAsync()
             => await _context.SaveChangesAsync().ConfigureAwait(false);
-
+        
+        public async Task<IDbContextTransaction> BeginTransactionAsync() =>
+            await _context.Database.BeginTransactionAsync();
+        
         public void Dispose()
         {
             _context.Dispose();

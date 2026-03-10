@@ -1,4 +1,5 @@
 using LMS___Mini_Version.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LMS___Mini_Version.Domain.Repositories
 {
@@ -15,6 +16,8 @@ namespace LMS___Mini_Version.Domain.Repositories
         IGeneralRepository<Enrollment> Enrollments { get; }
         IGeneralRepository<Payment> Payments { get; }
 
+        
+        Task<IDbContextTransaction> BeginTransactionAsync();
         /// <summary>
         /// Commits all staged changes to the database in one transaction.
         /// </summary>
