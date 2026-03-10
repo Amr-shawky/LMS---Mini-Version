@@ -1,10 +1,6 @@
-using MediatR;
-
-namespace LMS___Mini_Version.Features.Tracks.Commands
-{
-    /// <summary>
-    /// Standalone command — deletes a Track and saves immediately.
-    /// Returns true if the track was found and deleted.
-    /// </summary>
-    public record DeleteTrackCommand(int Id) : IRequest<bool>;
-}
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  🎯 ASSIGNMENT: Create DeleteTrackCommand here                 ║
+// ║                                                              ║
+// ║  File: Features/Tracks/Commands/DeleteTrackCommand.cs        ║
+// ║  See CQRS_Practice_Assignment.md for details                 ║
+// ╚══════════════════════════════════════════════════════════════╝

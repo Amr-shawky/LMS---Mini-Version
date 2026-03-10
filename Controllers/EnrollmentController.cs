@@ -63,43 +63,70 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost]
         public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
         {
-            var result = await _mediator
-                .Send(new EnrollInternOrchestratorRequest(vm.InternId, vm.TrackId));
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 8: EnrollInternOrchestrator
+            // ══════════════════════════════════════════════════════════════
+            // 1) The Orchestrator Request record is already created for you.
+            // 2) Create the Orchestrator Handler class
+            // 3) Use _mediator.Send(...) here to dispatch the request
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 8: Wire this endpoint using IMediator");
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.ErrorMessage });
-            }
-
-            return Ok(result.Enrollment!.ToViewModel());
+            // var result = await _mediator
+            //     .Send(new EnrollInternOrchestratorRequest(vm.InternId, vm.TrackId));
+            //
+            // if (!result.IsSuccess)
+            // {
+            //     return BadRequest(new { error = result.ErrorMessage });
+            // }
+            //
+            // return Ok(result.Enrollment!.ToViewModel());
         }
 
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
         {
-            var result = await _mediator
-                .Send(new CancelEnrollmentOrchestratorRequest(id));
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 9: CancelEnrollmentOrchestrator
+            // ══════════════════════════════════════════════════════════════
+            // 1) The Orchestrator Request record is already created for you.
+            // 2) Create the Orchestrator Handler class
+            // 3) Use _mediator.Send(...) here to dispatch the request
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 9: Wire this endpoint using IMediator");
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
+            // var result = await _mediator
+            //     .Send(new CancelEnrollmentOrchestratorRequest(id));
+            //
+            // if (!result.IsSuccess)
+            // {
+            //     return BadRequest(new { error = result.Message });
+            // }
+            //
+            // return Ok(new { message = result.Message });
         }
 
         [HttpPost("{id}/transfer/{newTrackId}")]
         public async Task<ActionResult> Transfer(int id, int newTrackId)
         {
-            var result = await _mediator
-                .Send(new TransferEnrollmentOrchestratorRequest(id, newTrackId));
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 10: TransferEnrollmentOrchestrator
+            // ══════════════════════════════════════════════════════════════
+            // 1) The Orchestrator Request record is already created for you.
+            // 2) Create the Orchestrator Handler class
+            // 3) Use _mediator.Send(...) here to dispatch the request
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 10: Wire this endpoint using IMediator");
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
+            // var result = await _mediator
+            //     .Send(new TransferEnrollmentOrchestratorRequest(id, newTrackId));
+            //
+            // if (!result.IsSuccess)
+            // {
+            //     return BadRequest(new { error = result.Message });
+            // }
+            //
+            // return Ok(new { message = result.Message });
         }
     }
 }

@@ -58,11 +58,19 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost]
         public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
         {
-            var result = await _mediator.Send(new CreateTrackCommand(
-                vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
-            ));
-
-            return Ok(result);
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 4: CreateTrackCommand
+            // ══════════════════════════════════════════════════════════════
+            // 1) Create the Command record class in Features/Tracks/Commands/
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the command
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 4: Wire this endpoint using IMediator");
+            
+            // var result = await _mediator.Send(new CreateTrackCommand(
+            //     vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
+            // ));
+            // return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -79,9 +87,18 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _mediator.Send(new DeleteTrackCommand(id));
-            if (!deleted) return NotFound();
-            return NoContent();
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 5: DeleteTrackCommand
+            // ══════════════════════════════════════════════════════════════
+            // 1) Create the Command record class in Features/Tracks/Commands/
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the command
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 5: Wire this endpoint using IMediator");
+
+            // var deleted = await _mediator.Send(new DeleteTrackCommand(id));
+            // if (!deleted) return NotFound();
+            // return NoContent();
         }
     }
 }

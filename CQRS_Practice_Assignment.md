@@ -1,199 +1,128 @@
-# 🎯 CQRS Practice Assignment — MediatR Query/Handler Migration
+# 🎯 CQRS Practice Assignment V2 — Full CQRS Spectrum
 
-> **Welcome, Intern!** Your mission is to migrate 7 Read operations to MediatR Query/Handler pairs.
-> Each endpoint currently throws `NotImplementedException`. Your job is to:
-> 1. Create the **Query record** class
-> 2. Create the **Handler** class (with the DB query logic)
-> 3. Wire the **Controller** endpoint using `_mediator.Send(...)`
-> 4. Test via **Swagger** to verify it returns 200 OK
+> **Welcome, Intern!** This is your ultimate CQRS test. You will implement the complete CQRS pattern (Queries, Commands, and Orchestrators). The controllers currently throw `NotImplementedException`, waiting for your code!
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ The 3 Layers of CQRS in this Architecture
 
-```
-Controller  →  Query + IMediator.Send(Query)  →  Handler  →  Repository  →  Database
-     ↑                ↑                       ↑
-  STEP 3           STEP 1                  STEP 2
-```
-
-**You need to build all 3 pieces for each task.**
+1. **Queries (Reads)**: Retrieve data directly using `GetTable()` or `GetByIdAsync()`. Return DTOs.
+2. **Commands (Writes - Standalone)**: Simple actions (Create/Update/Delete) that modify one entity, then immediately call `IUnitOfWork.CompleteAsync()`.
+3. **Orchestrators (Complex Workflows)**: Coordinate multiple atomic *Queries* and *Stage Commands* across boundaries, and finally call ONE `IUnitOfWork.CompleteAsync()` to make the whole operation atomic.
 
 ---
 
-## 📚 Key Files to Reference
+## 📋 Section A: Queries (Tasks 1–3)
 
-| File | Purpose |
-|---|---|
-| `Domain/Entities/` | Entity classes (`Track`, `Intern`, `Enrollment`, `Payment`) |
-| `Domain/Repositories/IGeneralRepository.cs` | Repository interface — `GetTable()`, `GetByIdAsync()` |
-| `DTOs/` | DTO classes — `TrackDto`, `InternDto`, `EnrollmentDto`, `PaymentDto` |
-| `Mapping/MappingExtensions.cs` | Mapping methods — `.ToDto()` |
-| `Domain/Enums/PaymentStatus.cs` | Payment status enum (`Pending`, `Completed`, `Failed`, `Refunded`) |
-| `Features/Tracks/Queries/GetAllTracksQuery.cs` | Example of a working Query record |
-| `Features/Tracks/Handlers/GetAllTracksQueryHandler.cs` | Example of a working Handler |
+| Task | Query | Input | Returns | Goal |
+|---|---|---|---|---|
+| **1** | `GetTrackByIdQuery` | `int Id` | `TrackDto` | Admin views details of a training track. |
+| **2** | `GetAllInternsQuery` | none | `IEnumerable<InternDto>` | List all registered interns with track names. |
+| **3** | `GetInternByIdQuery` | `int Id` | `InternDto?` | View full details of a specific intern. |
 
----
-
-## 📋 Assignment Tasks
-
----
-
-### Task 1: `GetTrackByIdQuery` → Get a Single Track by ID
-
-| | |
-|---|---|
-| **📁 Query File** | `Features/Tracks/Queries/GetTrackByIdQuery.cs` (**already exists** — used by Orchestrators) |
-| **📁 Handler File** | Create: `Features/Tracks/Handlers/GetTrackByIdQueryHandler.cs` |
-| **📁 Controller** | Wire: `TrackController.GetById(int id)` |
-| **🎯 Business Goal** | Admin needs to view the full details of a specific training track. |
-| **📥 Query Input** | `int Id` |
-| **📤 Handler Returns** | `TrackDto` |
-| **🔗 Swagger Endpoint** | `GET /api/Track/{id}` |
-
-**What to do:**
-1. The Query record **already exists** — open it to see the input/response types
-2. Create the Handler: implement `IRequestHandler<GetTrackByIdQuery, TrackDto>`
-3. Inside `Handle()`: use `_trackRepository.GetByIdAsync(request.Id)`, map with `.ToDto()`, return the result
-4. In the Controller: use `await _mediator.Send(new GetTrackByIdQuery(id))` and return with `Ok(...)` or `NotFound()`
+**How to implement a Query:**
+1. Create the **Query record** in `Features/{Feature}/Queries/` (e.g., `public record GetAllInternsQuery() : IRequest<IEnumerable<InternDto>>;`).
+   *(Note: `GetTrackByIdQuery.cs` already exists because Orchestrators use it, but you must create its Handler).*
+2. Create the **Handler class** in `Features/{Feature}/Handlers/` implementing `IRequestHandler<TQuery, TResponse>`.
+3. Inside `Handle()`: Inject your repository, query the DB (e.g., `_internRepository.GetTable().Include(...)`), map using `.ToDto()`, and return the result.
+4. **Wire the Controller**: Go to the corresponding controller endpoint and `return await _mediator.Send(new YourQuery(...));`.
 
 ---
 
-### Task 2: `GetAllInternsQuery` → List All Interns
+## 📋 Section B: Standalone Commands (Tasks 4–7)
 
-| | |
-|---|---|
-| **📁 Query File** | Create: `Features/Interns/Queries/GetAllInternsQuery.cs` |
-| **📁 Handler File** | Create: `Features/Interns/Handlers/GetAllInternsQueryHandler.cs` |
-| **📁 Controller** | Wire: `InternController.GetAll()` |
-| **🎯 Business Goal** | Admin needs to see a summary list of all registered interns with their assigned track names. |
-| **📥 Query Input** | None (parameterless) |
-| **📤 Handler Returns** | `IEnumerable<InternDto>` |
-| **🔗 Swagger Endpoint** | `GET /api/Intern` |
+| Task | Command | Input | Returns | Goal |
+|---|---|---|---|---|
+| **4** | `CreateTrackCommand` | `Name, Fees, IsActive, MaxCapacity` | `TrackSummaryViewModel` | Create a new track. |
+| **5** | `DeleteTrackCommand` | `int Id` | `bool` | Delete an existing track. |
+| **6** | `CreateInternCommand` | `FullName, Email, BirthYear, Status, TrackId` | `InternSummaryViewModel` | Register a new Intern. |
+| **7** | `DeleteInternCommand` | `int Id` | `bool` | Delete an Intern. |
 
-**What to do:**
-1. Create the Query: `public record GetAllInternsQuery : IRequest<IEnumerable<InternDto>>;`
-2. Create the Handler: implement `IRequestHandler<GetAllInternsQuery, IEnumerable<InternDto>>`
-3. Inside `Handle()`: use `_internRepository.GetTable()`, `.Include(i => i.Track)`, `.ToListAsync(cancellationToken)`, map with `.Select(i => i.ToDto())`
-4. In the Controller: use `await _mediator.Send(new GetAllInternsQuery())` and return with `Ok(...)`
-
----
-
-### Task 3: `GetInternByIdQuery` → Get a Single Intern by ID
-
-| | |
-|---|---|
-| **📁 Query File** | Create: `Features/Interns/Queries/GetInternByIdQuery.cs` |
-| **📁 Handler File** | Create: `Features/Interns/Handlers/GetInternByIdQueryHandler.cs` |
-| **📁 Controller** | Wire: `InternController.GetById(int id)` |
-| **🎯 Business Goal** | Admin needs to view full details of a specific intern (name, email, birth year, track info). |
-| **📥 Query Input** | `int Id` |
-| **📤 Handler Returns** | `InternDto?` (nullable — null if not found) |
-| **🔗 Swagger Endpoint** | `GET /api/Intern/{id}` |
-
-**What to do:**
-1. Create the Query: `public record GetInternByIdQuery(int Id) : IRequest<InternDto?>;`
-2. Create the Handler: implement `IRequestHandler<GetInternByIdQuery, InternDto?>`
-3. Inside `Handle()`: use `_internRepository.GetTable()`, `.Include(i => i.Track)`, `.FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken)`, map with `.ToDto()`
-4. In the Controller: use `await _mediator.Send(new GetInternByIdQuery(id))` and return with `Ok(...)` or `NotFound()`
+**How to implement a Standalone Command:**
+1. Create the **Command record** in `Features/{Feature}/Commands/`.
+2. Create the **Handler class** in `Features/{Feature}/Handlers/`.
+3. Inside `Handle()`:
+   * Inject `IGeneralRepository<{Entity}>` and `IUnitOfWork`.
+   * For Create: Instantiate the entity, call `_repo.Add(entity)`.
+   * For Delete: Fetch by ID. If null return false. Else `_repo.Delete(entity)`.
+   * **CRITICAL:** Call `await _unitOfWork.CompleteAsync();` to save to DB.
+   * Return the expected result (Mapped entity or true/false).
+4. **Wire the Controller**: Go to the POST/DELETE endpoint and use `_mediator.Send(new YourCommand(...));`.
 
 ---
 
-### Task 4: `GetActiveTracksQuery` → List Only Active Tracks
+## 📋 Section C: Orchestrators (Tasks 8–10)
 
-| | |
-|---|---|
-| **📁 Query File** | Create: `Features/Tracks/Queries/GetActiveTracksQuery.cs` |
-| **📁 Handler File** | Create: `Features/Tracks/Handlers/GetActiveTracksQueryHandler.cs` |
-| **📁 Controller** | Wire: `TrackController.GetActiveTracks()` |
-| **🎯 Business Goal** | When enrolling an intern, the system should only show tracks that are currently active. |
-| **📥 Query Input** | None (parameterless) |
-| **📤 Handler Returns** | `IEnumerable<TrackDto>` |
-| **🔗 Swagger Endpoint** | `GET /api/Track/active` |
+> ⚡ **What is an Orchestrator?**
+> An Orchestrator is the modern equivalent of the "Action Coordinator" Mediator. It ties together multiple atomic steps from different features into one unified workflow and executes a **single Atomic Commit** at the end. An Orchestrator Handler should **ONLY** inject `IMediator` (to run steps) and `IUnitOfWork` (to commit). **Do NOT inject repositories.**
 
-**What to do:**
-1. Create the Query: `public record GetActiveTracksQuery : IRequest<IEnumerable<TrackDto>>;`
-2. Create the Handler: implement `IRequestHandler<GetActiveTracksQuery, IEnumerable<TrackDto>>`
-3. Inside `Handle()`: use `_trackRepository.GetTable()`, `.Where(t => t.IsActive)`, `.Include(t => t.Enrollments)`, `.ToListAsync(cancellationToken)`, map with `.Select(t => t.ToDto())`
-4. In the Controller: use `await _mediator.Send(new GetActiveTracksQuery())` and return with `Ok(...)`
+*(Note: The Orchestrator Request records are already created for you in `Features/Enrollments/Orchestrators/`)*.
 
----
+### Task 8: `EnrollInternOrchestratorHandler` (The Enrollment Workflow)
+**Goal:** Registers an Intern to a Track, applies Fees, makes a Payment, and saves everything together natively.
+**File to Create:** `Features/Enrollments/Orchestrators/EnrollInternOrchestratorHandler.cs`
+**Implements:** `IRequestHandler<EnrollInternOrchestratorRequest, EnrollmentResultDto>`
 
-### Task 5: `GetEnrollmentsByInternQuery` → Get All Enrollments for a Specific Intern
+**Handler Steps (Detailed):**
+1. **Validate Intern exists**: `await _mediator.Send(new ValidateInternExistsQuery(request.InternId))`
+   * If `false`, return `EnrollmentResultDto.Fail("Intern not found.")`
+2. **Validate Track**: `await _mediator.Send(new GetTrackByIdQuery(request.TrackId))`
+   * If `null` or `!track.IsActive`, return Fail.
+3. **Check Capacity**: `await _mediator.Send(new CheckTrackCapacityQuery(request.TrackId))`
+   * If `false`, return Fail.
+4. **Stage Enrollment**: `await _mediator.Send(new StageEnrollmentCommand(request.InternId, request.TrackId))`
+   * This creates the Enrollment in EF Core Change Tracker (NOT saved yet).
+5. **Atomic Commit**: `await _unitOfWork.CompleteAsync()`
+   * This saves the Enrollment to the DB and generates its real ID.
+6. **Apply Payment (if Track has Fees > 0)**:
+   * Use `await _mediator.Send(new StagePaymentCommand(enrollment.Id, track.Fees, PaymentMethod.Cash))`
+   * Use `await _unitOfWork.CompleteAsync()` to save the payment.
+7. **Return Success**: Return the `EnrollmentResultDto.Succeed(enrollment.ToDto(), payment?.ToDto())`
+8. **Wire the Controller**: Fix `EnrollmentController.Enroll`.
 
-| | |
-|---|---|
-| **📁 Query File** | Create: `Features/Enrollments/Queries/GetEnrollmentsByInternQuery.cs` |
-| **📁 Handler File** | Create: `Features/Enrollments/Handlers/GetEnrollmentsByInternQueryHandler.cs` |
-| **📁 Controller** | Wire: `EnrollmentController.GetByIntern(int internId)` |
-| **🎯 Business Goal** | Admin needs to view the enrollment history of a particular intern. |
-| **📥 Query Input** | `int InternId` |
-| **📤 Handler Returns** | `IEnumerable<EnrollmentDto>` |
-| **🔗 Swagger Endpoint** | `GET /api/Enrollment/intern/{internId}` |
+### Task 9: `CancelEnrollmentOrchestratorHandler` (Cancellation Workflow)
+**Goal:** Cancels an Enrollment and automatically refunds the Payment simultaneously.
+**File to Create:** `Features/Enrollments/Orchestrators/CancelEnrollmentOrchestratorHandler.cs`
+**Implements:** `IRequestHandler<CancelEnrollmentOrchestratorRequest, CommandResult>`
 
-**What to do:**
-1. Create the Query: `public record GetEnrollmentsByInternQuery(int InternId) : IRequest<IEnumerable<EnrollmentDto>>;`
-2. Create the Handler: implement `IRequestHandler<GetEnrollmentsByInternQuery, IEnumerable<EnrollmentDto>>`
-3. Inside `Handle()`: use `_enrollmentRepository.GetTable()`, `.Include(e => e.Track).Include(e => e.Intern)`, `.Where(e => e.InternId == request.InternId)`, `.ToListAsync(cancellationToken)`, map with `.Select(e => e.ToDto())`
-4. In the Controller: use `await _mediator.Send(new GetEnrollmentsByInternQuery(internId))` and return with `Ok(...)`
+**Handler Steps (Detailed):**
+1. **Fetch Enrollment**: `await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentId))`
+   * If `null`, return `CommandResult.Fail("Not found.")`
+2. **Validate Status**: Ensure the enrollment is not already cancelled (check `enrollment.Status`).
+3. **Stage Status to Cancelled**: `await _mediator.Send(new StageUpdateEnrollmentStatusCommand(request.EnrollmentId, EnrollmentStatus.Cancelled))`
+4. **Stage Refund**: `await _mediator.Send(new StageRefundPaymentCommand(request.EnrollmentId))`
+5. **Atomic Commit**: `await _unitOfWork.CompleteAsync()`
+   * Both the cancellation and refund are saved together! If one fails, both fail.
+6. **Return Success**: Return `CommandResult.Succeed("Cancelled successfully.")`
+7. **Wire the Controller**: Fix `EnrollmentController.Cancel`.
 
----
+### Task 10: `TransferEnrollmentOrchestratorHandler` (Transfer Workflow)
+**Goal:** Changes the Intern's Track and recalculates/updates the Payment amount.
+**File to Create:** `Features/Enrollments/Orchestrators/TransferEnrollmentOrchestratorHandler.cs`
+**Implements:** `IRequestHandler<TransferEnrollmentOrchestratorRequest, CommandResult>`
 
-### Task 6: `GetPaymentByIdQuery` → Get a Single Payment by ID
-
-| | |
-|---|---|
-| **📁 Query File** | Create: `Features/Payments/Queries/GetPaymentByIdQuery.cs` |
-| **📁 Handler File** | Create: `Features/Payments/Handlers/GetPaymentByIdQueryHandler.cs` |
-| **📁 Controller** | Wire: `PaymentController.GetById(int id)` |
-| **🎯 Business Goal** | Finance team needs to look up a specific payment record to verify transaction details. |
-| **📥 Query Input** | `int Id` |
-| **📤 Handler Returns** | `PaymentDto?` (nullable — null if not found) |
-| **🔗 Swagger Endpoint** | `GET /api/Payment/{id}` |
-
-**What to do:**
-1. Create the Query: `public record GetPaymentByIdQuery(int Id) : IRequest<PaymentDto?>;`
-2. Create the Handler: implement `IRequestHandler<GetPaymentByIdQuery, PaymentDto?>`
-3. Inside `Handle()`: use `_paymentRepository.GetByIdAsync(request.Id)`, map with `.ToDto()`
-4. In the Controller: use `await _mediator.Send(new GetPaymentByIdQuery(id))` and return with `Ok(...)` or `NotFound()`
-
----
-
-### Task 7: `GetPendingPaymentsQuery` → List All Pending Payments
-
-| | |
-|---|---|
-| **📁 Query File** | Create: `Features/Payments/Queries/GetPendingPaymentsQuery.cs` |
-| **📁 Handler File** | Create: `Features/Payments/Handlers/GetPendingPaymentsQueryHandler.cs` |
-| **📁 Controller** | Wire: `PaymentController.GetPending()` |
-| **🎯 Business Goal** | Finance team needs a dashboard view of all payments that haven't been completed yet. |
-| **📥 Query Input** | None (parameterless) |
-| **📤 Handler Returns** | `IEnumerable<PaymentDto>` |
-| **🔗 Swagger Endpoint** | `GET /api/Payment/pending` |
-
-**What to do:**
-1. Create the Query: `public record GetPendingPaymentsQuery : IRequest<IEnumerable<PaymentDto>>;`
-2. Create the Handler: implement `IRequestHandler<GetPendingPaymentsQuery, IEnumerable<PaymentDto>>`
-3. Inside `Handle()`: use `_paymentRepository.GetTable()`, `.Where(p => p.Status == PaymentStatus.Pending)`, `.Include(p => p.Enrollment)`, `.ToListAsync(cancellationToken)`, map with `.Select(p => p.ToDto())`
-   - You'll need: `using LMS___Mini_Version.Domain.Enums;`
-4. In the Controller: use `await _mediator.Send(new GetPendingPaymentsQuery())` and return with `Ok(...)`
+**Handler Steps (Detailed):**
+1. **Fetch Enrollment**: `await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentId))`
+   * If `null`, fail. If already cancelled, fail.
+2. **Validate Target Track**: `await _mediator.Send(new GetTrackByIdQuery(request.NewTrackId))`
+   * If target track is null or inactive, fail.
+3. **Check Capacity**: `await _mediator.Send(new CheckTrackCapacityQuery(request.NewTrackId))`
+   * If `false`, fail.
+4. **Stage Track Transfer**: `await _mediator.Send(new StageUpdateEnrollmentTrackCommand(request.EnrollmentId, request.NewTrackId))`
+5. **Stage Payment Adjustment**: If the new track has Fees > 0, adjust the payment:
+   * `await _mediator.Send(new StageUpdatePaymentAmountCommand(request.EnrollmentId, newTrack.Fees))`
+6. **Atomic Commit**: `await _unitOfWork.CompleteAsync()`
+   * Transfer and payment adjustment happen together.
+7. **Return Success**: Return `CommandResult.Succeed("Transferred successfully.")`
+8. **Wire the Controller**: Fix `EnrollmentController.Transfer`.
 
 ---
 
-## ✅ How to Verify Your Work
+## 🚫 Final Reminders
 
-1. **Run the application**: `dotnet run` from the project root
-2. **Open Swagger**: Navigate to `https://localhost:{port}/swagger`
-3. **Test each endpoint**:
-   - ❌ **Before your fix**: The endpoint returns **500 Internal Server Error** (NotImplementedException)
-   - ✅ **After your fix**: The endpoint returns **200 OK** with the correct JSON data
+- **DO NOT** use `.ConfigureAwait(false)` anywhere in your code.
+- Always pass `cancellationToken` down the chain.
+- Use `dotnet build` frequently to catch syntax errors as you recreate the parts!
+- Verify your endpoints using Swagger!
 
-## 🚫 Rules
-
-- **DO NOT** use `ConfigureAwait(false)` — it's the default in modern .NET
-- Handlers return **DTOs** (e.g., `TrackDto`, `InternDto`) — NOT ViewModels
-- Use `async/await` for all DB calls
-- Pass `cancellationToken` to all async EF Core methods
-- Look at existing working examples (e.g., `GetAllTracksQueryHandler`) for reference
-
-Good luck! 🚀
+Good luck, you've got this! 🚀
