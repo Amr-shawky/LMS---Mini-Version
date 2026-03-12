@@ -21,11 +21,12 @@ public class InternRepository : GeneralRepository<Intern> , IInternRepository
         
     }
 
-    public async Task<Intern?> GetWithTrackAsync(int id)
+    
+    public async Task<Intern?> GetWithTrackAsync(int Internid)
     {
         return await _context.Interns
             .Include(i => i.Track)
-            .FirstOrDefaultAsync(i => i.Id == id)
+            .FirstOrDefaultAsync(i => i.Id == Internid)
             .ConfigureAwait(false);
     }
 
@@ -37,7 +38,7 @@ public class InternRepository : GeneralRepository<Intern> , IInternRepository
             .ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<Intern>> GetByTrackAsync(int trackId)
+    public async Task<IEnumerable<Intern>> GetAllByTrackIdAsync(int trackId)
     {
         return await _context.Interns
             .Include(e=>e.Track)

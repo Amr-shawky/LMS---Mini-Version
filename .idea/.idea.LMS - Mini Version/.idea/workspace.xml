@@ -9,24 +9,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Repositories/IPaymentRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Repositories/ITrackRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/InternRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/PaymentRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/TrackRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommand.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommandHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetAllByTrackIdQuery/GetAllByTrackIdQuery.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetAllByTrackIdQuery/GetAllByTrackIdQueryHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetAllInternQuery/GetAllInternsQuery.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetAllInternQuery/GetAllInternsQueryHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetInternByIdQuery/GetInterByIdQueryHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetInternByIdQuery/GetInternByIdQuery.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Repositories/IGeneralRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/IGeneralRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Repositories/IUnitOfWork.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/IUnitOfWork.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Infrastructure/Persistence/AppDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Persistence/AppDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/UnitOfWork.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/UnitOfWork.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mediators/EnrollInternMediator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Mediators/EnrollInternMediator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/AppDbContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Migrations/AppDbContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Entities/Intern.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Intern.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/InternRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/InternRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS - Mini Version.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LMS - Mini Version.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/Implementations/EnrollmentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/Implementations/EnrollmentService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/Interfaces/IEnrollmentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/Interfaces/IEnrollmentService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/Implementations/TrackService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/Implementations/TrackService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,12 +54,15 @@
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IPaymentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/ITrackRepository.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommand.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommandHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Interns/Queries/GetAllByTrackIdQuery/GetAllByTrackIdQuery.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Interns/Queries/GetAllByTrackIdQuery/GetAllByTrackIdQueryHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Interns/Queries/GetInternByIdQuery/GetInterByIdQueryHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Infrastructure/Repositories/InternRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Infrastructure/Repositories/PaymentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Infrastructure/Repositories/TrackRepository.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file:///usr/lib/dotnet/sdk/10.0.103/Sdks/Microsoft.NET.Sdk.Web/Sdk/Sdk.props" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file:///usr/lib/dotnet/sdk/10.0.103/Sdks/Microsoft.NET.Sdk.Web/Sdk/Sdk.targets" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="McpProjectServerCommands">
     <commands />
@@ -89,7 +89,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "Migrate/Intern/EnrollmentMOdule",
+    "git-widget-placeholder": "Ahmed-Fathy's-bracch",
     "last_opened_file_path": "/home/kakashi/Elevate/LMS--Mini-Version/LMS---Mini-Version",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -150,7 +150,7 @@
       <updated>1773015021556</updated>
       <workItem from="1773015023255" duration="21694000" />
       <workItem from="1773336064326" duration="241000" />
-      <workItem from="1773336331704" duration="536000" />
+      <workItem from="1773336331704" duration="5843000" />
     </task>
     <servers />
   </component>
@@ -159,6 +159,29 @@
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="Ahmed-Fathy's-bracch" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>

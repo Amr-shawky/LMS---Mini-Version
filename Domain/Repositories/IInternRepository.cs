@@ -6,9 +6,9 @@ public interface IInternRepository : IGeneralRepository<Intern>
 {
     Task<bool> IsEmailAddressTakenAsync(string email);
 
-    Task<Intern?> GetWithTrackAsync(int id);
+    Task<Intern?> GetWithTrackAsync(int internid);
     
     Task<IEnumerable<Intern>> GetAllWithTrackAsync();
     
-    Task<IEnumerable<Intern>> GetByTrackAsync(int trackId);
+    Task<IEnumerable<Intern>> GetAllByTrackIdAsync(int trackId);
 }
