@@ -67,7 +67,8 @@ namespace LMS___Mini_Version.Mediators
                 return EnrollmentResultDto.Fail($"Track '{track.Name}' is not currently active.");
             }
 
-            // Step 3: Check capacity
+            // Step 3: Check capacity && And if the Intern is already active
+            
             var hasCapacity = await _trackService.CheckCapacityAsync(dto.TrackId).ConfigureAwait(false);
             if (!hasCapacity)
             {

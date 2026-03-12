@@ -27,8 +27,8 @@ namespace LMS___Mini_Version
             // [Trap 1 + 6 Fix] Controllers never touch DbContext.
             // All data access goes through IUnitOfWork → IGeneralRepository<T>.
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
+            builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
             // ─── Services (Single-Entity Steps) ───────────────────────────
             // [Trap 5 Fix] Business logic lives here, not in Controllers.
             builder.Services.AddScoped<ITrackService, TrackService>();

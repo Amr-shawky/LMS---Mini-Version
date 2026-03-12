@@ -22,27 +22,27 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
     {
         private readonly AppDbContext _context;
 
-        private IGeneralRepository<Track>? _tracks;
-        private IGeneralRepository<Intern>? _interns;
-        private IGeneralRepository<Enrollment>? _enrollments;
-        private IGeneralRepository<Payment>? _payments;
+        private ITrackRepository? _tracks;
+        private IInternRepository? _interns;
+        private IEnrollmentRepository? _enrollments;
+        private IPaymentRepository _payments;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
         }
 
         // Lazy initialization — repositories are created only when first accessed
-        public IGeneralRepository<Track> Tracks
-            => _tracks ??= new GeneralRepository<Track>(_context);
+        public ITrackRepository Tracks
+            => _tracks ??= new TrackRepository(_context);
 
-        public IGeneralRepository<Intern> Interns
-            => _interns ??= new GeneralRepository<Intern>(_context);
+        public IInternRepository Interns
+            => _interns ??= new InternRepository(_context);
 
-        public IGeneralRepository<Enrollment> Enrollments
-            => _enrollments ??= new GeneralRepository<Enrollment>(_context);
+        public IEnrollmentRepository Enrollments
+            => _enrollments ??= new EnrollmentRepository(_context);
 
-        public IGeneralRepository<Payment> Payments
-            => _payments ??= new GeneralRepository<Payment>(_context);
+        public IPaymentRepository Payments
+            => _payments ??= new PaymentRepository(_context);
 
         /// <summary>
         /// Commits ALL staged changes across ALL repositories in a single DB transaction.

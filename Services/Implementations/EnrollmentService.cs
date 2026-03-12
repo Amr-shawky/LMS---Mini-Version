@@ -76,5 +76,8 @@ namespace LMS___Mini_Version.Services.Implementations
 
             return enrollments.Select(e => e.ToDto());
         }
+
+        public async Task<bool> CancelEnrollmentAsync(int enrollmentId) =>
+            await _unitOfWork.Enrollments.CancelEnrollmentAsync(enrollmentId);
     }
 }

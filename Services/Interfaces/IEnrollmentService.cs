@@ -17,5 +17,7 @@ namespace LMS___Mini_Version.Services.Interfaces
         Task<EnrollmentDto> CreateEnrollmentAsync(CreateEnrollmentDto dto);
 
         Task<IEnumerable<EnrollmentDto>> GetByInternAsync(int internId);
+        
+        Task<bool> CancelEnrollmentAsync(int enrollmentId);
     }
 }

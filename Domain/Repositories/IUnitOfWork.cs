@@ -11,11 +11,10 @@ namespace LMS___Mini_Version.Domain.Repositories
     /// </summary>
     public interface IUnitOfWork : IDisposable
     {
-        IGeneralRepository<Track> Tracks { get; }
-        IGeneralRepository<Intern> Interns { get; }
-        IGeneralRepository<Enrollment> Enrollments { get; }
-        IGeneralRepository<Payment> Payments { get; }
-
+        ITrackRepository Tracks { get; }
+        IInternRepository Interns { get; }
+        IEnrollmentRepository Enrollments { get; }
+        IPaymentRepository Payments { get; }
         
         Task<IDbContextTransaction> BeginTransactionAsync();
         /// <summary>

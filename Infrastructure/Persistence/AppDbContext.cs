@@ -18,6 +18,11 @@ namespace LMS___Mini_Version.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Enrollment>()
+                .HasIndex(e => new { e.InternId, e.TrackId })
+                .IsUnique()
+                .HasFilter("[Status] != 'Cancelled'");
+            
             // Enrollment → Intern (many-to-one)
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.Intern)
