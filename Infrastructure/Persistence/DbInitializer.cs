@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Enums;
 
 namespace LMS___Mini_Version.Persistence
 {
@@ -12,12 +13,12 @@ namespace LMS___Mini_Version.Persistence
 
             var tracks = new List<Track>
             {
-                new Track { Name = ".NET Backend Development", Fees = 8000, IsActive = true },
-                new Track { Name = "Angular Frontend Development", Fees = 7000, IsActive = true },
-                new Track { Name = "Cyber Security & Ethical Hacking", Fees = 9500, IsActive = true },
-                new Track { Name = "Mobile App Development (Flutter)", Fees = 7500, IsActive = false },
-                new Track { Name = "UI/UX Design Strategy", Fees = 6000, IsActive = true },
-                new Track { Name = "Artificial Intelligence & ML", Fees = 12000, IsActive = true }
+                new Track { Name = ".NET Backend Development", Fees = 8000, IsActive = true, MaxCapacity = 30 },
+                new Track { Name = "Angular Frontend Development", Fees = 7000, IsActive = true, MaxCapacity = 25 },
+                new Track { Name = "Cyber Security & Ethical Hacking", Fees = 9500, IsActive = true, MaxCapacity = 20 },
+                new Track { Name = "Mobile App Development (Flutter)", Fees = 7500, IsActive = false, MaxCapacity = 20 },
+                new Track { Name = "UI/UX Design Strategy", Fees = 6000, IsActive = true, MaxCapacity = 15 },
+                new Track { Name = "Artificial Intelligence & ML", Fees = 12000, IsActive = true, MaxCapacity = 15 }
             };
 
             context.Tracks.AddRange(tracks);
@@ -43,6 +44,32 @@ namespace LMS___Mini_Version.Persistence
             };
 
             context.Interns.AddRange(interns);
+            context.SaveChanges();
+
+            // Seed some enrollments
+            var enrollments = new List<Enrollment>
+            {
+                new Enrollment { InternId = 1, TrackId = 1, EnrollmentDate = new DateTime(2026, 1, 15), Status = EnrollmentStatus.Active },
+                new Enrollment { InternId = 2, TrackId = 1, EnrollmentDate = new DateTime(2026, 1, 16), Status = EnrollmentStatus.Active },
+                new Enrollment { InternId = 4, TrackId = 2, EnrollmentDate = new DateTime(2026, 1, 20), Status = EnrollmentStatus.Active },
+                new Enrollment { InternId = 5, TrackId = 2, EnrollmentDate = new DateTime(2026, 1, 21), Status = EnrollmentStatus.Pending },
+                new Enrollment { InternId = 7, TrackId = 3, EnrollmentDate = new DateTime(2026, 2, 1), Status = EnrollmentStatus.Active },
+            };
+
+            context.Enrollments.AddRange(enrollments);
+            context.SaveChanges();
+
+            // Seed payments for the enrollments above
+            var payments = new List<Payment>
+            {
+                new Payment { EnrollmentId = 1, Amount = 8000, PaymentDate = new DateTime(2026, 1, 15), Method = PaymentMethod.CreditCard, Status = PaymentStatus.Completed },
+                new Payment { EnrollmentId = 2, Amount = 8000, PaymentDate = new DateTime(2026, 1, 16), Method = PaymentMethod.Cash, Status = PaymentStatus.Completed },
+                new Payment { EnrollmentId = 3, Amount = 7000, PaymentDate = new DateTime(2026, 1, 20), Method = PaymentMethod.BankTransfer, Status = PaymentStatus.Completed },
+                new Payment { EnrollmentId = 4, Amount = 7000, PaymentDate = new DateTime(2026, 1, 21), Method = PaymentMethod.Online, Status = PaymentStatus.Pending },
+                new Payment { EnrollmentId = 5, Amount = 9500, PaymentDate = new DateTime(2026, 2, 1), Method = PaymentMethod.CreditCard, Status = PaymentStatus.Completed },
+            };
+
+            context.Payments.AddRange(payments);
             context.SaveChanges();
         }
     }
