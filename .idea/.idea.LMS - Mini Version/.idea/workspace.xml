@@ -12,8 +12,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Features/Interns/Commands/DeleteInternCommand/DeleteInternCommand.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Interns/Commands/DeleteInternCommand/DeleteInternCommandHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollments/GetAllEnrollmentsQuery.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollments/GetAllEnrollmentsQueryHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentById/GetEnrollmentByIdQuery.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentById/GetEnrollmentByIdQueryHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQuery.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQueryHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS - Mini Version.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LMS - Mini Version.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,10 +55,13 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/fe51e6319b79427ebc15027f71534cb5ca708/d4/ad1d479f/IEnumerable`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IPaymentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/ITrackRepository.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQuery.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQueryHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommand.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommandHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/DeleteInternCommand/DeleteInternCommandHandler.cs" root0="FORCE_HIGHLIGHTING" />
@@ -150,7 +161,7 @@
       <updated>1773015021556</updated>
       <workItem from="1773015023255" duration="21694000" />
       <workItem from="1773336064326" duration="241000" />
-      <workItem from="1773336331704" duration="7349000" />
+      <workItem from="1773336331704" duration="9729000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
@@ -168,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773345260437</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module">
+      <option name="closed" value="true" />
+      <created>1773345598923</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1773345598923</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -203,7 +222,8 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property." />
     <MESSAGE value="Create UpdateInternCommand and UpdateInternCommandHandler for Intern module" />
-    <option name="LAST_COMMIT_MESSAGE" value="Create UpdateInternCommand and UpdateInternCommandHandler for Intern module" />
+    <MESSAGE value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module" />
+    <option name="LAST_COMMIT_MESSAGE" value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

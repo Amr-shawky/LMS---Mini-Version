@@ -10,6 +10,7 @@ public interface IEnrollmentRepository :IGeneralRepository<Enrollment>
     Task<bool> HasActiveEnrollmentAsync(int internId);
     
     Task<int> GetActiveEnrollmentCountByTrackIdAsync(int trackId);
+    Task<Enrollment?> GetEnrollmentByInternIdAsync(int internId);
     
     Task<IEnumerable<Enrollment>> GetByIdWithDetailsAsync(int trackId, EnrollmentStatus status);
     

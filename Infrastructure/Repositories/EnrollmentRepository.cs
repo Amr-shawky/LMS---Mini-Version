@@ -35,6 +35,12 @@ public class EnrollmentRepository : GeneralRepository<Enrollment> , IEnrollmentR
             .ConfigureAwait(false);
     }
 
+    public async Task<Enrollment?> GetEnrollmentByInternIdAsync(int internId)
+    {
+        return await _context.Enrollments.FirstOrDefaultAsync(e => e.InternId == internId).ConfigureAwait(false);
+        
+    }
+
     public async Task<IEnumerable<Enrollment>> GetByIdWithDetailsAsync(int trackId, EnrollmentStatus status)
     {
         return await _context.Enrollments
