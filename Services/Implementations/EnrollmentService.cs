@@ -20,7 +20,7 @@ namespace LMS___Mini_Version.Services.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-
+        // Done CQRS read-only query — no state changes, so no SaveChanges needed.
         public async Task<IEnumerable<EnrollmentDto>> GetAllAsync()
         {
             var enrollments = await _unitOfWork.Enrollments
@@ -32,7 +32,7 @@ namespace LMS___Mini_Version.Services.Implementations
 
             return enrollments.Select(e => e.ToDto());
         }
-
+        // Done CQRS read-only query — no state changes, so no SaveChanges needed.
         public async Task<EnrollmentDto?> GetByIdAsync(int id)
         {
             var enrollment = await _unitOfWork.Enrollments
@@ -64,6 +64,7 @@ namespace LMS___Mini_Version.Services.Implementations
             return entity.ToDto();
         }
 
+        //Done CQRS read-only query — no state changes, so no SaveChanges needed.
         public async Task<IEnumerable<EnrollmentDto>> GetByInternAsync(int internId)
         {
             var enrollments = await _unitOfWork.Enrollments

@@ -1,6 +1,8 @@
+using LMS___Mini_Version.CQRS.Payments.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Payment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -13,17 +15,19 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
     {
-        private readonly IPaymentService _paymentService;
+        private readonly IMediator _mediator;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController( IMediator mediator)
         {
-            _paymentService = paymentService;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PaymentViewModel>>> GetAll()
         {
-            var dtos = await _paymentService.GetAllAsync().ConfigureAwait(false);
+            //var dtos = await _paymentService.GetAllAsync().ConfigureAwait(false);
+
+            var dtos = await _mediator.Send(new GetAllPaymentQuery()).ConfigureAwait(false);
             var viewModels = dtos.Select(d => d.ToViewModel());
             return Ok(viewModels);
         }
@@ -31,7 +35,9 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("enrollment/{enrollmentId}")]
         public async Task<ActionResult<PaymentViewModel>> GetByEnrollment(int enrollmentId)
         {
-            var dto = await _paymentService.GetByEnrollmentAsync(enrollmentId).ConfigureAwait(false);
+            //var dto = await _paymentService.GetByEnrollmentAsync(enrollmentId).ConfigureAwait(false);
+
+            var dto = await _mediator.Send(new GetPaymentByEnrollmentIdQuery(enrollmentId)).ConfigureAwait(false);
             if (dto == null) return NotFound();
             return Ok(dto.ToViewModel());
         }

@@ -4,6 +4,9 @@ using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using LMS___Mini_Version.CQRS.Tracks.Queries;
+using LMS___Mini_Version.CQRS.Tracks.Commands;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -19,19 +22,23 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        private readonly ITrackService _trackService;
+        //private readonly ITrackService _trackService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public TrackController(ITrackService trackService, IUnitOfWork unitOfWork)
+        public TrackController(/*ITrackService trackService,*/ IUnitOfWork unitOfWork, IMediator mediator)
         {
-            _trackService = trackService;
+            //_trackService = trackService;
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
-            var dtos = await _trackService.GetAllAsync().ConfigureAwait(false);
+            //var dtos = await _trackService.GetAllAsync().ConfigureAwait(false);
+
+            var dtos = await _mediator.Send(new GetAllTrackQuery()).ConfigureAwait(false);
             var viewModels = dtos.Select(d => d.ToSummaryViewModel());
             return Ok(viewModels);
         }
@@ -39,7 +46,9 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
-            var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+            //var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+
+            var dto = await _mediator.Send(new GetTrackByIdQuery(id)).ConfigureAwait(false);
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }
@@ -47,15 +56,18 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost]
         public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
         {
-            var dto = new TrackDto
-            {
-                Name = vm.Name,
-                Fees = vm.Fees,
-                IsActive = vm.IsActive,
-                MaxCapacity = vm.MaxCapacity
-            };
+            //var dto = new TrackDto
+            //{
+            //    Name = vm.Name,
+            //    Fees = vm.Fees,
+            //    IsActive = vm.IsActive,
+            //    MaxCapacity = vm.MaxCapacity
+            //};
 
-            var created = await _trackService.CreateAsync(dto).ConfigureAwait(false);
+            //var created = await _trackService.CreateAsync(dto).ConfigureAwait(false);
+            var created = await _mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity))
+                .ConfigureAwait(false);
+
             await _unitOfWork.CompleteAsync().ConfigureAwait(false);
 
             return Ok(created.ToSummaryViewModel());
@@ -64,15 +76,18 @@ namespace LMS___Mini_Version.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm)
         {
-            var dto = new TrackDto
-            {
-                Name = vm.Name,
-                Fees = vm.Fees,
-                IsActive = vm.IsActive,
-                MaxCapacity = vm.MaxCapacity
-            };
+            //var dto = new TrackDto
+            //{
+            //    Name = vm.Name,
+            //    Fees = vm.Fees,
+            //    IsActive = vm.IsActive,
+            //    MaxCapacity = vm.MaxCapacity
+            //};
 
-            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
+            //var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
+
+            var updated = await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity))
+                .ConfigureAwait(false);
             if (!updated) return NotFound();
 
             await _unitOfWork.CompleteAsync().ConfigureAwait(false);
@@ -82,7 +97,9 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
+            //var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
+
+            var deleted = await _mediator.Send(new DeleteTrackCommand(id)).ConfigureAwait(false);
             if (!deleted) return NotFound();
 
             await _unitOfWork.CompleteAsync().ConfigureAwait(false);

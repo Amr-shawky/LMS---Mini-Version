@@ -1,8 +1,10 @@
+using LMS___Mini_Version.CQRS.Enrollments.Queries;
 using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -16,21 +18,25 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
     {
-        private readonly IEnrollmentService _enrollmentService;
+        //private readonly IEnrollmentService _enrollmentService;
         private readonly EnrollInternMediator _mediator;
+        IMediator _mediatorR;
 
         public EnrollmentController(
-            IEnrollmentService enrollmentService,
-            EnrollInternMediator mediator)
+            //IEnrollmentService enrollmentService,
+            EnrollInternMediator mediator,
+             IMediator __mediatorR)
         {
-            _enrollmentService = enrollmentService;
+            //_enrollmentService = enrollmentService;
             _mediator = mediator;
+            _mediatorR = __mediatorR;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
         {
-            var dtos = await _enrollmentService.GetAllAsync().ConfigureAwait(false);
+            //var dtos = await _enrollmentService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _mediatorR.Send(new GetAllEnrollmentQuery()).ConfigureAwait(false);
             var viewModels = dtos.Select(d => d.ToViewModel());
             return Ok(viewModels);
         }
@@ -38,7 +44,10 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
         {
-            var dto = await _enrollmentService.GetByIdAsync(id).ConfigureAwait(false);
+            //var dto = await _enrollmentService.GetByIdAsync(id).ConfigureAwait(false);
+
+            /// impelement Query for it 
+            var dto = await _mediatorR.Send(new GetEnrollmentByIdQuery(id)).ConfigureAwait(false);
             if (dto == null) return NotFound();
             return Ok(dto.ToViewModel());
         }
@@ -46,7 +55,8 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("intern/{internId}")]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            //var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            var dtos = await _mediatorR.Send(new GetByInternIdQuery(internId)).ConfigureAwait(false);
             var viewModels = dtos.Select(d => d.ToViewModel());
             return Ok(viewModels);
         }

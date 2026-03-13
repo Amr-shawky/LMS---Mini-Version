@@ -20,7 +20,11 @@ namespace LMS___Mini_Version.Services.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-
+        /// <summary>
+        /// done using CQRS Query pattern
+        /// using IQueryable + Include to load Track name in the same SQL query
+        /// and mapping to DTOs in-memory.
+        /// </summary>
         public async Task<IEnumerable<InternDto>> GetAllAsync()
         {
             var interns = await _unitOfWork.Interns
@@ -32,6 +36,10 @@ namespace LMS___Mini_Version.Services.Implementations
             return interns.Select(i => i.ToDto());
         }
 
+        /// <summary>
+        /// refactor this method too in CQRS Query pattern style,
+        /// using IQueryable + Select to load Track name in the same SQL query
+        /// </summary>
         public async Task<InternDto?> GetByIdAsync(int id)
         {
             // [Trap 4 Fix] Use IQueryable + Include to load Track name in the same SQL query
@@ -43,6 +51,10 @@ namespace LMS___Mini_Version.Services.Implementations
 
             return intern?.ToDto();
         }
+
+        /// <summary>
+        /// from here this is Command for Write in DB 
+        /// </summary>
 
         public async Task<InternDto> CreateAsync(InternDto dto)
         {
