@@ -1,6 +1,34 @@
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  🎯 ASSIGNMENT: Create CreateTrackCommandHandler here          ║
-// ║                                                              ║
-// ║  File: Features/Tracks/Handlers/CreateTrackCommandHandler.cs   ║
-// ║  See CQRS_Practice_Assignment.md for details                 ║
-// ╚══════════════════════════════════════════════════════════════╝
+﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Features.Payments.Commands;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
+
+namespace LMS___Mini_Version.Features.Tracks.Handlers
+{
+    public class CreateTrackCommandHandler : IRequestHandler<CreateTrackCommand, TrackSummaryViewModel>
+    {
+        private readonly IGeneralRepository<Track> _trackRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        public CreateTrackCommandHandler(IGeneralRepository<Track> trackRepository, IUnitOfWork unitOfWork)
+        {
+            _trackRepository = trackRepository;
+            _unitOfWork = unitOfWork;
+        }
+        public async Task<TrackSummaryViewModel> Handle(CreateTrackCommand request, CancellationToken cancellationToken)
+        {
+            var entity = new Track
+            {
+                Name = request.Name,
+                Fees = request.Fees,
+                IsActive = request.IsActive,
+                MaxCapacity = request.MaxCapacity
+            };
+            _trackRepository.Add(entity);
+            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+
+            return entity.ToDto().ToSummaryViewModel();
+        }
+    }
+}

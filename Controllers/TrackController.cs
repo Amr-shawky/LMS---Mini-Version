@@ -37,7 +37,9 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 1: Wire this endpoint using IMediator");
+
+            var track = await _mediator.Send(new GetTrackByIdQuery(id));
+            return Ok(track);
         }
 
         [HttpGet("active")]
@@ -94,11 +96,9 @@ namespace LMS___Mini_Version.Controllers
             // 2) Create the Handler class in Features/Tracks/Handlers/
             // 3) Use _mediator.Send(...) here to dispatch the command
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 5: Wire this endpoint using IMediator");
-
-            // var deleted = await _mediator.Send(new DeleteTrackCommand(id));
-            // if (!deleted) return NotFound();
-            // return NoContent();
+            var deleted = await _mediator.Send(new DeleteTrackCommand(id));
+            if (!deleted) return NotFound();
+            return NoContent();
         }
     }
 }

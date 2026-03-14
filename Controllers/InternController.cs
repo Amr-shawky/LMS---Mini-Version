@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Features.Interns.Commands;
+using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.ViewModels.Intern;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
             // ══════════════════════════════════════════════════════════════
             // 🎯 CQRS ASSIGNMENT — Task 2: GetAllInternsQuery
@@ -28,7 +29,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 2: Wire this endpoint using IMediator");
+            var result = await _mediator.Send(new GetAllIntentsQuery());
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -43,7 +45,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 3: Wire this endpoint using IMediator");
+            var result = await _mediator.Send(new GetInternByIdQuery(id));
+            return Ok(result);
         }
 
         [HttpPost]
@@ -56,12 +59,9 @@ namespace LMS___Mini_Version.Controllers
             // 2) Create the Handler class in Features/Interns/Handlers/
             // 3) Use _mediator.Send(...) here to dispatch the command
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 6: Wire this endpoint using IMediator");
-
-            // var result = await _mediator.Send(new CreateInternCommand(
-            //     vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId
-            // ));
-            // return Ok(result);
+            var result = await _mediator.Send(new CreateInternCommand(
+                vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId));
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -85,11 +85,10 @@ namespace LMS___Mini_Version.Controllers
             // 2) Create the Handler class in Features/Interns/Handlers/
             // 3) Use _mediator.Send(...) here to dispatch the command
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 7: Wire this endpoint using IMediator");
 
-            // var deleted = await _mediator.Send(new DeleteInternCommand(id));
-            // if (!deleted) return NotFound();
-            // return NoContent();
+            var deleted = await _mediator.Send(new DeleteInternCommand(id));
+            if (!deleted) return NotFound();
+            return NoContent();
         }
     }
 }

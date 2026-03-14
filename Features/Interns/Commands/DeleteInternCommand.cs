@@ -1,6 +1,6 @@
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  🎯 ASSIGNMENT: Create DeleteInternCommand here                ║
-// ║                                                              ║
-// ║  File: Features/Interns/Commands/DeleteInternCommand.cs      ║
-// ║  See CQRS_Practice_Assignment.md for details                 ║
-// ╚══════════════════════════════════════════════════════════════╝
+﻿using MediatR;
+
+namespace LMS___Mini_Version.Features.Interns.Commands
+{
+    public record DeleteInternCommand(int id) : IRequest<bool>;
+}

@@ -1,4 +1,5 @@
 using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.ViewModels.Track;
 using MediatR;
 
 namespace LMS___Mini_Version.Features.Tracks.Queries
@@ -10,5 +11,5 @@ namespace LMS___Mini_Version.Features.Tracks.Queries
     /// NOTE: This query is also used internally by Orchestrators
     /// (EnrollInternOrchestrator, TransferEnrollmentOrchestrator).
     /// </summary>
-    public record GetTrackByIdQuery(int Id) : IRequest<TrackDto>;
+    public record GetTrackByIdQuery(int Id) : IRequest<TrackDetailViewModel>;
 }

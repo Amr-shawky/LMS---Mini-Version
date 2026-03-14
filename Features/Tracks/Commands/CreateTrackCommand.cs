@@ -1,6 +1,9 @@
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  🎯 ASSIGNMENT: Create CreateTrackCommand here                 ║
-// ║                                                              ║
-// ║  File: Features/Tracks/Commands/CreateTrackCommand.cs        ║
-// ║  See CQRS_Practice_Assignment.md for details                 ║
-// ╚══════════════════════════════════════════════════════════════╝
+﻿using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
+
+namespace LMS___Mini_Version.Features.Payments.Commands
+{
+    public record CreateTrackCommand(string Name , decimal Fees , bool IsActive , int MaxCapacity)
+        : IRequest<TrackSummaryViewModel>;
+    
+}

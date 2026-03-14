@@ -1,6 +1,10 @@
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  🎯 ASSIGNMENT: Create CreateInternCommand here                ║
-// ║                                                              ║
-// ║  File: Features/Interns/Commands/CreateInternCommand.cs      ║
-// ║  See CQRS_Practice_Assignment.md for details                 ║
-// ╚══════════════════════════════════════════════════════════════╝
+﻿using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
+
+namespace LMS___Mini_Version.Features.Interns.Commands
+{
+    public record CreateInternCommand(string FullName ,string Email , int BirthYear, string status, int TrackId)
+        : IRequest<InternSummaryViewModel>;
+
+
+}
