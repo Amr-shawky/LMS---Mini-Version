@@ -12,14 +12,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollments/GetAllEnrollmentsQuery.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollments/GetAllEnrollmentsQueryHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentById/GetEnrollmentByIdQuery.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentById/GetEnrollmentByIdQueryHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQuery.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQueryHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommand.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommandHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollmentsByInternId/GetEnrollmentsByInternId.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollmentsByInternId/GetEnrollmentsByInternIdHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentsByTrackId/GetEnrollmentsByTrackIdQuery.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentsByTrackId/GetEnrollmentsByTrackIdQueryHandler.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQuery.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetActiveEnrollmentByInternId/GetActiveEnrollmentByInternIdQuery.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQueryHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetActiveEnrollmentByInternId/GetActiveEnrollmentByInternIdQueryHandler.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LMS - Mini Version.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LMS - Mini Version.csproj" afterDir="false" />
     </list>
@@ -29,7 +31,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="25" />
+    <option name="cachedIndexableFilesCount" value="36" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -60,8 +62,11 @@
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IPaymentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/ITrackRepository.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQuery.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQueryHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommand.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommandHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollmentsByInternId/GetEnrollmentsByInternId.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollmentsByInternId/GetEnrollmentsByInternIdHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentsByTrackId/GetEnrollmentsByTrackIdQueryHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommand.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommandHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Features/Interns/Commands/DeleteInternCommand/DeleteInternCommandHandler.cs" root0="FORCE_HIGHLIGHTING" />
@@ -91,26 +96,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "Ahmed-Fathy's-bracch",
-    "last_opened_file_path": "/home/kakashi/Elevate/LMS--Mini-Version/LMS---Mini-Version",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Ahmed-Fathy's-bracch&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kakashi/Elevate/LMS--Mini-Version/LMS---Mini-Version&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1774285219032" />
     <option name="spentUsd" value="0.21089658" />
@@ -161,7 +166,8 @@
       <updated>1773015021556</updated>
       <workItem from="1773015023255" duration="21694000" />
       <workItem from="1773336064326" duration="241000" />
-      <workItem from="1773336331704" duration="9729000" />
+      <workItem from="1773336331704" duration="14843000" />
+      <workItem from="1773462467323" duration="2457000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
@@ -187,7 +193,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773345598923</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module and create queries for Enrollments and its Handlers">
+      <option name="closed" value="true" />
+      <created>1773364797550</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1773364797550</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,7 +237,8 @@
     <MESSAGE value="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property." />
     <MESSAGE value="Create UpdateInternCommand and UpdateInternCommandHandler for Intern module" />
     <MESSAGE value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module" />
-    <option name="LAST_COMMIT_MESSAGE" value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module" />
+    <MESSAGE value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module and create queries for Enrollments and its Handlers" />
+    <option name="LAST_COMMIT_MESSAGE" value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module and create queries for Enrollments and its Handlers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

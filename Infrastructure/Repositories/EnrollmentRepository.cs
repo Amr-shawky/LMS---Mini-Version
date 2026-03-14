@@ -17,10 +17,10 @@ public class EnrollmentRepository : GeneralRepository<Enrollment> , IEnrollmentR
 
     }
 
-    public async Task<bool> HasActiveEnrollmentAsync(int internId)
+    public async Task<bool> HasActiveEnrollmentAsync(int internId,int trackId)
     {
         return await _context.Enrollments.
-            AnyAsync(e=>e.InternId == internId &&
+            AnyAsync(e=>e.InternId == internId && e.TrackId == trackId &&
                         e.Status == Domain.Enums.EnrollmentStatus.Active)
             .ConfigureAwait(false);
     }
@@ -35,20 +35,29 @@ public class EnrollmentRepository : GeneralRepository<Enrollment> , IEnrollmentR
             .ConfigureAwait(false);
     }
 
-    public async Task<Enrollment?> GetEnrollmentByInternIdAsync(int internId)
+    public async Task<Enrollment?> GetActiveEnrollmentByInternIdAsync(int internId)
     {
         return await _context.Enrollments.FirstOrDefaultAsync(e => e.InternId == internId).ConfigureAwait(false);
         
     }
 
-    public async Task<IEnumerable<Enrollment>> GetByIdWithDetailsAsync(int trackId, EnrollmentStatus status)
+    public async Task<IEnumerable<Enrollment>> GetByTrackIdWithDetailsAsync(int trackId)
+    {
+        return await _context.Enrollments
+            .Include(e => e.Track)
+            .Where(e => e.TrackId == trackId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Enrollment>> GetAllByInternIdAsync(int internId)
     {
         return await _context.Enrollments
             .Include(e => e.Intern)
-            .Include(e => e.Track)
-            .Where(e => e.TrackId == trackId && e.Status == status)
-            .ToListAsync();
+            .Where(e=>e.TrackId == internId)
+            .ToListAsync()
+            .ConfigureAwait(false);
     }
+
 
     public async Task<bool> CancelEnrollmentAsync(int enrollmentId)
     {
