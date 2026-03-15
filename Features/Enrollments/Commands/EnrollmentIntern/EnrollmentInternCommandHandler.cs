@@ -6,13 +6,13 @@ using LMS___Mini_Version.Mediators;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace LMS___Mini_Version.Features.Enrollments.Commands.EnrollmentInternCommand;
+namespace LMS___Mini_Version.Features.Enrollments.Commands.EnrollmentIntern;
 
-public class EnrollmentInternCommandHandler:IRequestHandler<EnrollmentInternCommand,EnrollmentResultDto>
+public class EnrollmentInternCommandHandler:IRequestHandler<EnrollmentIntern.EnrollmentInternCommand,EnrollmentResultDto>
 {
     private readonly UnitOfWork _uow;
     public EnrollmentInternCommandHandler(UnitOfWork unitofwork) => _uow = unitofwork;
-    public async Task<EnrollmentResultDto> Handle(EnrollmentInternCommand request, CancellationToken cancellationToken)
+    public async Task<EnrollmentResultDto> Handle(EnrollmentIntern.EnrollmentInternCommand request, CancellationToken cancellationToken)
     {
         // Check if the intern and track exists
         var intern = await _uow.Interns.GetByIdAsync(request.InternId).ConfigureAwait(false);
