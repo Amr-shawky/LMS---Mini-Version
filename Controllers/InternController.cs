@@ -1,8 +1,14 @@
 ﻿using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
+using LMS___Mini_Version.Features.Interns.Commands.DeleteInternCommand;
+using LMS___Mini_Version.Features.Interns.Commands.UpdateInternCommand;
+using LMS___Mini_Version.Features.Interns.Queries;
+using LMS___Mini_Version.Features.Interns.Queries.GetInternByIdQuery;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -17,76 +23,45 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly IInternService _internService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public InternController(IInternService internService, IUnitOfWork unitOfWork)
-        {
-            _internService = internService;
-            _unitOfWork = unitOfWork;
-        }
+        public InternController(IMediator mediator) => _mediator = mediator;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
-            return Ok(viewModels);
+            var result = await _mediator.Send(new GetAllInternsQuery());
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
+            var result = await _mediator.Send(new GetInternByIdQuery(id));
+            return result is null ? NotFound($"Intern with Id {id} was not found.") : Ok(result);
         }
 
         [HttpPost]
-        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm)
+        public async Task<IActionResult> Create([FromBody] CreateInternCommand command)
         {
-            var dto = new InternDto
-            {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                BirthYear = vm.BirthYear,
-                Status = vm.Status,
-                TrackId = vm.TrackId
-            };
-
-            var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-
-            return Ok(created.ToSummaryViewModel());
+            // Handler returns new Id
+            var id = await _mediator.Send(command);
+            // 201 Created 
+            return CreatedAtAction(nameof(GetById), new { id }, id);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateInternViewModel vm)
+        public async Task<ActionResult> Update(int id ,[FromBody]UpdateInternCommand command)
         {
-            var dto = new InternDto
-            {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                BirthYear = vm.BirthYear,
-                Status = vm.Status,
-                TrackId = vm.TrackId
-            };
-
-            var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
-
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-            return NoContent();
+            var result = await _mediator.Send(command with { InternId = id });
+            return Ok(new { id = result });
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
-
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-            return NoContent();
+            var result = await _mediator.Send(new DeleteInternCommand(id));
+            return result ? NoContent() : NotFound($"Intern with Id {id} was not found.");
         }
     }
 }

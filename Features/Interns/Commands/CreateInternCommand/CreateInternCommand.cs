@@ -3,4 +3,4 @@ using MediatR;
 
 namespace LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
 
-public record CreateInternCommand(string Name, int TrackId, string Email,string phone) : IRequest<InternDto>;
+public record CreateInternCommand(string Name, int TrackId, string Email,string Phone) : IRequest<int>;

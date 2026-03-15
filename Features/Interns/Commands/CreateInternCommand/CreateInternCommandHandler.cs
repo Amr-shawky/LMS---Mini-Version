@@ -6,11 +6,11 @@ using MediatR;
 
 namespace LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
 
-public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand,InternDto?>
+public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand,int>
 {
     private readonly IUnitOfWork _uow;
     public CreateInternCommandHandler(IUnitOfWork uow) => _uow = uow;
-    public async Task<InternDto?> Handle(CreateInternCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateInternCommand request, CancellationToken cancellationToken)
     {
         // First check if the Email is already taken
         var IsEmailTaken = await _uow.Interns.IsEmailAddressTakenAsync(request.Email).ConfigureAwait(false);
@@ -27,12 +27,12 @@ public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand,In
         {
             FullName = request.Name,
             Email = request.Email,
-            PhoneNumber = request.phone,
+            PhoneNumber = request.Phone,
             TrackId = request.TrackId
         };
         _uow.Interns.Add(intern);
         await _uow.CompleteAsync().ConfigureAwait(false);
 
-        return intern.ToDto();
+        return intern.Id;
     }
 }

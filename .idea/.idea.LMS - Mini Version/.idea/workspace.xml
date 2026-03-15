@@ -12,18 +12,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommand.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommandHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollmentsByInternId/GetEnrollmentsByInternId.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetAllEnrollmentsByInternId/GetEnrollmentsByInternIdHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentsByTrackId/GetEnrollmentsByTrackIdQuery.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentsByTrackId/GetEnrollmentsByTrackIdQueryHandler.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQuery.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetActiveEnrollmentByInternId/GetActiveEnrollmentByInternIdQuery.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Queries/GetEnrollmentByInternId/GetEnrollmentByInternIdQueryHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Queries/GetActiveEnrollmentByInternId/GetActiveEnrollmentByInternIdQueryHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/EnrollmentRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LMS - Mini Version.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LMS - Mini Version.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/InternController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/InternController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Interns/Commands/CreateInternCommand/CreateInternCommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Interns/Commands/UpdateInternCommand/UpdateInternCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Interns/Commands/UpdateInternCommand/UpdateInternCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Interns/Commands/UpdateInternCommand/UpdateInternCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Interns/Commands/UpdateInternCommand/UpdateInternCommandHandler.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,7 +161,9 @@
       <workItem from="1773015023255" duration="21694000" />
       <workItem from="1773336064326" duration="241000" />
       <workItem from="1773336331704" duration="14843000" />
-      <workItem from="1773462467323" duration="2457000" />
+      <workItem from="1773462467323" duration="3490000" />
+      <workItem from="1773468560658" duration="3367000" />
+      <workItem from="1773536649061" duration="5721000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
@@ -201,7 +197,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773364797550</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Create EnrollmentInternCommand and query handlers for Enrollments module&#10;&#10;- Added `EnrollmentInternCommand` and its handler.&#10;- Renamed `GetEnrollmentByInternId` to `GetActiveEnrollmentByInternId`.&#10;- Created `GetAllEnrollmentsByInternId` and `GetEnrollmentsByTrackId` queries with handlers.&#10;- Updated `IEnrollmentRepository` for new methods (`GetActiveEnrollmentByInternIdAsync`, `GetAllByInternIdAsync`, `GetByTrackIdWithDetailsAsync`).">
+      <option name="closed" value="true" />
+      <created>1773464947224</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1773464947224</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -238,7 +242,8 @@
     <MESSAGE value="Create UpdateInternCommand and UpdateInternCommandHandler for Intern module" />
     <MESSAGE value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module" />
     <MESSAGE value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module and create queries for Enrollments and its Handlers" />
-    <option name="LAST_COMMIT_MESSAGE" value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module and create queries for Enrollments and its Handlers" />
+    <MESSAGE value="Create EnrollmentInternCommand and query handlers for Enrollments module&#10;&#10;- Added `EnrollmentInternCommand` and its handler.&#10;- Renamed `GetEnrollmentByInternId` to `GetActiveEnrollmentByInternId`.&#10;- Created `GetAllEnrollmentsByInternId` and `GetEnrollmentsByTrackId` queries with handlers.&#10;- Updated `IEnrollmentRepository` for new methods (`GetActiveEnrollmentByInternIdAsync`, `GetAllByInternIdAsync`, `GetByTrackIdWithDetailsAsync`)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Create EnrollmentInternCommand and query handlers for Enrollments module&#10;&#10;- Added `EnrollmentInternCommand` and its handler.&#10;- Renamed `GetEnrollmentByInternId` to `GetActiveEnrollmentByInternId`.&#10;- Created `GetAllEnrollmentsByInternId` and `GetEnrollmentsByTrackId` queries with handlers.&#10;- Updated `IEnrollmentRepository` for new methods (`GetActiveEnrollmentByInternIdAsync`, `GetAllByInternIdAsync`, `GetByTrackIdWithDetailsAsync`)." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
