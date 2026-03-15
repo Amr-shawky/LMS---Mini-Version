@@ -20,7 +20,7 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
         {
             var intern = await _internRepository
                 .GetByIdAsync(request.InternId)
-                .ConfigureAwait(false);
+                ;
 
             return intern != null;
         }

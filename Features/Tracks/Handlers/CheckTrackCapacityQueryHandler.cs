@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.Features.Tracks.Handlers
                 .GetTable()
                 .Include(t => t.Enrollments)
                 .FirstOrDefaultAsync(t => t.Id == request.TrackId, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             if (track == null) return false;
 

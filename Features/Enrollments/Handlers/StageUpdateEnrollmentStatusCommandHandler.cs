@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
         {
             var enrollment = await _enrollmentRepository
                 .GetByIdAsync(request.EnrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             if (enrollment == null) return false;
 

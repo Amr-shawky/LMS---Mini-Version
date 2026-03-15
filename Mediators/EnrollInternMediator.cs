@@ -51,14 +51,14 @@ namespace LMS___Mini_Version.Mediators
         public async Task<EnrollmentResultDto> ExecuteAsync(CreateEnrollmentDto dto)
         {
             // Step 1: Validate the intern exists
-            var intern = await _internService.GetByIdAsync(dto.InternId).ConfigureAwait(false);
+            var intern = await _internService.GetByIdAsync(dto.InternId);
             if (intern == null)
             {
                 return EnrollmentResultDto.Fail($"Intern with ID {dto.InternId} was not found.");
             }
 
             // Step 2: Validate the track exists and is active
-            var track = await _trackService.GetByIdAsync(dto.TrackId).ConfigureAwait(false);
+            var track = await _trackService.GetByIdAsync(dto.TrackId);
             if (track == null)
             {
                 return EnrollmentResultDto.Fail($"Track with ID {dto.TrackId} was not found.");
@@ -69,18 +69,18 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 3: Check capacity
-            var hasCapacity = await _trackService.CheckCapacityAsync(dto.TrackId).ConfigureAwait(false);
+            var hasCapacity = await _trackService.CheckCapacityAsync(dto.TrackId);
             if (!hasCapacity)
             {
                 return EnrollmentResultDto.Fail($"Track '{track.Name}' has reached its maximum capacity.");
             }
 
             // Step 4: Create enrollment (staged in Change Tracker, NOT saved yet)
-            var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto).ConfigureAwait(false);
+            var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto);
 
             // Step 5: Save the enrollment first so it gets a real ID from the database.
             // Without this, the Payment's EnrollmentId would be 0 (invalid FK).
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             // Step 6: If the track has fees, create a payment record using the real enrollment ID
             PaymentDto? payment = null;
@@ -92,11 +92,11 @@ namespace LMS___Mini_Version.Mediators
                     Amount = track.Fees,
                     Method = PaymentMethod.Cash,
                     Status = PaymentStatus.Pending
-                }).ConfigureAwait(false);
+                });
             }
 
             // Step 7: COMMIT the payment record
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             return EnrollmentResultDto.Succeed(enrollment.ToDto(), payment);
         }

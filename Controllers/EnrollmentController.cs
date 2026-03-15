@@ -1,5 +1,7 @@
+using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Enrollments.Orchestrators;
 using LMS___Mini_Version.Features.Enrollments.Queries;
+using LMS___Mini_Version.Features.Shared;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.ViewModels.Enrollment;
 using MediatR;
@@ -9,12 +11,9 @@ namespace LMS___Mini_Version.Controllers
 {
     /// <summary>
     /// [CQRS Fix] This controller injects ONLY IMediator.
-    /// 
-    /// Before (The Trap):  4 dependencies — IEnrollmentService + 3 manual Mediators
-    /// After  (The Fix):   1 dependency  — IMediator
-    ///
     /// Read operations dispatch Queries.
     /// Write operations dispatch Orchestrator Requests (which coordinate atomic steps internally).
+    /// All responses wrapped in EndpointResponse for a consistent API contract.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -32,34 +31,27 @@ namespace LMS___Mini_Version.Controllers
         // ═══════════════════════════════════════════════════════
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentDto>>>> GetAll()
         {
-            var result = await _mediator
-                .Send(new GetAllEnrollmentsQuery())
-                .ConfigureAwait(false);
-
-            return Ok(result);
+            var result = await _mediator.Send(new GetAllEnrollmentsQuery());
+            return Ok(EndpointResponse<IEnumerable<EnrollmentDto>>.SuccessResponse(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<EnrollmentDto>>> GetById(int id)
         {
-            var result = await _mediator
-                .Send(new GetEnrollmentByIdQuery(id))
-                .ConfigureAwait(false);
+            var result = await _mediator.Send(new GetEnrollmentByIdQuery(id));
+            if (result == null)
+                return NotFound(EndpointResponse<EnrollmentDto>.NotFoundResponse($"Enrollment with ID {id} was not found."));
 
-            if (result == null) return NotFound();
-            return Ok(result);
+            return Ok(EndpointResponse<EnrollmentDto>.SuccessResponse(result));
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
+        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentDto>>>> GetByIntern(int internId)
         {
-            var result = await _mediator
-                .Send(new GetEnrollmentsByInternQuery(internId))
-                .ConfigureAwait(false);
-
-            return Ok(result);
+            var result = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
+            return Ok(EndpointResponse<IEnumerable<EnrollmentDto>>.SuccessResponse(result));
         }
 
         // ═══════════════════════════════════════════════════════
@@ -71,18 +63,17 @@ namespace LMS___Mini_Version.Controllers
         /// The EnrollInternOrchestratorHandler coordinates all steps internally.
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse<EnrollmentWithPaymentDto>>> Enroll(EnrollInternViewModel vm)
         {
             var result = await _mediator
-                .Send(new EnrollInternOrchestratorRequest(vm.InternId, vm.TrackId))
-                .ConfigureAwait(false);
+                .Send(new EnrollInternOrchestratorRequest(vm.InternId, vm.TrackId));
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { error = result.ErrorMessage });
+                return BadRequest(EndpointResponse<EnrollmentWithPaymentDto>.ErrorResponse(result.Message));
             }
 
-            return Ok(result.Enrollment!.ToViewModel());
+            return Ok(EndpointResponse<EnrollmentWithPaymentDto>.SuccessResponse(result.Data!, result.Message, 201));
         }
 
         /// <summary>
@@ -90,18 +81,17 @@ namespace LMS___Mini_Version.Controllers
         /// The CancelEnrollmentOrchestratorHandler coordinates all steps internally.
         /// </summary>
         [HttpPost("{id}/cancel")]
-        public async Task<ActionResult> Cancel(int id)
+        public async Task<ActionResult<EndpointResponse<string>>> Cancel(int id)
         {
             var result = await _mediator
-                .Send(new CancelEnrollmentOrchestratorRequest(id))
-                .ConfigureAwait(false);
+                .Send(new CancelEnrollmentOrchestratorRequest(id));
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { error = result.Message });
+                return BadRequest(EndpointResponse<string>.ErrorResponse(result.Message));
             }
 
-            return Ok(new { message = result.Message });
+            return Ok(EndpointResponse<string>.SuccessResponse(result.Data!, result.Message));
         }
 
         /// <summary>
@@ -109,18 +99,17 @@ namespace LMS___Mini_Version.Controllers
         /// The TransferEnrollmentOrchestratorHandler coordinates all steps internally.
         /// </summary>
         [HttpPost("{id}/transfer/{newTrackId}")]
-        public async Task<ActionResult> Transfer(int id, int newTrackId)
+        public async Task<ActionResult<EndpointResponse<string>>> Transfer(int id, int newTrackId)
         {
             var result = await _mediator
-                .Send(new TransferEnrollmentOrchestratorRequest(id, newTrackId))
-                .ConfigureAwait(false);
+                .Send(new TransferEnrollmentOrchestratorRequest(id, newTrackId));
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { error = result.Message });
+                return BadRequest(EndpointResponse<string>.ErrorResponse(result.Message));
             }
 
-            return Ok(new { message = result.Message });
+            return Ok(EndpointResponse<string>.SuccessResponse(result.Data!, result.Message));
         }
     }
 }

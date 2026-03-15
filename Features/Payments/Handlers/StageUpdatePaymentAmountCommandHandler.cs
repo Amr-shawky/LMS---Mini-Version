@@ -24,7 +24,7 @@ namespace LMS___Mini_Version.Features.Payments.Handlers
             var payment = await _paymentRepository
                 .GetTable()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == request.EnrollmentId, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             if (payment == null) return false;
 

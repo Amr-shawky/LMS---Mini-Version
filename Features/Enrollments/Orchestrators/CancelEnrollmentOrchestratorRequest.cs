@@ -1,4 +1,4 @@
-using LMS___Mini_Version.Features.Common;
+using LMS___Mini_Version.Features.Shared;
 using MediatR;
 
 namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
@@ -7,5 +7,5 @@ namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
     /// Orchestrator Request — replaces the old CancelEnrollmentMediator.
     /// </summary>
     public record CancelEnrollmentOrchestratorRequest(int EnrollmentId)
-        : IRequest<CommandResult>;
+        : IRequest<RequestResponse<string>>;
 }

@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
                 .Include(e => e.Intern)
                 .Where(e => e.InternId == request.InternId)
                 .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return enrollments.Select(e => e.ToDto().ToViewModel());
         }

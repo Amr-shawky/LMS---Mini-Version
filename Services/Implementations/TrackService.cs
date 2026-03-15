@@ -40,14 +40,14 @@ namespace LMS___Mini_Version.Services.Implementations
                 .GetTable()
                 .Include(t => t.Enrollments)
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             return tracks.Select(t => t.ToDto());
         }
 
         public async Task<TrackDto?> GetByIdAsync(int id)
         {
-            var track = await _trackRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var track = await _trackRepository.GetByIdAsync(id);
             return track?.ToDto();
         }
 
@@ -64,7 +64,7 @@ namespace LMS___Mini_Version.Services.Implementations
             _trackRepository.Add(entity);
 
             // Save so EF populates entity.Id with the DB-generated value
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             // Now entity.Id has the real value — return accurate DTO
             return entity.ToDto();
@@ -72,7 +72,7 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<bool> UpdateAsync(int id, TrackDto dto)
         {
-            var track = await _trackRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var track = await _trackRepository.GetByIdAsync(id);
             if (track == null) return false;
 
             track.Name = dto.Name;
@@ -81,17 +81,17 @@ namespace LMS___Mini_Version.Services.Implementations
             track.MaxCapacity = dto.MaxCapacity;
 
             _trackRepository.Update(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var track = await _trackRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var track = await _trackRepository.GetByIdAsync(id);
             if (track == null) return false;
 
             _trackRepository.Delete(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
             return true;
         }
 
@@ -105,9 +105,9 @@ namespace LMS___Mini_Version.Services.Implementations
                 .GetTable()
                 .CountAsync(e => e.TrackId == trackId
                               && e.Status != Domain.Enums.EnrollmentStatus.Cancelled)
-                .ConfigureAwait(false);
+                ;
 
-            var track = await _trackRepository.GetByIdAsync(trackId).ConfigureAwait(false);
+            var track = await _trackRepository.GetByIdAsync(trackId);
             if (track == null) return false;
 
             return activeCount < track.MaxCapacity;

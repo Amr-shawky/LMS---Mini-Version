@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
                 .GetTable()
                 .Include(i => i.Track)
                 .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return interns.Select(i => i.ToDto().ToSummaryViewModel());
         }

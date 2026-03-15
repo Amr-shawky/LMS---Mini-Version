@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Features.Tracks.Handlers
                 .GetTable()
                 .Include(t => t.Enrollments)
                 .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return tracks.Select(t => t.ToDto().ToSummaryViewModel());
         }

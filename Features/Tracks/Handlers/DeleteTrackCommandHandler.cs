@@ -24,12 +24,12 @@ namespace LMS___Mini_Version.Features.Tracks.Handlers
         {
             var track = await _trackRepository
                 .GetByIdAsync(request.Id)
-                .ConfigureAwait(false);
+                ;
 
             if (track == null) return false;
 
             _trackRepository.Delete(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
             return true;
         }
     }

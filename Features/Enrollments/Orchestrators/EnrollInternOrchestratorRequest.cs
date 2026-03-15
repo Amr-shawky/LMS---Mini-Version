@@ -1,4 +1,5 @@
-using LMS___Mini_Version.Features.Common;
+using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Shared;
 using MediatR;
 
 namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
@@ -9,5 +10,5 @@ namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
     /// keeping the controller constructor clean.
     /// </summary>
     public record EnrollInternOrchestratorRequest(int InternId, int TrackId)
-        : IRequest<EnrollmentResultDto>;
+        : IRequest<RequestResponse<EnrollmentWithPaymentDto>>;
 }

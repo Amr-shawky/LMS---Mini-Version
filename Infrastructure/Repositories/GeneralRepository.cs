@@ -1,4 +1,4 @@
-﻿using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,14 +23,14 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// Materializes the entire table into memory. Use GetTable() + filters for large datasets.
         /// </summary>
         public async Task<IEnumerable<T>> GetAllAsync()
-            => await _context.Set<T>().ToListAsync().ConfigureAwait(false);
+            => await _context.Set<T>().ToListAsync();
 
         /// <summary>
         /// Uses FindAsync which checks the Change Tracker first, avoiding an extra DB round-trip
         /// if the entity was already loaded in this request scope.
         /// </summary>
         public async Task<T?> GetByIdAsync(int id)
-            => await _context.Set<T>().FindAsync(id).ConfigureAwait(false);
+            => await _context.Set<T>().FindAsync(id);
 
         /// <summary>
         /// [Trap 4 Fix] Returns IQueryable — the query is NOT executed here.

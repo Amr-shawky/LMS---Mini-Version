@@ -1,10 +1,10 @@
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Features.Common;
 using LMS___Mini_Version.Features.Enrollments.Commands;
 using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.Features.Payments.Commands;
+using LMS___Mini_Version.Features.Shared;
 using LMS___Mini_Version.Features.Tracks.Queries;
 using LMS___Mini_Version.Mapping;
 using MediatR;
@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
     ///   7. COMMIT payment               → IUnitOfWork.CompleteAsync()     (atomic)
     /// </summary>
     public class EnrollInternOrchestratorHandler
-        : IRequestHandler<EnrollInternOrchestratorRequest, EnrollmentResultDto>
+        : IRequestHandler<EnrollInternOrchestratorRequest, RequestResponse<EnrollmentWithPaymentDto>>
     {
         private readonly IMediator _mediator;
         private readonly IUnitOfWork _unitOfWork;
@@ -36,55 +36,51 @@ namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<EnrollmentResultDto> Handle(
+        public async Task<RequestResponse<EnrollmentWithPaymentDto>> Handle(
             EnrollInternOrchestratorRequest request, CancellationToken cancellationToken)
         {
             // Step 1: Validate the intern exists
             var internExists = await _mediator
-                .Send(new ValidateInternExistsQuery(request.InternId), cancellationToken)
-                .ConfigureAwait(false);
+                .Send(new ValidateInternExistsQuery(request.InternId), cancellationToken);
 
             if (!internExists)
             {
-                return EnrollmentResultDto.Fail(
+                return RequestResponse<EnrollmentWithPaymentDto>.Fail(
                     $"Intern with ID {request.InternId} was not found.");
             }
 
             // Step 2: Validate the track exists and is active
             var track = await _mediator
-                .Send(new GetTrackByIdQuery(request.TrackId), cancellationToken)
-                .ConfigureAwait(false);
+                .Send(new GetTrackByIdQuery(request.TrackId), cancellationToken);
 
             if (track == null)
             {
-                return EnrollmentResultDto.Fail(
+                return RequestResponse<EnrollmentWithPaymentDto>.Fail(
                     $"Track with ID {request.TrackId} was not found.");
             }
 
             if (!track.IsActive)
             {
-                return EnrollmentResultDto.Fail(
+                return RequestResponse<EnrollmentWithPaymentDto>.Fail(
                     $"Track '{track.Name}' is not currently active.");
             }
 
             // Step 3: Check capacity
             var hasCapacity = await _mediator
-                .Send(new CheckTrackCapacityQuery(request.TrackId), cancellationToken)
-                .ConfigureAwait(false);
+                .Send(new CheckTrackCapacityQuery(request.TrackId), cancellationToken);
 
             if (!hasCapacity)
             {
-                return EnrollmentResultDto.Fail(
+                return RequestResponse<EnrollmentWithPaymentDto>.Fail(
                     $"Track '{track.Name}' has reached its maximum capacity.");
             }
 
             // Step 4: Stage enrollment (NOT saved yet)
             var enrollment = await _mediator
-                .Send(new StageEnrollmentCommand(request.InternId, request.TrackId), cancellationToken)
-                .ConfigureAwait(false);
+                .Send(new StageEnrollmentCommand(request.InternId, request.TrackId), cancellationToken);
 
             // Step 5: COMMIT — enrollment gets a real ID from the database
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             // Step 6: If the track has fees, stage a payment with the real enrollment ID
             PaymentDto? payment = null;
@@ -92,16 +88,21 @@ namespace LMS___Mini_Version.Features.Enrollments.Orchestrators
             {
                 var paymentEntity = await _mediator
                     .Send(new StagePaymentCommand(enrollment.Id, track.Fees, PaymentMethod.Cash),
-                          cancellationToken)
-                    .ConfigureAwait(false);
+                          cancellationToken);
 
                 // Step 7: COMMIT the payment record
-                await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+                await _unitOfWork.CompleteAsync();
 
                 payment = paymentEntity.ToDto();
             }
 
-            return EnrollmentResultDto.Succeed(enrollment.ToDto(), payment);
+            return RequestResponse<EnrollmentWithPaymentDto>.Success(
+                new EnrollmentWithPaymentDto
+                {
+                    Enrollment = enrollment.ToDto(),
+                    Payment = payment
+                },
+                "Intern enrolled successfully.");
         }
     }
 }

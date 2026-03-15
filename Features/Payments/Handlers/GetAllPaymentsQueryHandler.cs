@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Features.Payments.Handlers
                 .GetTable()
                 .Include(p => p.Enrollment)
                 .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return payments.Select(p => p.ToDto().ToViewModel());
         }

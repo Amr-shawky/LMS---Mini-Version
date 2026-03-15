@@ -24,12 +24,12 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
         {
             var intern = await _internRepository
                 .GetByIdAsync(request.Id)
-                .ConfigureAwait(false);
+                ;
 
             if (intern == null) return false;
 
             _internRepository.Delete(intern);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
             return true;
         }
     }

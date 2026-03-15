@@ -39,7 +39,7 @@ namespace LMS___Mini_Version.Mediators
         public async Task<MediatorResult> ExecuteAsync(int enrollmentId)
         {
             // Step 1: Fetch the enrollment
-            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId).ConfigureAwait(false);
+            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId);
             if (enrollment == null)
             {
                 return MediatorResult.Fail($"Enrollment with ID {enrollmentId} was not found.");
@@ -53,7 +53,7 @@ namespace LMS___Mini_Version.Mediators
             // Step 2: Change enrollment status to Cancelled (staged, NOT saved)
             var statusUpdated = await _enrollmentService
                 .UpdateStatusAsync(enrollmentId, EnrollmentStatus.Cancelled)
-                .ConfigureAwait(false);
+                ;
 
             if (!statusUpdated)
             {
@@ -62,10 +62,10 @@ namespace LMS___Mini_Version.Mediators
 
             // Step 3: Process refund for the associated payment (staged, NOT saved)
             // If no payment exists (free track), this simply returns false — which is fine.
-            await _paymentService.RefundPaymentAsync(enrollmentId).ConfigureAwait(false);
+            await _paymentService.RefundPaymentAsync(enrollmentId);
 
             // Step 4: ATOMIC COMMIT — cancellation + refund saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             return MediatorResult.Succeed("Enrollment cancelled and payment refunded successfully.");
         }

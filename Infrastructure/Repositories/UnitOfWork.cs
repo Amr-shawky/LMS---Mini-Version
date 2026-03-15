@@ -24,7 +24,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// Commits ALL staged changes across ALL repositories in a single DB transaction.
         /// </summary>
         public async Task<int> CompleteAsync()
-            => await _context.SaveChangesAsync().ConfigureAwait(false);
+            => await _context.SaveChangesAsync();
 
         public void Dispose()
         {

@@ -34,7 +34,7 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
             };
 
             _internRepository.Add(entity);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             return entity.ToDto().ToSummaryViewModel();
         }

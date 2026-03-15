@@ -35,7 +35,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .GetTable()
                 .Include(p => p.Enrollment)
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             return payments.Select(p => p.ToDto());
         }
@@ -45,7 +45,7 @@ namespace LMS___Mini_Version.Services.Implementations
             var payment = await _paymentRepository
                 .GetTable()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             return payment?.ToDto();
         }
@@ -78,7 +78,7 @@ namespace LMS___Mini_Version.Services.Implementations
             var payment = await _paymentRepository
                 .GetTable()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             if (payment == null) return false;
 
@@ -97,7 +97,7 @@ namespace LMS___Mini_Version.Services.Implementations
             var payment = await _paymentRepository
                 .GetTable()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             if (payment == null) return false;
 

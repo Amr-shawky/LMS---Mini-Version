@@ -1,5 +1,7 @@
-﻿using LMS___Mini_Version.Features.Interns.Commands;
+using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Interns.Commands;
 using LMS___Mini_Version.Features.Interns.Queries;
+using LMS___Mini_Version.Features.Shared;
 using LMS___Mini_Version.ViewModels.Intern;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +10,7 @@ namespace LMS___Mini_Version.Controllers
 {
     /// <summary>
     /// [CQRS Fix] Injects ONLY IMediator — no more IInternService.
+    /// All responses wrapped in EndpointResponse for a consistent API contract.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -21,47 +24,53 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<InternDto>>>> GetAll()
         {
-            var result = await _mediator.Send(new GetAllInternsQuery()).ConfigureAwait(false);
-            return Ok(result);
+            var result = await _mediator.Send(new GetAllInternsQuery());
+            return Ok(EndpointResponse<IEnumerable<InternDto>>.SuccessResponse(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<InternDto>>> GetById(int id)
         {
-            var result = await _mediator.Send(new GetInternByIdQuery(id)).ConfigureAwait(false);
-            if (result == null) return NotFound();
-            return Ok(result);
+            var result = await _mediator.Send(new GetInternByIdQuery(id));
+            if (result == null)
+                return NotFound(EndpointResponse<InternDto>.NotFoundResponse($"Intern with ID {id} was not found."));
+
+            return Ok(EndpointResponse<InternDto>.SuccessResponse(result));
         }
 
         [HttpPost]
-        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse<InternSummaryViewModel>>> Create(CreateInternViewModel vm)
         {
             var result = await _mediator.Send(new CreateInternCommand(
                 vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId
-            )).ConfigureAwait(false);
+            ));
 
-            return Ok(result);
+            return Ok(EndpointResponse<InternSummaryViewModel>.SuccessResponse(result, "Intern created successfully.", 201));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse<string>>> Update(int id, UpdateInternViewModel vm)
         {
             var updated = await _mediator.Send(new UpdateInternCommand(
                 id, vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId
-            )).ConfigureAwait(false);
+            ));
 
-            if (!updated) return NotFound();
-            return NoContent();
+            if (!updated)
+                return NotFound(EndpointResponse<string>.NotFoundResponse($"Intern with ID {id} was not found."));
+
+            return Ok(EndpointResponse<string>.SuccessResponse("Updated", "Intern updated successfully."));
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult<EndpointResponse<string>>> Delete(int id)
         {
-            var deleted = await _mediator.Send(new DeleteInternCommand(id)).ConfigureAwait(false);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var deleted = await _mediator.Send(new DeleteInternCommand(id));
+            if (!deleted)
+                return NotFound(EndpointResponse<string>.NotFoundResponse($"Intern with ID {id} was not found."));
+
+            return Ok(EndpointResponse<string>.SuccessResponse("Deleted", "Intern deleted successfully."));
         }
     }
 }

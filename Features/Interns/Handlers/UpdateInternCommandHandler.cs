@@ -24,7 +24,7 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
         {
             var intern = await _internRepository
                 .GetByIdAsync(request.Id)
-                .ConfigureAwait(false);
+                ;
 
             if (intern == null) return false;
 
@@ -35,7 +35,7 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
             intern.TrackId = request.TrackId;
 
             _internRepository.Update(intern);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
             return true;
         }
     }

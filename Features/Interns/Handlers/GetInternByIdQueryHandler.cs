@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Features.Interns.Handlers
                 .GetTable()
                 .Include(i => i.Track)
                 .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return intern?.ToDto().ToDetailViewModel();
         }

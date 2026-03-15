@@ -26,7 +26,7 @@ namespace LMS___Mini_Version.Features.Payments.Handlers
                 .GetTable()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == request.EnrollmentId,
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return payment?.ToDto().ToViewModel();
         }

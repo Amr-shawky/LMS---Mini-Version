@@ -22,7 +22,7 @@ namespace LMS___Mini_Version.Features.Tracks.Handlers
         {
             var track = await _trackRepository
                 .GetByIdAsync(request.Id)
-                .ConfigureAwait(false);
+                ;
 
             return track?.ToDto().ToDetailViewModel();
         }

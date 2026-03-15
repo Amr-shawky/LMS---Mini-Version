@@ -26,7 +26,7 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
                 .Include(e => e.Intern)
                 .Include(e => e.Track)
                 .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             return enrollments.Select(e => e.ToDto().ToViewModel());
         }

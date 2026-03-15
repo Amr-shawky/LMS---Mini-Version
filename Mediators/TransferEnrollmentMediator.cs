@@ -41,7 +41,7 @@ namespace LMS___Mini_Version.Mediators
         public async Task<MediatorResult> ExecuteAsync(int enrollmentId, int newTrackId)
         {
             // Step 1: Fetch the existing enrollment
-            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId).ConfigureAwait(false);
+            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId);
             if (enrollment == null)
             {
                 return MediatorResult.Fail($"Enrollment with ID {enrollmentId} was not found.");
@@ -58,7 +58,7 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 2: Validate the new track exists and is active
-            var newTrack = await _trackService.GetByIdAsync(newTrackId).ConfigureAwait(false);
+            var newTrack = await _trackService.GetByIdAsync(newTrackId);
             if (newTrack == null)
             {
                 return MediatorResult.Fail($"Target Track with ID {newTrackId} was not found.");
@@ -69,7 +69,7 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 3: Check new track capacity
-            var hasCapacity = await _trackService.CheckCapacityAsync(newTrackId).ConfigureAwait(false);
+            var hasCapacity = await _trackService.CheckCapacityAsync(newTrackId);
             if (!hasCapacity)
             {
                 return MediatorResult.Fail($"Target Track '{newTrack.Name}' has reached its maximum capacity.");
@@ -78,7 +78,7 @@ namespace LMS___Mini_Version.Mediators
             // Step 4: Move enrollment to new track (staged, NOT saved)
             var trackUpdated = await _enrollmentService
                 .UpdateTrackAsync(enrollmentId, newTrackId)
-                .ConfigureAwait(false);
+                ;
 
             if (!trackUpdated)
             {
@@ -91,11 +91,11 @@ namespace LMS___Mini_Version.Mediators
             {
                 await _paymentService
                     .UpdatePaymentAmountAsync(enrollmentId, newTrack.Fees)
-                    .ConfigureAwait(false);
+                    ;
             }
 
             // Step 6: ATOMIC COMMIT — track change + payment adjustment saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync();
 
             return MediatorResult.Succeed(
                 $"Enrollment transferred to '{newTrack.Name}' successfully. New fees: {newTrack.Fees:C}.");
