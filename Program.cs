@@ -1,10 +1,15 @@
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Features.Enrollment.Queries.Handlers;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Mediators;
+using LMS___Mini_Version.Middleware;
 using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
 
 namespace LMS___Mini_Version
 {
@@ -35,6 +40,10 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IInternService, InternService>();
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddMediatR(config =>
+            {
+                config.RegisterServicesFromAssembly(typeof(GetAllEnrollmentQueryHandler).Assembly);
+            });
 
             // ─── Mediators (Action Coordinators) ──────────────────────────
             // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
@@ -56,7 +65,7 @@ namespace LMS___Mini_Version
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
