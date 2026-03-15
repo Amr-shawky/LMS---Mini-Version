@@ -12,12 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/CancelEnrollment/CancelEnrollmentCommand.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/CancelEnrollment/CancelEnrollmentCommandHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/EnrollmentController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/EnrollmentController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommand.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentInternCommand/EnrollmentInternCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommandHandler.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,7 +156,7 @@
       <workItem from="1773336331704" duration="14843000" />
       <workItem from="1773462467323" duration="3490000" />
       <workItem from="1773468560658" duration="3367000" />
-      <workItem from="1773536649061" duration="9047000" />
+      <workItem from="1773536649061" duration="10833000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
@@ -211,7 +206,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773596207927</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="create and implement CancelEnrollmentCommand.cs and its handler">
+      <option name="closed" value="true" />
+      <created>1773601045313</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1773601045313</updated>
+    </task>
+    <task id="LOCAL-00008" summary="let EnrollmentInternCommand.cs return EnrollmentResultDto instead of just return the bool">
+      <option name="closed" value="true" />
+      <created>1773601188338</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1773601188338</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -250,7 +261,9 @@
     <MESSAGE value="Create DeleteInternCommand and DeleteInternCommandHandler for Intern module and create queries for Enrollments and its Handlers" />
     <MESSAGE value="Create EnrollmentInternCommand and query handlers for Enrollments module&#10;&#10;- Added `EnrollmentInternCommand` and its handler.&#10;- Renamed `GetEnrollmentByInternId` to `GetActiveEnrollmentByInternId`.&#10;- Created `GetAllEnrollmentsByInternId` and `GetEnrollmentsByTrackId` queries with handlers.&#10;- Updated `IEnrollmentRepository` for new methods (`GetActiveEnrollmentByInternIdAsync`, `GetAllByInternIdAsync`, `GetByTrackIdWithDetailsAsync`)." />
     <MESSAGE value="Implemet intern controller with the new enhancements with the mediatR" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implemet intern controller with the new enhancements with the mediatR" />
+    <MESSAGE value="create and implement CancelEnrollmentCommand.cs and its handler" />
+    <MESSAGE value="let EnrollmentInternCommand.cs return EnrollmentResultDto instead of just return the bool" />
+    <option name="LAST_COMMIT_MESSAGE" value="let EnrollmentInternCommand.cs return EnrollmentResultDto instead of just return the bool" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

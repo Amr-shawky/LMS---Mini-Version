@@ -1,8 +1,16 @@
 using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Enrollments.Commands.CancelEnrollment;
+using LMS___Mini_Version.Features.Enrollments.Commands.EnrollmentIntern;
+using LMS___Mini_Version.Features.Enrollments.Queries.GetActiveEnrollmentByInternId;
+using LMS___Mini_Version.Features.Enrollments.Queries.GetAllEnrollments;
+using LMS___Mini_Version.Features.Enrollments.Queries.GetAllEnrollmentsByInternId;
+using LMS___Mini_Version.Features.Enrollments.Queries.GetEnrollmentById;
+using LMS___Mini_Version.Features.Interns.Queries.GetInternByIdQuery;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -16,41 +24,43 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
     {
-        private readonly IEnrollmentService _enrollmentService;
-        private readonly EnrollInternMediator _mediator;
+        private readonly IMediator _mediatr;
 
         public EnrollmentController(
-            IEnrollmentService enrollmentService,
-            EnrollInternMediator mediator)
+            IMediator mediator)
         {
-            _enrollmentService = enrollmentService;
-            _mediator = mediator;
+
+            _mediatr = mediator;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var dtos = await _enrollmentService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
+            var result = await _mediatr.Send(new GetAllEnrollmentsQuery());
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var dto = await _enrollmentService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToViewModel());
+            var result = await _mediatr.Send(new GetEnrollmentByIdQuery(id)).ConfigureAwait(false);
+            return Ok(result.ToViewModel());
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
+        public async Task<IActionResult> GetByIntern(int internId)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
+            var result = await _mediatr.Send(new GetEnrollmentsByInternId(internId)).ConfigureAwait(false);
+            return Ok(result);
+
         }
 
+        [HttpGet("intern/{internId:int}/active")]
+        public async Task<IActionResult> GetActiveByIntern(int internId)
+        {
+            var result = await _mediatr.Send(new GetActiveEnrollmentByInternIdQuery(internId)).ConfigureAwait(false);
+            return Ok(result?.ToViewModel());
+        }
         /// <summary>
         /// Enrolls an intern in a track. This is a multi-step action orchestrated by the Mediator:
         ///   1. Validates intern & track
@@ -59,20 +69,37 @@ namespace LMS___Mini_Version.Controllers
         ///   4. Commits atomically via UoW
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
+        public async Task<IActionResult> Enroll([FromBody] EnrollmentInternCommand command)
         {
-            var result = await _mediator.ExecuteAsync(new CreateEnrollmentDto
-            {
-                InternId = vm.InternId,
-                TrackId = vm.TrackId
-            }).ConfigureAwait(false);
-
+            var result = await _mediatr.Send(command);
             if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.ErrorMessage });
-            }
-
-            return Ok(result.Enrollment!.ToViewModel());
+                return BadRequest(new
+                {
+                    succeeded = false,
+                    message = result.ErrorMessage
+                });
+            // return CreatedAtAction(nameof(GetById), new { id = result.Enrollment.Id },
+            //     new { id = result.Enrollment.Id });
+            return Ok(result.Enrollment.ToViewModel());
         }
-    }
+
+        [HttpPatch("{id}/canecl")]
+        public async Task<IActionResult> Canecl(int id)
+        {
+            var result = await _mediatr.Send(new CancelEnrollmentCommand(id)).ConfigureAwait(false);
+            if (!result.IsSuccess)
+                return BadRequest(new
+                {
+                    succeeded = false,
+                    message = result.ErrorMessage
+                });
+            return Ok(new
+            {
+                succeeded = true,
+                enrollment = result.Enrollment,
+                payment = result.Payment
+            });
+        }
+    
+}
 }
