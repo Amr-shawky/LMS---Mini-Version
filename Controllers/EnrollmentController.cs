@@ -53,7 +53,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 5: Wire this endpoint using IMediator");
+            var result = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
+            return Ok(result);
         }
 
         // ═══════════════════════════════════════════════════════
