@@ -1,4 +1,3 @@
-using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Interns.Commands;
 using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.Features.Shared;
@@ -24,20 +23,20 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<InternDto>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<InternSummaryViewModel>>>> GetAll()
         {
             var result = await _mediator.Send(new GetAllInternsQuery());
-            return Ok(EndpointResponse<IEnumerable<InternDto>>.SuccessResponse(result));
+            return Ok(EndpointResponse<IEnumerable<InternSummaryViewModel>>.SuccessResponse(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EndpointResponse<InternDto>>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<InternDetailViewModel>>> GetById(int id)
         {
             var result = await _mediator.Send(new GetInternByIdQuery(id));
             if (result == null)
-                return NotFound(EndpointResponse<InternDto>.NotFoundResponse($"Intern with ID {id} was not found."));
+                return NotFound(EndpointResponse<InternDetailViewModel>.NotFoundResponse($"Intern with ID {id} was not found."));
 
-            return Ok(EndpointResponse<InternDto>.SuccessResponse(result));
+            return Ok(EndpointResponse<InternDetailViewModel>.SuccessResponse(result));
         }
 
         [HttpPost]

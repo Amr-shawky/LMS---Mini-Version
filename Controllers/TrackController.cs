@@ -1,4 +1,3 @@
-using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Shared;
 using LMS___Mini_Version.Features.Tracks.Commands;
 using LMS___Mini_Version.Features.Tracks.Queries;
@@ -25,20 +24,20 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<TrackDto>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<TrackSummaryViewModel>>>> GetAll()
         {
             var result = await _mediator.Send(new GetAllTracksQuery());
-            return Ok(EndpointResponse<IEnumerable<TrackDto>>.SuccessResponse(result));
+            return Ok(EndpointResponse<IEnumerable<TrackSummaryViewModel>>.SuccessResponse(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EndpointResponse<TrackDto>>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<TrackDetailViewModel>>> GetById(int id)
         {
             var result = await _mediator.Send(new GetTrackByIdQuery(id));
             if (result == null)
-                return NotFound(EndpointResponse<TrackDto>.NotFoundResponse($"Track with ID {id} was not found."));
+                return NotFound(EndpointResponse<TrackDetailViewModel>.NotFoundResponse($"Track with ID {id} was not found."));
 
-            return Ok(EndpointResponse<TrackDto>.SuccessResponse(result));
+            return Ok(EndpointResponse<TrackDetailViewModel>.SuccessResponse(result));
         }
 
         [HttpPost]

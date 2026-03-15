@@ -1,6 +1,6 @@
-using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Payments.Queries;
 using LMS___Mini_Version.Features.Shared;
+using LMS___Mini_Version.ViewModels.Payment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,22 +24,22 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<PaymentDto>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<PaymentViewModel>>>> GetAll()
         {
             var result = await _mediator.Send(new GetAllPaymentsQuery());
-            return Ok(EndpointResponse<IEnumerable<PaymentDto>>.SuccessResponse(result));
+            return Ok(EndpointResponse<IEnumerable<PaymentViewModel>>.SuccessResponse(result));
         }
 
         [HttpGet("enrollment/{enrollmentId}")]
-        public async Task<ActionResult<EndpointResponse<PaymentDto>>> GetByEnrollment(int enrollmentId)
+        public async Task<ActionResult<EndpointResponse<PaymentViewModel>>> GetByEnrollment(int enrollmentId)
         {
             var result = await _mediator
                 .Send(new GetPaymentByEnrollmentQuery(enrollmentId));
 
             if (result == null)
-                return NotFound(EndpointResponse<PaymentDto>.NotFoundResponse($"Payment for Enrollment ID {enrollmentId} was not found."));
+                return NotFound(EndpointResponse<PaymentViewModel>.NotFoundResponse($"Payment for Enrollment ID {enrollmentId} was not found."));
 
-            return Ok(EndpointResponse<PaymentDto>.SuccessResponse(result));
+            return Ok(EndpointResponse<PaymentViewModel>.SuccessResponse(result));
         }
     }
 }

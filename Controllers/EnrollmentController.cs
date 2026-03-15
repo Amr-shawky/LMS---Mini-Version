@@ -2,7 +2,6 @@ using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Enrollments.Orchestrators;
 using LMS___Mini_Version.Features.Enrollments.Queries;
 using LMS___Mini_Version.Features.Shared;
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.ViewModels.Enrollment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,27 +30,27 @@ namespace LMS___Mini_Version.Controllers
         // ═══════════════════════════════════════════════════════
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentDto>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentViewModel>>>> GetAll()
         {
             var result = await _mediator.Send(new GetAllEnrollmentsQuery());
-            return Ok(EndpointResponse<IEnumerable<EnrollmentDto>>.SuccessResponse(result));
+            return Ok(EndpointResponse<IEnumerable<EnrollmentViewModel>>.SuccessResponse(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EndpointResponse<EnrollmentDto>>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<EnrollmentViewModel>>> GetById(int id)
         {
             var result = await _mediator.Send(new GetEnrollmentByIdQuery(id));
             if (result == null)
-                return NotFound(EndpointResponse<EnrollmentDto>.NotFoundResponse($"Enrollment with ID {id} was not found."));
+                return NotFound(EndpointResponse<EnrollmentViewModel>.NotFoundResponse($"Enrollment with ID {id} was not found."));
 
-            return Ok(EndpointResponse<EnrollmentDto>.SuccessResponse(result));
+            return Ok(EndpointResponse<EnrollmentViewModel>.SuccessResponse(result));
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentDto>>>> GetByIntern(int internId)
+        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentViewModel>>>> GetByIntern(int internId)
         {
             var result = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
-            return Ok(EndpointResponse<IEnumerable<EnrollmentDto>>.SuccessResponse(result));
+            return Ok(EndpointResponse<IEnumerable<EnrollmentViewModel>>.SuccessResponse(result));
         }
 
         // ═══════════════════════════════════════════════════════
