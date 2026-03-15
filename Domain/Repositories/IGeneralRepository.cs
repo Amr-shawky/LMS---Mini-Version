@@ -22,6 +22,8 @@
         // Returns IQueryable so the Service layer can add .Where() filters that run in the DB
         IQueryable<T> GetTable();
 
+        IQueryable<T> Get();
+
         void Add(T entity);
 
         void Update(T entity);

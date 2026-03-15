@@ -13,24 +13,25 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
     public class GeneralRepository<T> : IGeneralRepository<T> where T : class
     {
         private readonly AppDbContext _context;
-
+        protected readonly DbSet<T> _dbSet;
         public GeneralRepository(AppDbContext context)
         {
             _context = context;
+            _dbSet = context.Set<T>();
         }
 
         /// <summary>
         /// Materializes the entire table into memory. Use GetTable() + filters for large datasets.
         /// </summary>
         public async Task<IEnumerable<T>> GetAllAsync()
-            => await _context.Set<T>().ToListAsync();
+            => await _context.Set<T>().ToListAsync().ConfigureAwait(false);
 
         /// <summary>
         /// Uses FindAsync which checks the Change Tracker first, avoiding an extra DB round-trip
         /// if the entity was already loaded in this request scope.
         /// </summary>
         public async Task<T?> GetByIdAsync(int id)
-            => await _context.Set<T>().FindAsync(id);
+            => await _context.Set<T>().FindAsync(id).ConfigureAwait(false);
 
         /// <summary>
         /// [Trap 4 Fix] Returns IQueryable — the query is NOT executed here.
@@ -39,6 +40,10 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// </summary>
         public IQueryable<T> GetTable()
             => _context.Set<T>();
+        public IQueryable<T> Get()
+        {
+            return _dbSet;
+        }
 
         // No SaveChanges() — changes are staged in the Change Tracker.
         public void Add(T entity) => _context.Set<T>().Add(entity);
