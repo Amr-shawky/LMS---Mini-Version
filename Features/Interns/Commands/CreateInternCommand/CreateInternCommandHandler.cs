@@ -18,10 +18,8 @@ public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand,in
             throw new InvalidOperationException(
                 $"Email {request.Email} is already used, Please use unique Email address!");
         
-        
-        // Track exists check !
-        var track = await _uow.Tracks.GetByIdAsync(request.TrackId).ConfigureAwait(false);
-        if (track == null) throw new InvalidOperationException($"track with trackId {request.TrackId} Not found");
+       var error = await _validator.ValidateAsync(request).ConfigureAwait(false);
+       if(error != null) throw new InvalidOperationException(error);
 
         var intern = new Intern()
         {
