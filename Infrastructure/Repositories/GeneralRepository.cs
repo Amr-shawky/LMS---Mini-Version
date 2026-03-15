@@ -13,10 +13,11 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
     public class GeneralRepository<T> : IGeneralRepository<T> where T : class
     {
         private readonly AppDbContext _context;
-
+        protected readonly DbSet<T> _dbSet;
         public GeneralRepository(AppDbContext context)
         {
             _context = context;
+            _dbSet = context.Set<T>();
         }
 
         /// <summary>
@@ -39,6 +40,10 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// </summary>
         public IQueryable<T> GetTable()
             => _context.Set<T>();
+        public IQueryable<T> Get()
+        {
+            return _dbSet;
+        }
 
         // No SaveChanges() — changes are staged in the Change Tracker.
         public void Add(T entity) => _context.Set<T>().Add(entity);
