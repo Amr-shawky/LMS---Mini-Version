@@ -5,6 +5,7 @@ using LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
 using LMS___Mini_Version.Features.Interns.Commands.DeleteInternCommand;
 using LMS___Mini_Version.Features.Interns.Commands.UpdateInternCommand;
 using LMS___Mini_Version.Features.Interns.Queries;
+using LMS___Mini_Version.Features.Interns.Queries.GetAllInternQuery;
 using LMS___Mini_Version.Features.Interns.Queries.GetInternByIdQuery;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
@@ -13,12 +14,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [Trap 1 Fix] Depends on IInternService + IUnitOfWork — NOT AppDbContext.
-    /// [Trap 2 Fix] Accepts/returns ViewModels only.
-    /// [Trap 3 Fix] Fully async.
-    /// [Trap 5 Fix] Zero business logic — delegated to InternService.
-    /// </summary>
+        /// <summary>
+        /// Implement SRP & Clean Architecture.
+        ///  Intern controller does
+        /// Receive requests from the client,
+        ///  Delegate to Mediator,
+        ///  Return responses to the client.
+        /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class InternController : ControllerBase

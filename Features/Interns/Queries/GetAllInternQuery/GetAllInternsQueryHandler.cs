@@ -3,7 +3,7 @@ using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Mapping;
 using MediatR;
 
-namespace LMS___Mini_Version.Features.Interns.Queries;
+namespace LMS___Mini_Version.Features.Interns.Queries.GetAllInternQuery;
 
 public class GetAllInternsQueryHandler : IRequestHandler<GetAllInternsQuery,IEnumerable<InternDto>>
 {
