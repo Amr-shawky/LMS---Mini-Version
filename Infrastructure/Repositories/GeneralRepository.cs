@@ -37,7 +37,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// The Service layer adds .Where() filters and calls .ToListAsync() itself,
         /// ensuring the filtering happens in SQL, not in C# memory.
         /// </summary>
-        public IQueryable<T> GetTable()
+        protected IQueryable<T> GetTable()
             => _context.Set<T>();
 
         // No SaveChanges() — changes are staged in the Change Tracker.
