@@ -1,6 +1,7 @@
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Interns.validators;
 using LMS___Mini_Version.Mapping;
 using MediatR;
 
@@ -9,14 +10,14 @@ namespace LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
 public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand,int>
 {
     private readonly IUnitOfWork _uow;
-    public CreateInternCommandHandler(IUnitOfWork uow) => _uow = uow;
+    private readonly CreateInternValidators _validator;
+    public CreateInternCommandHandler(IUnitOfWork uow , CreateInternValidators validator)
+    {
+        _uow = uow;
+        _validator = validator;
+    }
     public async Task<int> Handle(CreateInternCommand request, CancellationToken cancellationToken)
     {
-        // First check if the Email is already taken
-        var IsEmailTaken = await _uow.Interns.IsEmailAddressTakenAsync(request.Email).ConfigureAwait(false);
-        if (IsEmailTaken)
-            throw new InvalidOperationException(
-                $"Email {request.Email} is already used, Please use unique Email address!");
         
        var error = await _validator.ValidateAsync(request).ConfigureAwait(false);
        if(error != null) throw new InvalidOperationException(error);
