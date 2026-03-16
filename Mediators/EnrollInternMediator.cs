@@ -131,27 +131,5 @@ namespace LMS___Mini_Version.Mediators
         }
     }
 
-    /// <summary>
-    /// Result wrapper for the enrollment mediator action.
-    /// </summary>
-    public class EnrollmentResultDto
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
-        public EnrollmentDto? Enrollment { get; set; }
-        public PaymentDto? Payment { get; set; }
-
-        public static EnrollmentResultDto Fail(string message) => new()
-        {
-            IsSuccess = false,
-            ErrorMessage = message
-        };
-
-        public static EnrollmentResultDto Succeed(EnrollmentDto enrollment, PaymentDto? payment) => new()
-        {
-            IsSuccess = true,
-            Enrollment = enrollment,
-            Payment = payment
-        };
-    }
+    
 }
