@@ -12,13 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Services/EnrollmentCreator.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Features/Enrollments/Validators/EnrollmentValidator.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/InternController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/InternController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommandHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Interns/Queries/GetAllInternQuery/GetAllInternsQuery.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetAllInternQuery/GetAllInternsQuery.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Features/Interns/Queries/GetAllInternQuery/GetAllInternsQueryHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Interns/Queries/GetAllInternQuery/GetAllInternsQueryHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/GeneralRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/GeneralRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -166,7 +162,7 @@
       <workItem from="1773336331704" duration="14843000" />
       <workItem from="1773462467323" duration="3490000" />
       <workItem from="1773468560658" duration="3367000" />
-      <workItem from="1773536649061" duration="16581000" />
+      <workItem from="1773536649061" duration="18587000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
@@ -272,7 +268,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773620728798</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Setup and abstract enrollment creation service and validator and implement enrollment creation using the abstracted methods.">
+      <option name="closed" value="true" />
+      <created>1773621842829</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1773621842829</updated>
+    </task>
+    <task id="LOCAL-00015" summary="change gettable to be protected so it could be used only inside the repos">
+      <option name="closed" value="true" />
+      <created>1773625038886</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1773625038886</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -318,7 +330,9 @@
     <MESSAGE value="Setup the Abstraction by creating the validators and updating its usage on CreateInternCommandHandler and UpdateInternValidator." />
     <MESSAGE value="Add method IsTrackActive in the trackrepo" />
     <MESSAGE value="Declare the Interface of IsTrackActive" />
-    <option name="LAST_COMMIT_MESSAGE" value="Declare the Interface of IsTrackActive" />
+    <MESSAGE value="Setup and abstract enrollment creation service and validator and implement enrollment creation using the abstracted methods." />
+    <MESSAGE value="change gettable to be protected so it could be used only inside the repos" />
+    <option name="LAST_COMMIT_MESSAGE" value="change gettable to be protected so it could be used only inside the repos" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
