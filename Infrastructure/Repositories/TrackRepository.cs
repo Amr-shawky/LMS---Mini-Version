@@ -56,4 +56,10 @@ public class TrackRepository : GeneralRepository<Track> , ITrackRepository
             .ConfigureAwait(false);
         
     }
+
+    public async Task<bool> IsTrackActiveAsync(int id)
+    {
+        return await _context.Tracks.AnyAsync(t => t.Id == id && t.IsActive)
+            .ConfigureAwait(false);
+    }
 }
