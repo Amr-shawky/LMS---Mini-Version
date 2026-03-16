@@ -16,4 +16,6 @@ public interface ITrackRepository : IGeneralRepository<Track>
     // 🔍 Name uniqueness check
     Task<bool> IsNameTakenAsync(string name);
     
+    Task<bool> IsTrackActiveAsync(int id);
+    
 }
