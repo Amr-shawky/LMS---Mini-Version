@@ -1,6 +1,7 @@
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Enrollments.Services;
 using LMS___Mini_Version.Features.Enrollments.Validators;
 using LMS___Mini_Version.Infrastructure.Repositories;

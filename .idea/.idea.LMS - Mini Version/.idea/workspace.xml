@@ -12,9 +12,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/DTOs/EnrollmentResultDto.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Infrastructure/Repositories/GeneralRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Repositories/GeneralRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/CancelEnrollment/CancelEnrollmentCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/CancelEnrollment/CancelEnrollmentCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/CancelEnrollment/CancelEnrollmentCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/CancelEnrollment/CancelEnrollmentCommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Commands/EnrollmentIntern/EnrollmentInternCommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/Enrollments/Services/EnrollmentCreator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/Enrollments/Services/EnrollmentCreator.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +53,8 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/fe51e6319b79427ebc15027f71534cb5ca708/d4/ad1d479f/IEnumerable`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/DTOs/EnrollmentResultDto.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/DTOs/baseResult.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IEnrollmentRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IInternRepository.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Domain/Repositories/IPaymentRepository.cs" root0="FORCE_HIGHLIGHTING" />
@@ -162,7 +168,7 @@
       <workItem from="1773336331704" duration="14843000" />
       <workItem from="1773462467323" duration="3490000" />
       <workItem from="1773468560658" duration="3367000" />
-      <workItem from="1773536649061" duration="18587000" />
+      <workItem from="1773536649061" duration="20411000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
@@ -284,7 +290,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773625038886</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Implement the single resposability alongside the whole project and modify if needed">
+      <option name="closed" value="true" />
+      <created>1773625911070</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1773625911070</updated>
+    </task>
+    <task id="LOCAL-00017" summary="abstract the enrollmentresultDto to abstracted file">
+      <option name="closed" value="true" />
+      <created>1773657797962</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1773657797962</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -332,7 +354,9 @@
     <MESSAGE value="Declare the Interface of IsTrackActive" />
     <MESSAGE value="Setup and abstract enrollment creation service and validator and implement enrollment creation using the abstracted methods." />
     <MESSAGE value="change gettable to be protected so it could be used only inside the repos" />
-    <option name="LAST_COMMIT_MESSAGE" value="change gettable to be protected so it could be used only inside the repos" />
+    <MESSAGE value="Implement the single resposability alongside the whole project and modify if needed" />
+    <MESSAGE value="abstract the enrollmentresultDto to abstracted file" />
+    <option name="LAST_COMMIT_MESSAGE" value="abstract the enrollmentresultDto to abstracted file" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
