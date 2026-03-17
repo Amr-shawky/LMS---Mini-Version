@@ -25,6 +25,8 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             var app = builder.Build();
 
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
