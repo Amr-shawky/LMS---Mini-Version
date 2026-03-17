@@ -1,92 +1,107 @@
-﻿using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
+﻿using LMS___Mini_Version.CQRS.Intern.Commands;
+using LMS___Mini_Version.CQRS.Intern.Queries;
 using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Services.Interfaces;
+using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [Trap 1 Fix] Depends on IInternService + IUnitOfWork — NOT AppDbContext.
-    /// [Trap 2 Fix] Accepts/returns ViewModels only.
-    /// [Trap 3 Fix] Fully async.
-    /// [Trap 5 Fix] Zero business logic — delegated to InternService.
-    /// </summary>
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class InternController : ControllerBase
     {
-        private readonly IInternService _internService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator mediator;
 
-        public InternController(IInternService internService, IUnitOfWork unitOfWork)
+        public InternController(IMediator mediator)
         {
-            _internService = internService;
-            _unitOfWork = unitOfWork;
+            this.mediator = mediator;
         }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll(int page, CancellationToken cancellationToken)
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
-            return Ok(viewModels);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
-        {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm)
-        {
-            var dto = new InternDto
+            var result = await mediator.Send(new GetAllInternsQuery(cancellationToken, page));
+            if (result.IsSuccess)
             {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                BirthYear = vm.BirthYear,
-                Status = vm.Status,
-                TrackId = vm.TrackId
-            };
+                var viewModels = result.Data.Select(d => d.ToSummaryViewModel());
+                return Ok(viewModels);
+            }
+            return NotFound(result);
 
-            var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-
-            return Ok(created.ToSummaryViewModel());
         }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateInternViewModel vm)
+        [HttpGet("GetById")]
+        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetById(int Id,CancellationToken cancellationToken)
         {
-            var dto = new InternDto
+            var result = await mediator.Send(new GetByIdInternsQuery(Id,cancellationToken));
+            if (result.IsSuccess)
             {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                BirthYear = vm.BirthYear,
-                Status = vm.Status,
-                TrackId = vm.TrackId
-            };
+                var viewModels = result.Data.ToSummaryViewModel();
+                return Ok(viewModels);
+            }
+            return NotFound(result);
 
-            var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
-
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-            return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [HttpPost("Create")]
+        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm,CancellationToken cancellationToken)
         {
-            var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
+            if (ModelState.IsValid)
+            {
+                var command = new CreateInternCommand(vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId, cancellationToken);
 
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
-            return NoContent();
+                var result = await mediator.Send(command);
+                if (result.IsSuccess)
+                {
+                    return Ok(result.Data);
+                }
+
+                return BadRequest(result.Message);
+            }
+            return BadRequest(vm);
         }
+
+        [HttpPut("Update")]
+        public async Task<ActionResult<bool>> Update(int id, CreateInternViewModel vm, CancellationToken cancellationToken)
+        {
+
+            var command = new UpdateInternCommand(id, vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId, cancellationToken);
+
+            var result = await mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+
+            return BadRequest(result.Message);
+
+        }
+        [HttpDelete]
+        public async Task<ActionResult<bool>> Delete(int id,CancellationToken cancellationToken)
+        {
+
+            var command = new DeleteInternCommand(id,cancellationToken);
+
+            var result = await mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+
+            return BadRequest(result.Message);
+
+        }
+
+
+
     }
+
+
+   
 }
+

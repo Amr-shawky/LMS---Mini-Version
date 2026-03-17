@@ -1,8 +1,10 @@
+using LMS___Mini_Version.CQRS.Enrollment.Queries;
 using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -16,39 +18,48 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
     {
-        private readonly IEnrollmentService _enrollmentService;
-        private readonly EnrollInternMediator _mediator;
+        private readonly IMediator mediator;
 
-        public EnrollmentController(
-            IEnrollmentService enrollmentService,
-            EnrollInternMediator mediator)
+        public EnrollmentController( IMediator mediator)
         {
-            _enrollmentService = enrollmentService;
-            _mediator = mediator;
+            this.mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll(int page,CancellationToken cancellationToken)
         {
-            var dtos = await _enrollmentService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
+            var result = await mediator.Send(new GetAllEnrollmentQuery(cancellationToken,page));
+            if (result.IsSuccess)
+            {
+                var viewModels = result.Data.Select(e => e.ToViewModel());
+                return Ok(viewModels);
+            }
+            return BadRequest(result.Message);
+
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
+        [HttpGet("GetById")]
+        public async Task<ActionResult<EnrollmentViewModel>> GetById(int id,CancellationToken cancellationToken)
         {
-            var dto = await _enrollmentService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToViewModel());
+            var result = await mediator.Send(new GetByIdEnrollmentQuery(id,cancellationToken));
+            if (result.IsSuccess)
+            {
+                var viewModels = result.Data.ToViewModel();
+                return Ok(viewModels);
+            }
+            return BadRequest(result.Message);
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
+        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId,int page , CancellationToken cancellationToken)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
+            var result = await mediator.Send(new GetByInternIdQuery(internId,cancellationToken, page));
+            if (result.IsSuccess)
+            {
+                var viewModels = result.Data.Select(e => e.ToViewModel());
+                return Ok(viewModels);
+            }
+            return BadRequest(result.Message);
         }
 
         /// <summary>
@@ -58,21 +69,21 @@ namespace LMS___Mini_Version.Controllers
         ///   3. Creates enrollment + payment (if paid track)
         ///   4. Commits atomically via UoW
         /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
-        {
-            var result = await _mediator.ExecuteAsync(new CreateEnrollmentDto
-            {
-                InternId = vm.InternId,
-                TrackId = vm.TrackId
-            }).ConfigureAwait(false);
+        //[HttpPost]
+        //public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
+        //{
+        //    var result = await _mediator.ExecuteAsync(new CreateEnrollmentDto
+        //    {
+        //        InternId = vm.InternId,
+        //        TrackId = vm.TrackId
+        //    }).ConfigureAwait(false);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.ErrorMessage });
-            }
+        //    if (!result.IsSuccess)
+        //    {
+        //        return BadRequest(new { error = result.ErrorMessage });
+        //    }
 
-            return Ok(result.Enrollment!.ToViewModel());
-        }
+        //    return Ok(result.Enrollment!.ToViewModel());
+        //}
     }
 }
