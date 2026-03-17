@@ -11,7 +11,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="" />
+    <list default="true" id="a2d89b90-042a-472e-901a-0693eda37fcc" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMS - Mini Version/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,6 +29,12 @@
       <list>
         <option value="Ahmed Fathy &lt;ahmedfathy11876@gmail.com&gt;" />
       </list>
+    </option>
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--follow-tags" />
+        <option name="title" value="Current Branch" />
+      </GitPushTagMode>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="SIGN_OFF_COMMIT" value="true" />
@@ -161,7 +169,7 @@
       <workItem from="1773462467323" duration="3490000" />
       <workItem from="1773468560658" duration="3367000" />
       <workItem from="1773536649061" duration="21051000" />
-      <workItem from="1773714565298" duration="1161000" />
+      <workItem from="1773714565298" duration="1543000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add Mediator support and query/command handlers for Intern module  &#10;&#10;- Added MediatR package and configured DI in `Program.cs`.  &#10;- Implemented commands: `CreateInternCommand` with validation and repository checks.  &#10;- Implemented queries: `GetInternByIdQuery`, `GetAllInternsQuery`, `GetAllByTrackIdQuery` with corresponding handlers.  &#10;- Updated `InternRepository` methods for query handler requirements.  &#10;- Extended `Intern` entity with `PhoneNumber` property.">
       <option name="closed" value="true" />
