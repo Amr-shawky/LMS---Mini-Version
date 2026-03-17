@@ -1,71 +1,69 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
+using LMS___Mini_Version.Features.Interns.Commands.DeleteInternCommand;
+using LMS___Mini_Version.Features.Interns.Commands.UpdateInternCommand;
+using LMS___Mini_Version.Features.Interns.Queries;
+using LMS___Mini_Version.Features.Interns.Queries.GetAllInternQuery;
+using LMS___Mini_Version.Features.Interns.Queries.GetInternByIdQuery;
+using LMS___Mini_Version.Services.Interfaces;
+using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
+        /// <summary>
+        /// Implement SRP & Clean Architecture.
+        ///  Intern controller does
+        /// Receive requests from the client,
+        ///  Delegate to Mediator,
+        ///  Return responses to the client.
+        /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public InternController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public InternController(IMediator mediator) => _mediator = mediator;
 
         [HttpGet]
-        public IEnumerable<Intern> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return _context.Interns.ToList();
+            var result = await _mediator.Send(new GetAllInternsQuery());
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Intern> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var intern = _context.Interns.Find(id);
-
-            if (intern == null) return NotFound();
-
-            return intern;
+            var result = await _mediator.Send(new GetInternByIdQuery(id));
+            return result is null ? NotFound($"Intern with Id {id} was not found.") : Ok(result);
         }
 
         [HttpPost]
-        public ActionResult Create(Intern intern)
+        public async Task<IActionResult> Create([FromBody] CreateInternCommand command)
         {
-            _context.Interns.Add(intern);
-            _context.SaveChanges();
-
-            return Ok(intern);
+            // Handler returns new Id
+            var id = await _mediator.Send(command);
+            // 201 Created 
+            return CreatedAtAction(nameof(GetById), new { id }, id);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Intern updatedIntern)
+        public async Task<ActionResult> Update(int id ,[FromBody]UpdateInternCommand command)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
-
-            intern.FullName = updatedIntern.FullName;
-            intern.Email = updatedIntern.Email;
-            intern.BirthYear = updatedIntern.BirthYear;
-            intern.Status = updatedIntern.Status;
-            intern.TrackId = updatedIntern.TrackId;
-
-            _context.SaveChanges();
-            return NoContent();
+            var result = await _mediator.Send(command with { InternId = id });
+            return Ok(new { id = result });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
-
-            _context.Interns.Remove(intern);
-            _context.SaveChanges();
-
-            return NoContent();
+            var result = await _mediator.Send(new DeleteInternCommand(id));
+            return result ? NoContent() : NotFound($"Intern with Id {id} was not found.");
         }
     }
 }
