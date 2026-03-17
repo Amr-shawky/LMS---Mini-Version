@@ -11,6 +11,7 @@ namespace LMS___Mini_Version.Controllers
     /// [Trap 5 Fix] The POST action delegates to EnrollInternMediator — the action coordinator.
     ///              The Controller does NOT orchestrate multi-step business logic itself.
     /// [Trap 6 Fix] The Mediator handles the atomic commit via UoW.CompleteAsync().
+    /// Sssssssssss
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
