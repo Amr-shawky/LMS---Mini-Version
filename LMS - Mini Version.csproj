@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	  <ItemGroup>
-		    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		    <PackageReference Include="MediatR" Version="14.1.0" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 		 
 	</ItemGroup>
 	<ItemGroup>
@@ -28,7 +28,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" />
+		    <Folder Include="CQRS\Intern\Commands\" /><Folder Include="Domain\Enums\" />
 		 
 	</ItemGroup>
 </Project>

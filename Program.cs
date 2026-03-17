@@ -27,6 +27,9 @@ namespace LMS___Mini_Version
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            builder.Services.AddMediatR( cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
