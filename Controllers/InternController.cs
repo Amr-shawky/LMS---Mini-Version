@@ -4,6 +4,13 @@ using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using LMS___Mini_Version.Features.Intern.Queries.GetAllIntern;
+using System.Runtime.InteropServices;
+using LMS___Mini_Version.Features.Intern.Queries.GetInternById;
+using LMS___Mini_Version.Features.Intern.Commands.CreateIntern;
+using LMS___Mini_Version.Features.Intern.Commands.UpdateIntern;
+using LMS___Mini_Version.Features.Intern.Commands.DeleteIntern;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -17,19 +24,21 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly IInternService _internService;
+        //private readonly IInternService _internService;
+        private readonly IMediator _mediator;
         private readonly IUnitOfWork _unitOfWork;
 
         public InternController(IInternService internService, IUnitOfWork unitOfWork)
         {
-            _internService = internService;
+            //_internService = internService;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
+            //var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _mediator.Send(new GetAllInternQuery());
             var viewModels = dtos.Select(d => d.ToSummaryViewModel());
             return Ok(viewModels);
         }
@@ -37,7 +46,8 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
         {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
+            //var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _mediator.Send(new GetInternByIdQuery(id));
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }
@@ -54,7 +64,8 @@ namespace LMS___Mini_Version.Controllers
                 TrackId = vm.TrackId
             };
 
-            var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
+            //var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
+            var created = await _mediator.Send(new CreateInternCommand(dto));
             await _unitOfWork.CompleteAsync().ConfigureAwait(false);
 
             return Ok(created.ToSummaryViewModel());
@@ -72,7 +83,8 @@ namespace LMS___Mini_Version.Controllers
                 TrackId = vm.TrackId
             };
 
-            var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
+            //var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
+            var updated = await _mediator.Send(new UpdateInternCommand(id, dto));
             if (!updated) return NotFound();
 
             await _unitOfWork.CompleteAsync().ConfigureAwait(false);
@@ -82,7 +94,8 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
+            //var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
+            var deleted = await _mediator.Send(new DeleteInternCommand(id));
             if (!deleted) return NotFound();
 
             await _unitOfWork.CompleteAsync().ConfigureAwait(false);
