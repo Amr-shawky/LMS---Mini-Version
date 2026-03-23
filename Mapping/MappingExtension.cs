@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Infrastructure.DTO_S.EnrollmentDTO_s;
 using LMS___Mini_Version.Infrastructure.DTO_S.InternDTo;
 using LMS___Mini_Version.ViewModels.InternViewModels;
 
@@ -36,7 +37,6 @@ namespace LMS___Mini_Version.Mapping
         }
 
 
-
         public static InternSummaryDTO ToInternSummaryDTO(this Intern entity) => new InternSummaryDTO()
         {
             Id = entity.Id,
@@ -47,6 +47,55 @@ namespace LMS___Mini_Version.Mapping
             TrackId = entity.TrackId,
             TrackName= entity.Track?.Name ?? string.Empty   
         };
+
+
+
+
+
+        public static EnrollmentDTO toEnrollmentDTO(this Enrollment entity)
+        {
+            return new EnrollmentDTO()
+            {
+                Id = entity.Id,
+                InternId = entity.InternId,
+                InternName = entity.Intern.FullName ?? string.Empty,
+                TrackId = entity.TrackId,
+                TrackName = entity.Track.Name ?? string.Empty,
+                EnrollmentDate = entity.EnrollmentDate,
+                Status = entity.Status
+            };
+        }
+
+        public static EnrollmentSummaryDTO ToEnrollmentSummaryDTO(this Enrollment entity)
+        {
+            return new EnrollmentSummaryDTO()
+            {
+                Id = entity.Id,
+                InternId = entity.InternId,
+                InternName = entity.Intern.FullName ?? string.Empty,
+                TrackId = entity.TrackId,
+                TrackName = entity.Track.Name ?? string.Empty,
+                EnrollmentDate = entity.EnrollmentDate,
+                Status = entity.Status
+            };
+        }
+
+        public static InternEnrollmentDto ToEnrollmentInternDto(this Enrollment entity)
+        {
+            return new InternEnrollmentDto()
+            {
+                Id = entity.Id,
+                InternId = entity.InternId,
+                InternName = entity.Intern.FullName ?? string.Empty,
+                TrackId = entity.TrackId,
+                TrackName = entity.Track.Name ?? string.Empty,
+                EnrollmentDate = entity.EnrollmentDate,
+                Status = entity.Status
+            };
+        }
+
+
+
 
     }
 }

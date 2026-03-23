@@ -2,7 +2,7 @@
 
 namespace LMS___Mini_Version.Infrastructure.DTO_S.EnrollmentDTO_s
 {
-    public class EnrollmentDTO
+    public class InternEnrollmentDto
     {
         public int Id { get; set; }
         public int InternId { get; set; }
