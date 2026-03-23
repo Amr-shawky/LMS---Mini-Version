@@ -1,6 +1,7 @@
 ﻿using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
@@ -13,17 +14,16 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
             _context = context;
         }
 
-        // مشكلة 3: تنفيذ الـ Query فوراً في الـ Repository (Memory Exhaustion)
-        public IEnumerable<T> GetAll() => _context.Set<T>().ToList();
+       
+        public async Task<IEnumerable<T>> GetAll() =>await _context.Set<T>().ToListAsync();
 
-        public T GetById(int id) => _context.Set<T>().Find(id);
+        public async Task<T?> GetById(int id) =>await _context.Set<T>().FindAsync(id);
 
         public IQueryable<T> GetTable() => _context.Set<T>();
 
         public void Add(T entity)
         {
             _context.Set<T>().Add(entity);
-            // مشكلة 4: مناداة SaveChanges هنا بتمنعنا من استخدام الـ Unit of Work لاحقاً
             _context.SaveChanges();
         }
 
@@ -33,9 +33,9 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
             _context.SaveChanges();
         }
 
-        public void Delete(int id)
+        public async void Delete(int id)
         {
-            var entity = GetById(id);
+            var entity =await GetById(id);
             if (entity != null)
             {
                 _context.Set<T>().Remove(entity);

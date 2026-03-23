@@ -1,9 +1,9 @@
-
+﻿
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
-
+using MediatR;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -21,6 +21,9 @@ namespace LMS___Mini_Version
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+         
+            builder.Services.AddMediatR(typeof(Program).Assembly);
 
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             var app = builder.Build();

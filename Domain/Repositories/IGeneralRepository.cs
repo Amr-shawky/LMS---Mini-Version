@@ -2,9 +2,9 @@
 {
     public interface IGeneralRepository<T> where T : class
     {
-        IEnumerable<T> GetAll();
+        Task<IEnumerable<T>> GetAll();
 
-        T GetById(int id);
+        Task<T?> GetById(int id);
 
         IQueryable<T> GetTable();
 

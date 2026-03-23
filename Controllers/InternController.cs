@@ -59,11 +59,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
-
-            _context.Interns.Remove(intern);
-            _context.SaveChanges();
+           
 
             return NoContent();
         }

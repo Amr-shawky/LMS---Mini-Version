@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	  <ItemGroup>
-		    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		    <PackageReference Include="MediatR" Version="9.0.0" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 		 
 	</ItemGroup>
 	<ItemGroup>
@@ -25,10 +25,14 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
-	  <ItemGroup>
-		    
-		    <Folder Include="Domain\Enums\" />
-		 
+	<ItemGroup>
+	  <Folder Include="Domain\CQRS\Payments\Commands\" />
+	  <Folder Include="Domain\CQRS\Tracks\Commands\" />
+	  <Folder Include="Infrastructure\ViewModels\Intern\" />
+	  <Folder Include="Infrastructure\ViewModels\Enrollment\" />
+	  <Folder Include="Infrastructure\ViewModels\Track\" />
+	  <Folder Include="Infrastructure\ViewModels\Payment\" />
 	</ItemGroup>
+
+	  
 </Project>

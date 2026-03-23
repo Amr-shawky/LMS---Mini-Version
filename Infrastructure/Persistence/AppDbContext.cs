@@ -12,5 +12,15 @@ namespace LMS___Mini_Version.Persistence
 
         public DbSet<Track> Tracks { get; set; }
         public DbSet<Intern> Interns { get; set; }
+
+        public DbSet<Payment> Payments { get; set; }
+
+        public DbSet<Enrollment> Enrollments { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        }
     }
 }
