@@ -113,5 +113,18 @@ namespace LMS___Mini_Version.Mapping
         }
 
 
+        public static TrackSummaryDTO ToTrackSummaryDto(this Track entity)
+        {
+            return new TrackSummaryDTO()
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Fees = entity.Fees,
+                IsActive = entity.IsActive,
+                MaxCapacity = entity.MaxCapacity,
+
+            };
+        }
+
     }
 }

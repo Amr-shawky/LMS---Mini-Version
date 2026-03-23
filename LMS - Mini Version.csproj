@@ -27,7 +27,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="CQRS\Payments\Commands\" />
-	  <Folder Include="CQRS\Tracks\Commands\" />
 	  <Folder Include="Infrastructure\ViewModels\Intern\" />
 	  <Folder Include="Infrastructure\ViewModels\Enrollment\" />
 	  <Folder Include="Infrastructure\ViewModels\Track\" />
