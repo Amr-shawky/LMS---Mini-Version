@@ -2,6 +2,6 @@
 
 namespace LMS___Mini_Version.Domain.CQRS.Interns.Commands
 {
-    public record DeleteInternCommand : IRequest<bool>;
+    public record DeleteInternCommand(int Id) : IRequest<bool>;
   
 }

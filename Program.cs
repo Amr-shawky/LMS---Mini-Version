@@ -24,7 +24,7 @@ namespace LMS___Mini_Version
 
          
             builder.Services.AddMediatR(typeof(Program).Assembly);
-
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             var app = builder.Build();
 
