@@ -1,6 +1,7 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Infrastructure.DTO_S.EnrollmentDTO_s;
 using LMS___Mini_Version.Infrastructure.DTO_S.InternDTo;
+using LMS___Mini_Version.Infrastructure.DTO_S.TracksDTO_s;
 using LMS___Mini_Version.ViewModels.InternViewModels;
 
 namespace LMS___Mini_Version.Mapping
@@ -95,6 +96,21 @@ namespace LMS___Mini_Version.Mapping
         }
 
 
+
+
+
+        public static TrackDto toTrackDto(this Track entity)
+        {
+            return new TrackDto()
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Fees = entity.Fees,
+                IsActive = entity.IsActive,
+                MaxCapacity = entity.MaxCapacity,
+
+            };
+        }
 
 
     }
