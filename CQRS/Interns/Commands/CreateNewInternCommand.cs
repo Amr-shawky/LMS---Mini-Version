@@ -1,0 +1,13 @@
+﻿using MediatR;
+
+namespace LMS___Mini_Version.CQRS.Interns.Commands
+{
+    public record CreateNewInternCommand(
+    string FullName,
+    string Email,
+    int BirthYear,
+    string Status,
+    int TrackId
+    ) : IRequest<bool>;
+
+}
