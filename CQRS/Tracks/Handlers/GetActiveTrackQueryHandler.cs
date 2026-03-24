@@ -15,7 +15,7 @@ namespace LMS___Mini_Version.CQRS.Tracks.Handlers
             var ActiveTracks = await _repository.GetTable()
                              .Include(t => t.Interns)
                              .Include(t => t.Enrollments)
-                             .Where(t => t.IsActive == true)
+                             .Where(t => t.IsActive == true )
                              .ToListAsync();
 
             var ActiveTracksDTOs = ActiveTracks.Select(t => t.toTrackDto()).ToList();
