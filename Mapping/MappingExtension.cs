@@ -1,6 +1,7 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Infrastructure.DTO_S.EnrollmentDTO_s;
 using LMS___Mini_Version.Infrastructure.DTO_S.InternDTo;
+using LMS___Mini_Version.Infrastructure.DTO_S.PayementsDTO_s;
 using LMS___Mini_Version.Infrastructure.DTO_S.TracksDTO_s;
 using LMS___Mini_Version.ViewModels.InternViewModels;
 
@@ -125,6 +126,21 @@ namespace LMS___Mini_Version.Mapping
 
             };
         }
+
+
+        public static PaymentDTO ToPaymentDto(this Payment entity)
+        {
+            return new PaymentDTO()
+            {
+                Id = entity.Id,
+                EnrollmentId = entity.EnrollmentId,
+                Amount = entity.Amount,
+                PaymentDate = entity.PaymentDate,
+                Status = entity.Status,
+                
+            };
+        }
+        
 
     }
 }

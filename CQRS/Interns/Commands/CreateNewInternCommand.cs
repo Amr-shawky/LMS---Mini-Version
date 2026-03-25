@@ -8,6 +8,6 @@ namespace LMS___Mini_Version.CQRS.Interns.Commands
     int BirthYear,
     string Status,
     int TrackId
-    ) : IRequest<bool>;
+    ) : IRequest<RequestResult<bool>>;
 
 }

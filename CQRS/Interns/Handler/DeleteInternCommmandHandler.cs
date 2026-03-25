@@ -3,7 +3,7 @@ using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using MediatR;
 
-namespace LMS___Mini_Version.CQRS.Interns.Commands.Handler
+namespace LMS___Mini_Version.CQRS.Interns.Handler
 {
     public class DeleteInternCommmandHandler : IRequestHandler<DeleteInternCommand, bool>
     {
