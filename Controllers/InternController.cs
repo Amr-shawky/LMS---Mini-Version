@@ -2,9 +2,10 @@
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Persistence;
 using MediatR;
-using LMS___Mini_Version.Domain.CQRS.Interns.Query;
+
 using LMS___Mini_Version.ViewModels.InternViewModels;
 using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.CQRS.Interns.Query;
 
 namespace LMS___Mini_Version.Controllers
 {

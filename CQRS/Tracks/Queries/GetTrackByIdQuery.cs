@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.CQRS.Tracks.Queries
                          .FirstOrDefaultAsync(x=>x.Id == request.Id);
             if (track == null)
             {
-                return  RequestResult<TrackSummaryDTO?>.Failure(ErrorCode.TrackNotFound, $"the request with TrackId{request.Id} is not Founded");
+                return  RequestResult<TrackSummaryDTO?>.Failure(ErrorCode.TrackNotFound);
                 //throw new Exception($"Track with ID {request.Id} not found.");
             }
 

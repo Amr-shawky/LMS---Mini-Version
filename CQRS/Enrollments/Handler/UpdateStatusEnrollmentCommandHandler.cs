@@ -6,26 +6,27 @@ using MediatR;
 
 namespace LMS___Mini_Version.CQRS.Enrollments.Handler
 {
-    public class UpdateStatusEnrollmentCommandHandler(IGeneralRepository<Enrollment> _repository) : IRequestHandler<UpdateStatusEnrollmentCommand, bool>
+    public class UpdateStatusEnrollmentCommandHandler : IRequestHandler<UpdateStatusEnrollmentCommand, RequestResult<bool>>
     {
-        public async Task<bool> Handle(UpdateStatusEnrollmentCommand request, CancellationToken cancellationToken)
+        //private readonly IMediator mediator;
+        private readonly IGeneralRepository<Enrollment> _repository;
+        public UpdateStatusEnrollmentCommandHandler(IGeneralRepository<Enrollment> repository)
         {
-            try
-            {
-                var enroll =await _repository.GetById(request.enrollmentId);
-                if (enroll == null)
-                {
-                    throw new NotImplementedException();
-                }
-                enroll.Status = request.newStatus;
+            _repository = repository;
+        }
+        public async Task<RequestResult<bool>> Handle(UpdateStatusEnrollmentCommand request, CancellationToken cancellationToken)
+        {
 
-                
-            }
-            catch (Exception ex)
+            var enroll = await _repository.GetById(request.enrollmentId);
+            if (enroll == null)
             {
-                throw new NotImplementedException(ex.Message);
+                return RequestResult<bool>.Failure(ErrorCode.EnrollMentNotExist);
             }
-            return await Task.FromResult(true);
+            enroll.Status = request.newStatus;
+
+            _repository.Update(enroll);
+
+            return await Task.FromResult(RequestResult<bool>.Success(true));
         }
     }
 

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace LMS___Mini_Version.CQRS.Enrollments.Query
 {
-    public record GetByIdEnrollmentQuery(int Id):IRequest<EnrollmentSummaryDTO>;
+    public record GetByIdEnrollmentQuery(int Id):IRequest<RequestResult<EnrollmentSummaryDTO?>>;
 
    
 }

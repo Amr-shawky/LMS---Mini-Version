@@ -1,5 +1,6 @@
 ﻿using LMS___Mini_Version.CQRS.Enrollments.Query;
 using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Infrastructure.DTO_S.EnrollmentDTO_s;
 using LMS___Mini_Version.Mapping;
@@ -8,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.CQRS.Enrollments.Handler
 {
-    public class GetByIdEnrollmentQueryHandler : IRequestHandler<GetByIdEnrollmentQuery, EnrollmentSummaryDTO>
+    public class GetByIdEnrollmentQueryHandler : IRequestHandler<GetByIdEnrollmentQuery, RequestResult<EnrollmentSummaryDTO?>>
     {
         private readonly IGeneralRepository<Enrollment> _repository;
         public GetByIdEnrollmentQueryHandler(IGeneralRepository<Enrollment> repository)
         {
             _repository=repository;
         }
-        public async Task<EnrollmentSummaryDTO> Handle(GetByIdEnrollmentQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResult<EnrollmentSummaryDTO?>> Handle(GetByIdEnrollmentQuery request, CancellationToken cancellationToken)
         {
             var Enroll = await _repository.GetTable()
                         .Include(e=>e.Track)
@@ -24,9 +25,10 @@ namespace LMS___Mini_Version.CQRS.Enrollments.Handler
                         .ConfigureAwait(false);
             if (Enroll == null)
             {
-                throw new NotImplementedException();
+                return RequestResult<EnrollmentSummaryDTO?>.Failure(ErrorCode.EnrollMentNotExist);
             }
-            return Enroll.ToEnrollmentSummaryDTO();
+
+            return RequestResult<EnrollmentSummaryDTO?>.Success(Enroll.ToEnrollmentSummaryDTO());
 
         }
     }

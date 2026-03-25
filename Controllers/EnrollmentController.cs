@@ -22,5 +22,13 @@ namespace LMS___Mini_Version.Controllers
             // Return just success message
             return  Ok(new { message = "Enrollment successful" });
         }
+
+
+        //[HttpPost("{id}")]
+        //public async Task<IActionResult> Cancel(int id)
+        //{
+
+        //}
+
     }
 }

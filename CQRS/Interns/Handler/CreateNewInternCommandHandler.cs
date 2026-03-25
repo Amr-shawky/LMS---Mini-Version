@@ -13,7 +13,7 @@ namespace LMS___Mini_Version.CQRS.Interns.Handler
         {
             _repositiory = repositiory;
         }
-        public Task<RequestResult<bool>> Handle(CreateNewInternCommand request, CancellationToken cancellationToken)
+        public async Task<RequestResult<bool>> Handle(CreateNewInternCommand request, CancellationToken cancellationToken)
         {
             var newIntern = new Intern
             {
@@ -25,8 +25,8 @@ namespace LMS___Mini_Version.CQRS.Interns.Handler
             };
 
             _repositiory.Add(newIntern);
-            
-            return Task.FromResult(new RequestResult<bool>(true,true,ErrorCode.None));
+
+            return RequestResult<bool>.Success(true);
         }
     }
 }

@@ -10,5 +10,12 @@
         TrackNotActive=202,
         TrackFull=203,
         NoFees=204,
+
+
+        EnrollMentNotExist=301,
+        UpdateError=302,
+
+
+        paymentNotExist=401,
     }
 }
