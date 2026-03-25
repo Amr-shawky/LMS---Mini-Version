@@ -8,6 +8,7 @@
 
         TrackNotFound=201,
         TrackNotActive=202,
-        TrackFull=203
+        TrackFull=203,
+        NoFees=204,
     }
 }
