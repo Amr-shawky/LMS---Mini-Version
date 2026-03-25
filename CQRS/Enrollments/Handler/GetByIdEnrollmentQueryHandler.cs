@@ -21,6 +21,7 @@ namespace LMS___Mini_Version.CQRS.Enrollments.Handler
             var Enroll = await _repository.GetTable()
                         .Include(e=>e.Track)
                         .Include(e=>e.Intern)
+                        .Include(e=>e.Payment)
                         .FirstOrDefaultAsync(e => e.Id == request.Id, cancellationToken)
                         .ConfigureAwait(false);
             if (Enroll == null)

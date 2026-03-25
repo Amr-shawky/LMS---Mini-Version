@@ -17,5 +17,6 @@
 
 
         paymentNotExist=401,
+        paymentNotEdited=402,
     }
 }

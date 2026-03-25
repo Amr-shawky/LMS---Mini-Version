@@ -78,7 +78,8 @@ namespace LMS___Mini_Version.Mapping
                 TrackId = entity.TrackId,
                 TrackName = entity.Track.Name ?? string.Empty,
                 EnrollmentDate = entity.EnrollmentDate,
-                Status = entity.Status
+                Status = entity.Status,
+                PaymentId=entity.Payment.Id
             };
         }
 

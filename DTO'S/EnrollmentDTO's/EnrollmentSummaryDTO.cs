@@ -11,5 +11,6 @@ namespace LMS___Mini_Version.Infrastructure.DTO_S.EnrollmentDTO_s
         public string TrackName { get; set; } = string.Empty;
         public DateTime EnrollmentDate { get; set; }
         public EnrollmentStatus Status { get; set; }
+        public int? PaymentId  { get; set; }
     }
 }
