@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.CQRS.Interns.Query.Handler
 {
-    public class GetInternByIdQueryHandler : IRequestHandler<GetInternByIdQuery, InternSummaryDTO>
+    public class GetInternByIdQueryHandler : IRequestHandler<GetInternByIdQuery, InternSummaryDTO?>
     {
         private readonly IGeneralRepository<Intern> _repository;
 
@@ -16,7 +16,7 @@ namespace LMS___Mini_Version.CQRS.Interns.Query.Handler
         {
             _repository = repository;
         }
-        async Task<InternSummaryDTO> IRequestHandler<GetInternByIdQuery, InternSummaryDTO>.Handle(GetInternByIdQuery request, CancellationToken cancellationToken)
+        async Task<InternSummaryDTO?> IRequestHandler<GetInternByIdQuery, InternSummaryDTO?>.Handle(GetInternByIdQuery request, CancellationToken cancellationToken)
         {
             //var intern=await _repository.GetById(request.Id);
 
@@ -29,7 +29,7 @@ namespace LMS___Mini_Version.CQRS.Interns.Query.Handler
             if (intern == null)
             {
 
-                throw new NotImplementedException();
+               return null;
             }
             var internDto= intern.ToInternSummaryDTO();
             return internDto;

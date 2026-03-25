@@ -4,8 +4,10 @@
     {
         None = 0,
 
-        InternNameExists=101,
-        InternNameNotFound=102,
-        
+        InternNotFound=101,
+
+        TrackNotFound=201,
+        TrackNotActive=202,
+        TrackFull=203
     }
 }

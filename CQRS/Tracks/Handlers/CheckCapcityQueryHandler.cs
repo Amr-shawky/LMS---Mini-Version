@@ -7,23 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.CQRS.Tracks.Handlers
 {
-    public class CheckCapcityQueryHandler(IGeneralRepository<Track> _repository) : IRequestHandler<CheckCapacityQuery, bool>
+    public class CheckCapcityQueryHandler(IGeneralRepository<Track> _repository) : IRequestHandler<CheckCapacityQuery, RequestResult<bool>>
     {
-        public async Task<bool> Handle(CheckCapacityQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResult<bool>> Handle(CheckCapacityQuery request, CancellationToken cancellationToken)
         {
-            var track=await _repository.GetTable()
-                       .Include(t=>t.Enrollments)
+            var track = await _repository.GetTable()
+                       .Include(t => t.Enrollments)
                        .FirstOrDefaultAsync(t => t.Id == request.trackId, cancellationToken)
                        .ConfigureAwait(false);
 
-            if (track == null) return false;
+            if (track == null) return RequestResult<bool>.Failure(ErrorCode.TrackNotFound);
 
 
             var activeCount = track.Enrollments
              .Count(e => e.Status != EnrollmentStatus.Cancelled);
-            return activeCount < track.MaxCapacity;
+            return RequestResult<bool>.Success(activeCount < track.MaxCapacity);
 
-            
+
         }
     }
 }

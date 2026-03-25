@@ -3,6 +3,6 @@ using MediatR;
 
 namespace LMS___Mini_Version.CQRS.Interns.Query
 {
-    public record GetInternByIdQuery(int Id):IRequest<InternSummaryDTO>;
+    public record GetInternByIdQuery(int Id):IRequest<InternSummaryDTO?>;
    
 }

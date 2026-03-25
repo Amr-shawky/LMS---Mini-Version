@@ -16,7 +16,8 @@ namespace LMS___Mini_Version.CQRS.Enrollments.Handler
                 InternId=request.internId,
                 TrackId=request.trackId,
                 EnrollmentDate = DateTime.UtcNow,
-                Status = EnrollmentStatus.Pending
+                Status = EnrollmentStatus.Pending,
+                
             };
             _repository.Add(Enroll);
             return Task.FromResult(Enroll);

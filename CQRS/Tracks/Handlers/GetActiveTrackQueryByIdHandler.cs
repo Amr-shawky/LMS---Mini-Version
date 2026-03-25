@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.CQRS.Tracks.Handlers
 {
-    public class GetActiveTrackQueryHandler(IGeneralRepository<Track> _repository) : IRequestHandler<GetActiveTrackQuery, IEnumerable<TrackDto>>
+    public class GetActiveTrackQueryByIdHandler(IGeneralRepository<Track> _repository) : IRequestHandler<GetActiveTrackByIdQuery, IEnumerable<TrackDto>>
     {
-        public async Task<IEnumerable<TrackDto>> Handle(GetActiveTrackQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TrackDto>> Handle(GetActiveTrackByIdQuery request, CancellationToken cancellationToken)
         {
             var ActiveTracks = await _repository.GetTable()
                              .Include(t => t.Interns)

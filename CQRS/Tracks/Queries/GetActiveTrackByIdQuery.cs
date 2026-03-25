@@ -3,6 +3,6 @@ using MediatR;
 
 namespace LMS___Mini_Version.CQRS.Tracks.Queries
 {
-    public record GetActiveTrackQuery : IRequest<IEnumerable<TrackDto>>;
+    public record GetActiveTrackByIdQuery(int id) : IRequest<IEnumerable<TrackDto>>;
     
 }
