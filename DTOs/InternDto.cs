@@ -1,3 +1,5 @@
+using LMS___Mini_Version.Domain.Enums;
+
 namespace LMS___Mini_Version.DTOs
 {
     /// <summary>
@@ -9,7 +11,7 @@ namespace LMS___Mini_Version.DTOs
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public int BirthYear { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public InternStatus Status { get; set; } 
         public int TrackId { get; set; }
         public string TrackName { get; set; } = string.Empty;
     }
