@@ -1,8 +1,3 @@
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Persistence;
-using Microsoft.EntityFrameworkCore;
-
 namespace LMS___Mini_Version.Infrastructure.Repositories;
 
 public class TrackRepository : GeneralRepository<Track> , ITrackRepository
@@ -15,15 +10,14 @@ public class TrackRepository : GeneralRepository<Track> , ITrackRepository
 
     public async Task<bool> CheckCapacityAsync(int trackId)
     {
-        var track =await _context.Tracks
-            .FirstOrDefaultAsync(t => t.Id == trackId)
-            .ConfigureAwait(false);
+        var track = await _context.Tracks
+            .FirstOrDefaultAsync(t => t.Id == trackId);
 
         if (track == null) return false;
-        
+
         var activeCount = await _context.Enrollments
-            .CountAsync(e=>e.TrackId == trackId && e.Status != Domain.Enums.EnrollmentStatus.Cancelled)
-            .ConfigureAwait(false);
+            .CountAsync(e => e.TrackId == trackId 
+                       && e.Status != EnrollmentStatus.Cancelled);
         
         return activeCount < track.MaxCapacity;
     }
@@ -32,34 +26,30 @@ public class TrackRepository : GeneralRepository<Track> , ITrackRepository
     {
         return await _context.Tracks
             .Where(t => t.IsActive)
-            .ToListAsync()
-            .ConfigureAwait(false);
+            .ToListAsync();
     }
 
     public async Task<Track?> GetByIdWithEnrollmentCountAsync(int id)
     {
-        var track =await _context.Tracks
-            .FirstOrDefaultAsync(t => t.Id == id)
-            .ConfigureAwait(false);
+        var track = await _context.Tracks
+            .FirstOrDefaultAsync(t => t.Id == id);
         
         if(track == null) return null;
-        
+
         track.MaxCapacity = await _context.Enrollments
-            .CountAsync(e=>e.TrackId == track.Id && e.Status != Domain.Enums.EnrollmentStatus.Cancelled)
-            .ConfigureAwait(false);
+            .CountAsync(e => e.TrackId == track.Id
+                       && e.Status != EnrollmentStatus.Cancelled);
         return track;
     }
 
     public async Task<bool> IsNameTakenAsync(string name)
     {
-        return await _context.Tracks.AnyAsync(t => t.Name.ToLower() == name.ToLower())
-            .ConfigureAwait(false);
+        return await _context.Tracks.AnyAsync(t => t.Name.ToLower() == name.ToLower());
         
     }
 
     public async Task<bool> IsTrackActiveAsync(int id)
     {
-        return await _context.Tracks.AnyAsync(t => t.Id == id && t.IsActive)
-            .ConfigureAwait(false);
+        return await _context.Tracks.AnyAsync(t => t.Id == id && t.IsActive);
     }
 }

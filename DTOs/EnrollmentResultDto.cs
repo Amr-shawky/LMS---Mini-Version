@@ -13,8 +13,8 @@ public class EnrollmentResultDto
         IsSuccess = false,
         ErrorMessage = errorMessage
     };
-    public static EnrollmentResultDto Succeed
-        (EnrollmentDto enrollment, PaymentDto? payment) => new()
+    public static EnrollmentResultDto Succeed(EnrollmentDto enrollment, PaymentDto? payment) 
+    => new()
     {
         IsSuccess = true,
         Enrollment = enrollment,

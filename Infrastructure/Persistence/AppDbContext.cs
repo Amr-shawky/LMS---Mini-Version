@@ -1,7 +1,4 @@
-﻿using LMS___Mini_Version.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-
-namespace LMS___Mini_Version.Persistence
+﻿namespace LMS___Mini_Version.Persistence
 {
     public class AppDbContext : DbContext
     {

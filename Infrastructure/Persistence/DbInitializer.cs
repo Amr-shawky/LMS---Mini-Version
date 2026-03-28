@@ -1,7 +1,4 @@
-﻿using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Domain.Enums;
-
-namespace LMS___Mini_Version.Persistence
+﻿namespace LMS___Mini_Version.Persistence
 {
     public static class DbInitializer
     {

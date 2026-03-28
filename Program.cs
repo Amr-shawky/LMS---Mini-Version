@@ -1,15 +1,3 @@
-using System.Reflection;
-using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Features.Enrollments.Services;
-using LMS___Mini_Version.Features.Enrollments.Validators;
-using LMS___Mini_Version.Features.Interns.validators;
-using LMS___Mini_Version.Infrastructure.Repositories;
-using LMS___Mini_Version.Mediators;
-using LMS___Mini_Version.Persistence;
-using LMS___Mini_Version.Services.Implementations;
-using LMS___Mini_Version.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -33,20 +21,12 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            // ─── Services (Single-Entity Steps) ───────────────────────────
-            // [Trap 5 Fix] Business logic lives here, not in Controllers.
-            builder.Services.AddScoped<ITrackService, TrackService>();
-            builder.Services.AddScoped<IInternService, InternService>();
-            builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
-            builder.Services.AddScoped<IPaymentService, PaymentService>();
-            builder.Services.AddScoped<EnrollmentCreator>();
+         
             // ───validators────────────────────────────────────────────────
             builder.Services.AddScoped<CreateInternValidators>();
             builder.Services.AddScoped<UpdateInternValidator>();
             builder.Services.AddScoped<EnrollmentValidator>();
-            // ─── Mediators (Action Coordinators) ──────────────────────────
-            // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
-            builder.Services.AddScoped<EnrollInternMediator>();
+            // ─── Mediators  ──────────────────────────
             builder.Services.AddMediatR(cfg=>cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             
             var app = builder.Build();

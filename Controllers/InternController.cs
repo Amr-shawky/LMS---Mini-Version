@@ -1,33 +1,13 @@
-﻿using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
-using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Features.Interns.Commands.CreateInternCommand;
-using LMS___Mini_Version.Features.Interns.Commands.DeleteInternCommand;
-using LMS___Mini_Version.Features.Interns.Commands.UpdateInternCommand;
-using LMS___Mini_Version.Features.Interns.Queries;
-using LMS___Mini_Version.Features.Interns.Queries.GetAllInternQuery;
-using LMS___Mini_Version.Features.Interns.Queries.GetInternByIdQuery;
-using LMS___Mini_Version.Services.Interfaces;
-using LMS___Mini_Version.ViewModels.Intern;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-
-namespace LMS___Mini_Version.Controllers
+﻿namespace LMS___Mini_Version.Controllers
 {
-        /// <summary>
-        /// Implement SRP & Clean Architecture.
-        ///  Intern controller does
-        /// Receive requests from the client,
-        ///  Delegate to Mediator,
-        ///  Return responses to the client.
-        /// </summary>
+     
     [ApiController]
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
         private readonly IMediator _mediator;
-
         public InternController(IMediator mediator) => _mediator = mediator;
+
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -46,9 +26,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateInternCommand command)
         {
-            // Handler returns new Id
             var id = await _mediator.Send(command);
-            // 201 Created 
             return CreatedAtAction(nameof(GetById), new { id }, id);
         }
 
@@ -65,5 +43,7 @@ namespace LMS___Mini_Version.Controllers
             var result = await _mediator.Send(new DeleteInternCommand(id));
             return result ? NoContent() : NotFound($"Intern with Id {id} was not found.");
         }
+
+
     }
 }

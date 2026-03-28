@@ -1,19 +1,5 @@
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.ViewModels.Track;
-using LMS___Mini_Version.ViewModels.Intern;
-using LMS___Mini_Version.ViewModels.Enrollment;
-using LMS___Mini_Version.ViewModels.Payment;
-
 namespace LMS___Mini_Version.Mapping
 {
-    /// <summary>
-    /// [Trap 2 Fix] Manual mapping between Entity ↔ DTO ↔ ViewModel layers.
-    /// This ensures each layer has its own representation of data:
-    ///   Entity   → the database shape (never leaves the Service layer)
-    ///   DTO      → the inter-service shape (flows between Service ↔ Mediator)
-    ///   ViewModel → the client shape (flows between Controller ↔ Client)
-    /// </summary>
     public static class MappingExtensions
     {
         // ═══════════════════════════════════════════════════════

@@ -1,6 +1,0 @@
-using LMS___Mini_Version.DTOs;
-using MediatR;
-
-namespace LMS___Mini_Version.Features.Enrollments.Queries.GetActiveEnrollmentByInternId;
-
-public record GetActiveEnrollmentByInternIdQuery(int InternId):IRequest<EnrollmentDto>;

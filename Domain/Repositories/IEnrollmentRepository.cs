@@ -1,8 +1,3 @@
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Domain.Enums;
-using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mediators;
-
 namespace LMS___Mini_Version.Domain.Repositories;
 
 public interface IEnrollmentRepository :IGeneralRepository<Enrollment>

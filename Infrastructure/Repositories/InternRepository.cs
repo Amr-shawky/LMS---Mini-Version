@@ -1,8 +1,3 @@
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Persistence;
-using Microsoft.EntityFrameworkCore;
-
 namespace LMS___Mini_Version.Infrastructure.Repositories;
 
 public class InternRepository : GeneralRepository<Intern> , IInternRepository
@@ -16,35 +11,31 @@ public class InternRepository : GeneralRepository<Intern> , IInternRepository
     public async Task<bool> IsEmailAddressTakenAsync(string email)
     {
         return await _context.Interns
-            .AnyAsync(e=>e.Email.ToLower() == email.ToLower())
-            .ConfigureAwait(false);
+            .AnyAsync(e => e.Email.ToLower() == email.ToLower());
         
     }
 
     
-    public async Task<Intern?> GetWithTrackAsync(int Internid)
+    public async Task<Intern?> GetWithTrackAsync(int InternId)
     {
         return await _context.Interns
             .Include(i => i.Track)
-            .FirstOrDefaultAsync(i => i.Id == Internid)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(i => i.Id == InternId);
     }
 
     public async Task<IEnumerable<Intern>> GetAllWithTrackAsync()
     {
         return await _context.Interns
             .Include(i => i.Track)
-            .ToListAsync()
-            .ConfigureAwait(false);
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Intern>> GetAllByTrackIdAsync(int trackId)
     {
         return await _context.Interns
-            .Include(e=>e.Track)
-            .Where(e=>e.TrackId == trackId)
-            .OrderBy(e=>e.FullName)
-            .ToListAsync()
-            .ConfigureAwait(false);
+            .Include(e => e.Track)
+            .Where(e => e.TrackId == trackId)
+            .OrderBy(e => e.FullName)
+            .ToListAsync();
     }
 }

@@ -1,9 +1,3 @@
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Domain.Enums;
-using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Persistence;
-using Microsoft.EntityFrameworkCore;
-
 namespace LMS___Mini_Version.Infrastructure.Repositories;
 
 public class PaymentRepository: GeneralRepository<Payment>, IPaymentRepository
@@ -19,8 +13,7 @@ public class PaymentRepository: GeneralRepository<Payment>, IPaymentRepository
     public async Task<Payment?> GetByEnrollmentIdAsync(int enrollmentId)
     {
         return await _context.Payments
-            .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId);
     }
 
     // ✅ All payments with enrollment + intern + track context
@@ -32,16 +25,14 @@ public class PaymentRepository: GeneralRepository<Payment>, IPaymentRepository
             .Include(p => p.Enrollment)
             .ThenInclude(e => e.Track)
             .OrderByDescending(p => p.Id)
-            .ToListAsync()
-            .ConfigureAwait(false);
+            .ToListAsync();
     }
 
     // ✅ Refund — stages change only, UoW commits
     public async Task<bool> RefundPaymentAsync(int enrollmentId)
     {
         var payment = await _context.Payments
-            .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId);
 
         if (payment == null) return false;
         if (payment.Status == PaymentStatus.Refunded) return false;
@@ -54,8 +45,7 @@ public class PaymentRepository: GeneralRepository<Payment>, IPaymentRepository
     public async Task<bool> IsPaidAsync(int enrollmentId)
     {
         return await _context.Payments
-            .AnyAsync(p => p.EnrollmentId == enrollmentId
-                           && p.Status == PaymentStatus.Completed)
-            .ConfigureAwait(false);
+                    .AnyAsync(p => p.EnrollmentId == enrollmentId
+                             && p.Status == PaymentStatus.Completed);
     }
 }
