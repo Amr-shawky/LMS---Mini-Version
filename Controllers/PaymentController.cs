@@ -45,7 +45,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 6: Wire this endpoint using IMediator");
+            var result = await _mediator.Send(new GetPaymentByIdQuery(id));
+            return Ok(result);
         }
 
         [HttpGet("pending")]
@@ -60,7 +61,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 7: Wire this endpoint using IMediator");
+            var result = await _mediator.Send(new GetPendingPaymentsQuery());
+            return Ok(result);
         }
     }
 }

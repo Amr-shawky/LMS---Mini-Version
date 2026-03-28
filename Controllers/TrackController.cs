@@ -37,7 +37,9 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 1: Wire this endpoint using IMediator");
+            var track = await _mediator.Send(new GetTrackByIdQuery(id));
+            if (track == null) return NotFound();
+            return Ok(track);
         }
 
         [HttpGet("active")]
@@ -52,7 +54,10 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 4: Wire this endpoint using IMediator");
+            
+            var activeTracks = await _mediator.Send(new GetActiveTracksQuery());
+            return Ok(activeTracks);
+
         }
 
         [HttpPost]
@@ -71,9 +76,8 @@ namespace LMS___Mini_Version.Controllers
             var updated = await _mediator.Send(new UpdateTrackCommand(
                 id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
             ));
-
             if (!updated) return NotFound();
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]

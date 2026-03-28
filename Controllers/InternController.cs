@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Features.Interns.Commands;
+using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.ViewModels.Intern;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 2: Wire this endpoint using IMediator");
+          var Result = await _mediator.Send(new GetAllInternsQuery());
+            return Ok(Result);
         }
 
         [HttpGet("{id}")]
@@ -43,7 +45,8 @@ namespace LMS___Mini_Version.Controllers
             // 3) Use _mediator.Send(...) here to dispatch the query
             //    and return the result
             // ══════════════════════════════════════════════════════════════
-            throw new NotImplementedException("Task 3: Wire this endpoint using IMediator");
+            var result = await _mediator.Send(new GetInternByIdQuery(id));
+            return Ok(result);
         }
 
         [HttpPost]
