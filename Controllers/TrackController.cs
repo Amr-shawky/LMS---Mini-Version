@@ -38,7 +38,8 @@ namespace LMS___Mini_Version.Controllers
             //    and return the result
             // ══════════════════════════════════════════════════════════════
             var track = await _mediator.Send(new GetTrackByIdQuery(id));
-            if (track == null) return NotFound();
+            if (track == null) return NotFound();  
+
             return Ok(track);
         }
 
