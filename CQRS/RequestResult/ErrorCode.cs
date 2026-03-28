@@ -3,6 +3,9 @@
     public enum ErrorCode
     {
         None,
-        NotFound
+        NotFound,
+        IsAreadyExist,
+        InvalidData,
+        NotExist
     }
 }

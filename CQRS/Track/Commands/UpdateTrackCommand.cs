@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.CQRS.Track.Commands
 {
-    public record UpdateTrackCommand(int id, string name, decimal fees, bool isActive, int maxCapacity) : IRequest<RequestResult<bool>>;    
+    public record UpdateTrackCommand(int id, string? name, decimal? fees, bool isActive, int? maxCapacity) : IRequest<RequestResult<bool>>;    
 }

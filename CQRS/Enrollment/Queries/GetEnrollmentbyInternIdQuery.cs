@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.CQRS.Enrollment.Queries
 {
-    public record GetEnrollmentbyInternIdQuery(int internId) : IRequest<RequestResult<IEnumerable<EnrollmentDto>>>;
+    public record GetEnrollmentbyInternIdQuery(int internId) : IRequest<RequestResult<EnrollmentDto>>;
 }

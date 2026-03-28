@@ -29,7 +29,14 @@ namespace LMS___Mini_Version.Mapping
             MaxCapacity = entity.MaxCapacity,
             CurrentEnrollmentCount = entity.Enrollments?.Count ?? 0
         };
-
+        public static Track ToDomain(this TrackDto entity) => new()
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Fees = entity.Fees,
+            IsActive = entity.IsActive,
+            MaxCapacity = entity.MaxCapacity,
+        };
         public static TrackSummaryViewModel ToSummaryViewModel(this TrackDto dto) => new()
         {
             Id = dto.Id,

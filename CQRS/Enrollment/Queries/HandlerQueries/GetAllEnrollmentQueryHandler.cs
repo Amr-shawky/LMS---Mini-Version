@@ -16,7 +16,6 @@ namespace LMS___Mini_Version.CQRS.Enrollment.Queries.HandlerQueries
             return (enrollmentsDto==null)
                 ?RequestResult<IEnumerable<EnrollmentDto>>.Failure(ErrorCode.NotFound) 
                 :RequestResult<IEnumerable<EnrollmentDto>>.Success(enrollmentsDto);
-            throw new NotImplementedException();
         }
     }
 }
