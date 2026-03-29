@@ -74,8 +74,18 @@ namespace LMS___Mini_Version.Mediators
                 return EnrollmentResultDto.Fail($"Track '{track.Name}' has reached its maximum capacity.");
             }
 
+            var existingEnrollments = await _enrollmentService.GetByInternAsync(dto.InternId).ConfigureAwait(false);
+            if (existingEnrollments.Any(e => e.TrackId == dto.TrackId))
+            {
+                return EnrollmentResultDto.Fail($"Intern is already enrolled in this track.");
+            }
+
             // Step 4: Create enrollment (staged in Change Tracker, NOT saved yet)
             var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto).ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+
+            var enrollments = await _enrollmentService.GetByInternAsync(dto.InternId).ConfigureAwait(false);
+            enrollment = enrollments.OrderByDescending(e => e.EnrollmentDate).First();
 
             // Step 5: If the track has fees, create a payment record (also staged, NOT saved)
             PaymentDto? payment = null;
@@ -83,15 +93,15 @@ namespace LMS___Mini_Version.Mediators
             {
                 payment = await _paymentService.CreatePaymentAsync(new PaymentDto
                 {
-                    EnrollmentId = 0, // Will be resolved by EF after SaveChanges
+                    EnrollmentId = enrollment.Id,
                     Amount = track.Fees,
                     Method = PaymentMethod.Cash,
                     Status = PaymentStatus.Pending
                 }).ConfigureAwait(false);
-            }
 
-            // Step 6: ATOMIC COMMIT — everything saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+                // Step 6: ATOMIC COMMIT — everything saved in one transaction
+                await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            }
 
             return EnrollmentResultDto.Succeed(enrollment, payment);
         }
