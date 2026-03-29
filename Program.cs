@@ -1,10 +1,15 @@
+using LMS___Mini_Version.Behaviors;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Mediators;
+using LMS___Mini_Version.Middleware;
 using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace LMS___Mini_Version
 {
@@ -40,6 +45,13 @@ namespace LMS___Mini_Version
             // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
             builder.Services.AddScoped<EnrollInternMediator>();
 
+            builder.Services.AddMediatR(cfg =>
+              cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+            builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+
             var app = builder.Build();
 
             // ─── Seed Data ────────────────────────────────────────────────
@@ -51,6 +63,8 @@ namespace LMS___Mini_Version
             }
 
             // ─── HTTP Pipeline ────────────────────────────────────────────
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
