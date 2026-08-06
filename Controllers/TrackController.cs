@@ -1,72 +1,91 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Services.Interfaces;
+using LMS___Mini_Version.ViewModels.Track;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
+    /// <summary>
+    /// [Trap 1 Fix] This controller NO LONGER injects AppDbContext.
+    ///              It depends only on ITrackService and IUnitOfWork (abstractions).
+    /// [Trap 2 Fix] All responses use ViewModels; all inputs use ViewModels.
+    ///              The domain entity "Track" is never exposed to the client.
+    /// [Trap 3 Fix] Every action is async Task — no synchronous blocking.
+    /// [Trap 5 Fix] No business logic in the controller — all delegated to TrackService.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ITrackService _trackService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TrackController(AppDbContext context)
+        public TrackController(ITrackService trackService, IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _trackService = trackService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public IEnumerable<Track> GetAll()
+        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
-            var tracks = _context.Tracks.ToList();
-            return tracks;
+            var dtos = await _trackService.GetAllAsync().ConfigureAwait(false);
+            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            return Ok(viewModels);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Track> GetById(int id)
+        public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
-            var track = _context.Tracks.Find(id);
-
-            if (track == null)
-            {
-                return NotFound();
-            }
-
-            return track;
+            var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+            if (dto == null) return NotFound();
+            return Ok(dto.ToDetailViewModel());
         }
 
         [HttpPost]
-        public ActionResult Create(Track track)
+        public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
         {
-            _context.Tracks.Add(track);
-            _context.SaveChanges();
+            var dto = new TrackDto
+            {
+                Name = vm.Name,
+                Fees = vm.Fees,
+                IsActive = vm.IsActive,
+                MaxCapacity = vm.MaxCapacity
+            };
 
-            return Ok(track);
+            var created = await _trackService.CreateAsync(dto).ConfigureAwait(false);
+            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+
+            return Ok(created.ToSummaryViewModel());
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Track updatedTrack)
+        public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
+            var dto = new TrackDto
+            {
+                Name = vm.Name,
+                Fees = vm.Fees,
+                IsActive = vm.IsActive,
+                MaxCapacity = vm.MaxCapacity
+            };
 
-            track.Name = updatedTrack.Name;
-            track.Fees = updatedTrack.Fees;
-            track.IsActive = updatedTrack.IsActive;
+            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
+            if (!updated) return NotFound();
 
-            _context.SaveChanges();
+            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
+            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
+            if (!deleted) return NotFound();
 
-            _context.Tracks.Remove(track);
-            _context.SaveChanges();
-
+            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
             return NoContent();
         }
     }
