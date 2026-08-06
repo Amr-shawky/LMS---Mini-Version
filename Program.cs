@@ -1,8 +1,15 @@
-
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Features.Enrollment.Queries.Handlers;
 using LMS___Mini_Version.Infrastructure.Repositories;
+using LMS___Mini_Version.Mediators;
+using LMS___Mini_Version.Middleware;
 using LMS___Mini_Version.Persistence;
+using LMS___Mini_Version.Services.Implementations;
+using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
 
 namespace LMS___Mini_Version
 {
@@ -12,19 +19,39 @@ namespace LMS___Mini_Version
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
+            // ─── Framework Services ───────────────────────────────────────
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // ─── Database ─────────────────────────────────────────────────
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // ─── Repository & Unit of Work ────────────────────────────────
+            // [Trap 1 + 6 Fix] Controllers never touch DbContext.
+            // All data access goes through IUnitOfWork → IGeneralRepository<T>.
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // ─── Services (Single-Entity Steps) ───────────────────────────
+            // [Trap 5 Fix] Business logic lives here, not in Controllers.
+            builder.Services.AddScoped<ITrackService, TrackService>();
+            builder.Services.AddScoped<IInternService, InternService>();
+            builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddMediatR(config =>
+            {
+                config.RegisterServicesFromAssembly(typeof(GetAllEnrollmentQueryHandler).Assembly);
+            });
+
+            // ─── Mediators (Action Coordinators) ──────────────────────────
+            // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
+            builder.Services.AddScoped<EnrollInternMediator>();
+
             var app = builder.Build();
 
+            // ─── Seed Data ────────────────────────────────────────────────
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -32,18 +59,15 @@ namespace LMS___Mini_Version
                 DbInitializer.Seed(context);
             }
 
-            // Configure the HTTP request pipeline.
+            // ─── HTTP Pipeline ────────────────────────────────────────────
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
