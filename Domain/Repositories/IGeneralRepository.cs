@@ -1,10 +1,11 @@
 ﻿namespace LMS___Mini_Version.Domain.Repositories
 {
+
     public interface IGeneralRepository<T> where T : class
     {
-        IEnumerable<T> GetAll();
+        Task<IEnumerable<T>> GetAllAsync();
 
-        T GetById(int id);
+        Task<T?> GetByIdAsync(int id);
 
         IQueryable<T> GetTable();
 
@@ -12,6 +13,7 @@
 
         void Update(T entity);
 
-        void Delete(int id);
+        void Delete(T entity);
+        
     }
 }

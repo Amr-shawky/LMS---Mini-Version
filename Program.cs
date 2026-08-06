@@ -1,9 +1,3 @@
-
-using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Infrastructure.Repositories;
-using LMS___Mini_Version.Persistence;
-using Microsoft.EntityFrameworkCore;
-
 namespace LMS___Mini_Version
 {
     public class Program
@@ -12,19 +6,32 @@ namespace LMS___Mini_Version
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
+            // ─── Framework Services ───────────────────────────────────────
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // ─── Database ─────────────────────────────────────────────────
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // ─── Repository & Unit of Work ────────────────────────────────
+            // [Trap 1 + 6 Fix] Controllers never touch DbContext.
+            // All data access goes through IUnitOfWork → IGeneralRepository<T>.
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
+            builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+         
+            // ───validators────────────────────────────────────────────────
+            builder.Services.AddScoped<CreateInternValidators>();
+            builder.Services.AddScoped<UpdateInternValidator>();
+            builder.Services.AddScoped<EnrollmentValidator>();
+            // ─── Mediators  ──────────────────────────
+            builder.Services.AddMediatR(cfg=>cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            
             var app = builder.Build();
 
+            // ─── Seed Data ────────────────────────────────────────────────
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -32,7 +39,7 @@ namespace LMS___Mini_Version
                 DbInitializer.Seed(context);
             }
 
-            // Configure the HTTP request pipeline.
+            // ─── HTTP Pipeline ────────────────────────────────────────────
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -40,10 +47,7 @@ namespace LMS___Mini_Version
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
