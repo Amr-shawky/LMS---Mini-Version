@@ -23,7 +23,7 @@ namespace LMS___Mini_Version.Services.Interfaces
 
         /// <summary>
         /// Atomic Step: Updates the enrollment status (e.g., Active → Cancelled).
-        /// Staged only — no SaveChanges.
+        /// Staged only — no SaveChanges. 
         /// </summary>
         Task<bool> UpdateStatusAsync(int enrollmentId, EnrollmentStatus newStatus);
 

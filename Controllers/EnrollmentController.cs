@@ -1,8 +1,11 @@
 using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Enrollments.Commands;
+using LMS___Mini_Version.Features.Enrollments.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -49,18 +52,27 @@ namespace LMS___Mini_Version.Controllers
         private readonly CancelEnrollmentMediator _cancelMediator;
         private readonly TransferEnrollmentMediator _transferMediator;
 
+
+
+
         // ⚠️ Constructor bloat — imagine this with 10+ business actions!
+
+
+        private readonly IMediator _mediator;
+
         public EnrollmentController(
             IEnrollmentService enrollmentService,
             EnrollInternMediator enrollMediator,
             CancelEnrollmentMediator cancelMediator,
             TransferEnrollmentMediator transferMediator
-            )
+,
+            IMediator mediator)
         {
             _enrollmentService = enrollmentService;
             _enrollMediator = enrollMediator;
             _cancelMediator = cancelMediator;
             _transferMediator = transferMediator;
+            _mediator = mediator;
         }
 
         // ═══════════════════════════════════════════════════════
@@ -86,7 +98,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("intern/{internId}")]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            var dtos = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
             var viewModels = dtos.Select(d => d.ToViewModel());
             return Ok(viewModels);
         }
@@ -123,14 +135,9 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
         {
-            var result = await _cancelMediator.ExecuteAsync(id).ConfigureAwait(false);
-
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
+            var result = await _mediator.Send(new CancelEnrollmentCommand(id));
+          
+            return NoContent();
         }
 
         /// <summary>
@@ -140,14 +147,10 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/transfer/{newTrackId}")]
         public async Task<ActionResult> Transfer(int id, int newTrackId)
         {
-            var result = await _transferMediator.ExecuteAsync(id, newTrackId).ConfigureAwait(false);
+            var result = await _mediator.Send(new TransferEnrollmentCommand(id,newTrackId));
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
+        
+           return Ok();
         }
     }
 }

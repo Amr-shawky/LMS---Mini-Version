@@ -4,7 +4,9 @@ using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 
 namespace LMS___Mini_Version
 {
@@ -43,6 +45,7 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<EnrollInternMediator>();
             builder.Services.AddScoped<CancelEnrollmentMediator>();
             builder.Services.AddScoped<TransferEnrollmentMediator>();
+            builder.Services.AddMediatR(typeof(Program).Assembly);
 
             var app = builder.Build();
 
@@ -64,6 +67,9 @@ namespace LMS___Mini_Version
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
+
+
+
 
             app.Run();
         }

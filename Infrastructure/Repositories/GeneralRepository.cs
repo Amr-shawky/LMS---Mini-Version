@@ -10,7 +10,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
     /// [Trap 6 Fix] SaveChanges() has been REMOVED from every method.
     ///              Changes are only staged in the Change Tracker until UnitOfWork.CompleteAsync() is called.
     /// </summary>
-    public class GeneralRepository<T> : IGeneralRepository<T> where T : class
+    public class  GeneralRepository<T> : IGeneralRepository<T> where T : class
     {
         private readonly AppDbContext _context;
 
@@ -52,5 +52,10 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
+
+        public IQueryable<T> GetTableNoTracking()
+        {
+           return  _context.Set<T>().AsNoTracking();
+        }
     }
 }

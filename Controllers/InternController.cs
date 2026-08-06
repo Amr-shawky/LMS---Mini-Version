@@ -1,7 +1,9 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -18,16 +20,18 @@ namespace LMS___Mini_Version.Controllers
     public class InternController : ControllerBase
     {
         private readonly IInternService _internService;
+        private readonly IMediator _mediator;
 
-        public InternController(IInternService internService)
+        public InternController(IInternService internService, IMediator mediator)
         {
             _internService = internService;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _mediator.Send(new GetAllInternsQuery());
             var viewModels = dtos.Select(d => d.ToSummaryViewModel());
             return Ok(viewModels);
         }
@@ -35,7 +39,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
         {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _mediator.Send(new GetInternByIdQuery(id));
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }

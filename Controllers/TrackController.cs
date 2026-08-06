@@ -1,7 +1,10 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Tracks.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -18,10 +21,12 @@ namespace LMS___Mini_Version.Controllers
     public class TrackController : ControllerBase
     {
         private readonly ITrackService _trackService;
+        private readonly IMediator _mediator;
 
-        public TrackController(ITrackService trackService)
+        public TrackController(ITrackService trackService, IMediator mediator)
         {
             _trackService = trackService;
+            _mediator = mediator;
         }
 
         [HttpGet]
@@ -35,7 +40,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
-            var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _mediator.Send(new GetTrackByIdQuery(id));
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }
@@ -67,9 +72,8 @@ namespace LMS___Mini_Version.Controllers
                 MaxCapacity = vm.MaxCapacity
             };
 
-            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
-
+            var updated = await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees,vm.IsActive, vm.MaxCapacity));
+         
             // No CompleteAsync here — the Service saves internally
             return NoContent();
         }
@@ -77,8 +81,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
+            var deleted = await _mediator.Send(new DeleteTrackCommand(id));
 
             // No CompleteAsync here — the Service saves internally
             return NoContent();
