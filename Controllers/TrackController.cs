@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+﻿using LMS___Mini_Version.Features.Tracks.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
+using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -8,66 +10,95 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public TrackController(AppDbContext context)
+        public TrackController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IEnumerable<Track> GetAll()
+        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
-            var tracks = _context.Tracks.ToList();
-            return tracks;
+            var result = await _mediator.Send(new GetAllTracksQuery());
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Track> GetById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
-            var track = _context.Tracks.Find(id);
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 1: GetTrackByIdQuery
+            // ══════════════════════════════════════════════════════════════
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Tracks/Queries/
+            //    (NOTE: GetTrackByIdQuery.cs already exists — create the Handler)
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 1: Wire this endpoint using IMediator");
+        }
 
-            if (track == null)
-            {
-                return NotFound();
-            }
-
-            return track;
+        [HttpGet("active")]
+        public async Task<ActionResult> GetActiveTracks()
+        {
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 4: GetActiveTracksQuery
+            // ══════════════════════════════════════════════════════════════
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Tracks/Queries/
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 4: Wire this endpoint using IMediator");
         }
 
         [HttpPost]
-        public ActionResult Create(Track track)
+        public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
         {
-            _context.Tracks.Add(track);
-            _context.SaveChanges();
-
-            return Ok(track);
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 4: CreateTrackCommand
+            // ══════════════════════════════════════════════════════════════
+            // 1) Create the Command record class in Features/Tracks/Commands/
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the command
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 4: Wire this endpoint using IMediator");
+            
+            // var result = await _mediator.Send(new CreateTrackCommand(
+            //     vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
+            // ));
+            // return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Track updatedTrack)
+        public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
+            var updated = await _mediator.Send(new UpdateTrackCommand(
+                id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity
+            ));
 
-            track.Name = updatedTrack.Name;
-            track.Fees = updatedTrack.Fees;
-            track.IsActive = updatedTrack.IsActive;
-
-            _context.SaveChanges();
+            if (!updated) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 5: DeleteTrackCommand
+            // ══════════════════════════════════════════════════════════════
+            // 1) Create the Command record class in Features/Tracks/Commands/
+            // 2) Create the Handler class in Features/Tracks/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the command
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 5: Wire this endpoint using IMediator");
 
-            _context.Tracks.Remove(track);
-            _context.SaveChanges();
-
-            return NoContent();
+            // var deleted = await _mediator.Send(new DeleteTrackCommand(id));
+            // if (!deleted) return NotFound();
+            // return NoContent();
         }
     }
 }

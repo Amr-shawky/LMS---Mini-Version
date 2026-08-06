@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+﻿using LMS___Mini_Version.Features.Interns.Commands;
+using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -8,64 +9,87 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public InternController(AppDbContext context)
+        public InternController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IEnumerable<Intern> GetAll()
+        public async Task<ActionResult> GetAll()
         {
-            return _context.Interns.ToList();
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 2: GetAllInternsQuery
+            // ══════════════════════════════════════════════════════════════
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Interns/Queries/
+            // 2) Create the Handler class in Features/Interns/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 2: Wire this endpoint using IMediator");
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Intern> GetById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
-            var intern = _context.Interns.Find(id);
-
-            if (intern == null) return NotFound();
-
-            return intern;
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT — Task 3: GetInternByIdQuery
+            // ══════════════════════════════════════════════════════════════
+            // TODO: The service method has been removed.
+            // 1) Create the Query record class in Features/Interns/Queries/
+            // 2) Create the Handler class in Features/Interns/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the query
+            //    and return the result
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 3: Wire this endpoint using IMediator");
         }
 
         [HttpPost]
-        public ActionResult Create(Intern intern)
+        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm)
         {
-            _context.Interns.Add(intern);
-            _context.SaveChanges();
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 6: CreateInternCommand
+            // ══════════════════════════════════════════════════════════════
+            // 1) Create the Command record class in Features/Interns/Commands/
+            // 2) Create the Handler class in Features/Interns/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the command
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 6: Wire this endpoint using IMediator");
 
-            return Ok(intern);
+            // var result = await _mediator.Send(new CreateInternCommand(
+            //     vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId
+            // ));
+            // return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Intern updatedIntern)
+        public async Task<ActionResult> Update(int id, UpdateInternViewModel vm)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
+            var updated = await _mediator.Send(new UpdateInternCommand(
+                id, vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId
+            ));
 
-            intern.FullName = updatedIntern.FullName;
-            intern.Email = updatedIntern.Email;
-            intern.BirthYear = updatedIntern.BirthYear;
-            intern.Status = updatedIntern.Status;
-            intern.TrackId = updatedIntern.TrackId;
-
-            _context.SaveChanges();
+            if (!updated) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
+            // ══════════════════════════════════════════════════════════════
+            // 🎯 CQRS ASSIGNMENT V2 — Task 7: DeleteInternCommand
+            // ══════════════════════════════════════════════════════════════
+            // 1) Create the Command record class in Features/Interns/Commands/
+            // 2) Create the Handler class in Features/Interns/Handlers/
+            // 3) Use _mediator.Send(...) here to dispatch the command
+            // ══════════════════════════════════════════════════════════════
+            throw new NotImplementedException("Task 7: Wire this endpoint using IMediator");
 
-            _context.Interns.Remove(intern);
-            _context.SaveChanges();
-
-            return NoContent();
+            // var deleted = await _mediator.Send(new DeleteInternCommand(id));
+            // if (!deleted) return NotFound();
+            // return NoContent();
         }
     }
 }
