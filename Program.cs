@@ -4,7 +4,9 @@ using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace LMS___Mini_Version
 {
@@ -40,10 +42,12 @@ namespace LMS___Mini_Version
             // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
             // ⚠️ [THE FINAL TRAP] Notice how every new action = another registration.
             //     This is the "Mediator Explosion" anti-pattern. The real fix is CQRS (MediatR).
-            builder.Services.AddScoped<EnrollInternMediator>();
-            builder.Services.AddScoped<CancelEnrollmentMediator>();
-            builder.Services.AddScoped<TransferEnrollmentMediator>();
+            builder.Services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            });
 
+            builder.Services.AddScoped<EnrollInternMediator>();
             var app = builder.Build();
 
             // ─── Seed Data ────────────────────────────────────────────────

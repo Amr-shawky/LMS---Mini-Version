@@ -57,7 +57,7 @@ namespace LMS___Mini_Version.Persistence
                 .Property(t => t.Fees)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<Payment>()
+            modelBuilder.Entity<Payment>()  
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
         }
