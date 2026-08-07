@@ -1,8 +1,12 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Tracks.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -18,12 +22,12 @@ namespace LMS___Mini_Version.Controllers
     public class TrackController : ControllerBase
     {
         private readonly ITrackService _trackService;
-
-        public TrackController(ITrackService trackService)
+        private readonly IMediator _mediator;
+        public TrackController(ITrackService trackService, IMediator mediator)
         {
             _trackService = trackService;
+            _mediator = mediator;
         }
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
@@ -33,11 +37,11 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet("{id}")]
+        //GetById Track and Return TrackDetailViewModel by MediatorR
         public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
-            var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
+            var dto = await _mediator.Send(new GetTrackByIdQuery(id));
+            return dto == null ? NotFound() : Ok(dto.ToDetailViewModel());
         }
 
         [HttpPost]
@@ -57,31 +61,19 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm)
+        //update Track and Return NoContent by MediatorR
+        public async Task<ActionResult> Update(int id, [FromBody] UpdateTrackViewModel vm)
         {
-            var dto = new TrackDto
-            {
-                Name = vm.Name,
-                Fees = vm.Fees,
-                IsActive = vm.IsActive,
-                MaxCapacity = vm.MaxCapacity
-            };
-
-            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
-
-            // No CompleteAsync here — the Service saves internally
-            return NoContent();
+            var IsUpdate = await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+            return IsUpdate ? NoContent() : NotFound($"This Track With ID {id} Not Found");
         }
 
         [HttpDelete("{id}")]
+        //Delete Track and Return NoContent by MediatorR
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
-
-            // No CompleteAsync here — the Service saves internally
-            return NoContent();
+            var IsDeleted = await _mediator.Send(new DeleteTrackCommand(id));
+            return IsDeleted ? NoContent() : NotFound($"This Track With ID {id} Not Found");
         }
     }
 }
