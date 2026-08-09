@@ -46,11 +46,17 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public IQueryable<T> GetTable()
             => _context.Set<T>();
 
+
         // No SaveChanges() — changes are staged in the Change Tracker.
         public void Add(T entity) => _context.Set<T>().Add(entity);
 
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
+
+        public async Task<bool> ExistsAsync(int id) 
+            => await _context.Set<T>()
+            .AnyAsync(e => EF.Property<int>(e, "Id") == id);
+
     }
 }
