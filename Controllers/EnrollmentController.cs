@@ -1,8 +1,10 @@
 using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Enrollments.Commands;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -48,19 +50,22 @@ namespace LMS___Mini_Version.Controllers
         private readonly EnrollInternMediator _enrollMediator;
         private readonly CancelEnrollmentMediator _cancelMediator;
         private readonly TransferEnrollmentMediator _transferMediator;
+        private readonly IMediator _mediator;
 
         // ⚠️ Constructor bloat — imagine this with 10+ business actions!
         public EnrollmentController(
             IEnrollmentService enrollmentService,
             EnrollInternMediator enrollMediator,
             CancelEnrollmentMediator cancelMediator,
-            TransferEnrollmentMediator transferMediator
-            )
+            TransferEnrollmentMediator transferMediator,
+             IMediator mediator)
+            
         {
             _enrollmentService = enrollmentService;
             _enrollMediator = enrollMediator;
             _cancelMediator = cancelMediator;
             _transferMediator = transferMediator;
+            _mediator = mediator;
         }
 
         // ═══════════════════════════════════════════════════════
@@ -116,6 +121,24 @@ namespace LMS___Mini_Version.Controllers
             return Ok(result.Enrollment!.ToViewModel());
         }
 
+
+        [HttpPost("{id}/cancelCQRS")]
+        public async Task<ActionResult> CancelCQRS(int id)
+        {
+            try
+            {
+                await _mediator.Send(new CancelEnrollmentOrchestrator(id));
+                return Ok(new { message = "Enrollment cancelled and payment refunded successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
         /// <summary>
         /// Cancels an enrollment and refunds the payment.
         /// Orchestrated by CancelEnrollmentMediator (cancels → refunds → commits).
@@ -123,7 +146,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
         {
-            var result = await _cancelMediator.ExecuteAsync(id).ConfigureAwait(false);
+            var result = await _mediator.Send(new cance(id));
 
             if (!result.IsSuccess)
             {
@@ -132,6 +155,8 @@ namespace LMS___Mini_Version.Controllers
 
             return Ok(new { message = result.Message });
         }
+
+
 
         /// <summary>
         /// Transfers an enrollment to a different track and adjusts the payment.
@@ -148,6 +173,25 @@ namespace LMS___Mini_Version.Controllers
             }
 
             return Ok(new { message = result.Message });
+        }
+
+        /// </summary>
+        [HttpPost("{id}/transferCqrs/{newTrackId}")]
+        public async Task<ActionResult> TransferCQRS(int id, int newTrackId)
+        {
+            try
+            {
+                await _mediator.Send(new TransferEnrollmentOrchestrator(id, newTrackId));
+                return Ok(new { message = "Enrollment transferred successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
