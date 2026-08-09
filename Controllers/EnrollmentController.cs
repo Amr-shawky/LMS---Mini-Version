@@ -1,5 +1,6 @@
 using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Enrollments.Commands;
+using LMS___Mini_Version.Features.Enrollments.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
@@ -92,6 +93,14 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
         {
             var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            var viewModels = dtos.Select(d => d.ToViewModel());
+            return Ok(viewModels);
+        }
+
+        [HttpGet("internCqrs/{internId}")]
+        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByInternCQRS(int internId)
+        {
+            var dtos = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
             var viewModels = dtos.Select(d => d.ToViewModel());
             return Ok(viewModels);
         }
