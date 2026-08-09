@@ -1,7 +1,10 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Tracks.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -18,10 +21,12 @@ namespace LMS___Mini_Version.Controllers
     public class TrackController : ControllerBase
     {
         private readonly ITrackService _trackService;
+        private readonly IMediator _mediator;
 
-        public TrackController(ITrackService trackService)
+        public TrackController(ITrackService trackService, IMediator mediator)
         {
             _trackService = trackService;
+            _mediator = mediator;
         }
 
         [HttpGet]
@@ -38,6 +43,14 @@ namespace LMS___Mini_Version.Controllers
             var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TrackDetailViewModel>> GetByIdCQRS(int id)
+        {
+            var result = await _mediator.Send(new GetTrackByIdQuery(id));
+            if (result == null) return NotFound();
+            return Ok(result.ToDetailViewModel());
         }
 
         [HttpPost]
@@ -74,6 +87,21 @@ namespace LMS___Mini_Version.Controllers
             return NoContent();
         }
 
+
+        [HttpPut("{id}/updateCqrs")]
+        public async Task<ActionResult> UpdateCQRS(int id, UpdateTrackViewModel vm)
+        {
+            try
+            {
+                await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -82,6 +110,20 @@ namespace LMS___Mini_Version.Controllers
 
             // No CompleteAsync here — the Service saves internally
             return NoContent();
+        }
+
+        [HttpDelete("{id}/deleteCqrs")]
+        public async Task<ActionResult> DeleteCQRS(int id)
+        {
+            try
+            {
+                await _mediator.Send(new DeleteTrackCommand(id));
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
     }
 }
