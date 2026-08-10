@@ -88,7 +88,7 @@ namespace LMS___Mini_Version.Controllers
         }
 
 
-        [HttpPut("{id}/updateCqrs")]
+        [HttpPut("updateCqrs/{id}")]
         public async Task<ActionResult> UpdateCQRS(int id, UpdateTrackViewModel vm)
         {
             try
@@ -112,7 +112,7 @@ namespace LMS___Mini_Version.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}/deleteCqrs")]
+        [HttpDelete("deleteCqrs/{id}")]
         public async Task<ActionResult> DeleteCQRS(int id)
         {
             try
