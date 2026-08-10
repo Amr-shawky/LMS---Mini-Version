@@ -148,24 +148,6 @@ namespace LMS___Mini_Version.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
-        /// <summary>
-        /// Cancels an enrollment and refunds the payment.
-        /// Orchestrated by CancelEnrollmentMediator (cancels → refunds → commits).
-        /// </summary>
-        [HttpPost("{id}/cancel")]
-        public async Task<ActionResult> Cancel(int id)
-        {
-            var result = await _mediator.Send(new cance(id));
-
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
-        }
-
-
 
         /// <summary>
         /// Transfers an enrollment to a different track and adjusts the payment.
@@ -184,7 +166,6 @@ namespace LMS___Mini_Version.Controllers
             return Ok(new { message = result.Message });
         }
 
-        /// </summary>
         [HttpPost("{id}/transferCqrs/{newTrackId}")]
         public async Task<ActionResult> TransferCQRS(int id, int newTrackId)
         {
