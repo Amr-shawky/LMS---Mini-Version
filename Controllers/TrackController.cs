@@ -45,7 +45,7 @@ namespace LMS___Mini_Version.Controllers
             return Ok(dto.ToDetailViewModel());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}/getByIdCqrs")]
         public async Task<ActionResult<TrackDetailViewModel>> GetByIdCQRS(int id)
         {
             var result = await _mediator.Send(new GetTrackByIdQuery(id));
