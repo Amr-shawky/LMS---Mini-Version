@@ -53,7 +53,7 @@ namespace LMS___Mini_Version.Controllers
             return Ok(viewModels);
         }
 
-        [HttpGet("{id}/GetByIdCQRS")]
+        [HttpGet("Cqrs/{id}")]
         public async Task<ActionResult<InternDetailViewModel>> GetByIdCQRS(int id)
         {
             var dto = await _mediator.Send(new GetInternByIdQuery(id));
