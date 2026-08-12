@@ -1,7 +1,10 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Tracks.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -17,10 +20,12 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
+        private readonly IMediator _mediator;
         private readonly ITrackService _trackService;
 
-        public TrackController(ITrackService trackService)
+        public TrackController(IMediator mediator,ITrackService trackService)
         {
+            _mediator = mediator;
             _trackService = trackService;
         }
 
@@ -35,7 +40,8 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
-            var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+            //var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto=await _mediator.Send(new GetTrackByIdQuery() { Id=id });
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }
@@ -57,28 +63,31 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm)
+        public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm, CancellationToken cancellationToken)
         {
-            var dto = new TrackDto
-            {
-                Name = vm.Name,
-                Fees = vm.Fees,
-                IsActive = vm.IsActive,
-                MaxCapacity = vm.MaxCapacity
-            };
+            //var dto = new TrackDto
+            //{
+            //    Name = vm.Name,
+            //    Fees = vm.Fees,
+            //    IsActive = vm.IsActive,
+            //    MaxCapacity = vm.MaxCapacity
+            //};
 
-            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
+            //var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
+            var updated=await _mediator.Send(new UpdateTrackCommand(id,vm.Name,
+                                               Fees: vm.Fees,IsActive: vm.IsActive,MaxCapacity: vm.MaxCapacity),cancellationToken);
+            //if (!updated) return NotFound();
 
             // No CompleteAsync here — the Service saves internally
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(int id,CancellationToken cancellationToken)
         {
-            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
+            //var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
+            var deleted = await _mediator.Send(new DeleteTrackCommand(id), cancellationToken);
+            //if (!deleted) return NotFound();
 
             // No CompleteAsync here — the Service saves internally
             return NoContent();

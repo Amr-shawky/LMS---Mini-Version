@@ -1,10 +1,13 @@
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Features.Tracks.Queries;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace LMS___Mini_Version
 {
@@ -43,6 +46,9 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<EnrollInternMediator>();
             builder.Services.AddScoped<CancelEnrollmentMediator>();
             builder.Services.AddScoped<TransferEnrollmentMediator>();
+
+            //
+            builder.Services.AddMediatR(typeof(GetTrackByIdQuery).Assembly);
 
             var app = builder.Build();
 

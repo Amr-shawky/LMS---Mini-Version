@@ -1,7 +1,9 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -17,17 +19,20 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
+        private readonly IMediator _mediator;
         private readonly IInternService _internService;
 
-        public InternController(IInternService internService)
+        public InternController(IMediator mediator, IInternService internService)
         {
+            _mediator = mediator;
             _internService = internService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
+            //var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
+            var dtos=await _mediator.Send(new GetAllInternsQuery());
             var viewModels = dtos.Select(d => d.ToSummaryViewModel());
             return Ok(viewModels);
         }
@@ -35,7 +40,9 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
         {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
+            //var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _mediator.Send(new GetInternByIdQuery() { Id = id });
+
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }

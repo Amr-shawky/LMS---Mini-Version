@@ -11,5 +11,6 @@ namespace LMS___Mini_Version.Domain.Repositories
         /// Commits all staged changes to the database in one transaction.
         /// </summary>
         Task<int> CompleteAsync();
+        Task<int> CompleteAsync(CancellationToken cancellationToken);
     }
 }

@@ -1,8 +1,11 @@
 using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Enrollments.Commands;
+using LMS___Mini_Version.Features.Enrollments.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -43,6 +46,8 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
     {
+        private readonly IMediator _mediator;
+
         // ⚠️ THE TRAP: 4 dependencies and counting — every new action adds another one!
         private readonly IEnrollmentService _enrollmentService;
         private readonly EnrollInternMediator _enrollMediator;
@@ -51,12 +56,14 @@ namespace LMS___Mini_Version.Controllers
 
         // ⚠️ Constructor bloat — imagine this with 10+ business actions!
         public EnrollmentController(
+            IMediator mediator,
             IEnrollmentService enrollmentService,
             EnrollInternMediator enrollMediator,
             CancelEnrollmentMediator cancelMediator,
             TransferEnrollmentMediator transferMediator
             )
         {
+            _mediator = mediator;
             _enrollmentService = enrollmentService;
             _enrollMediator = enrollMediator;
             _cancelMediator = cancelMediator;
@@ -86,7 +93,8 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("intern/{internId}")]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            //var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            var dtos =await _mediator.Send(new GetEnrollmentsByInternQuery() { InternId = internId });
             var viewModels = dtos.Select(d => d.ToViewModel());
             return Ok(viewModels);
         }
@@ -123,14 +131,17 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
         {
-            var result = await _cancelMediator.ExecuteAsync(id).ConfigureAwait(false);
+           await _mediator.Send(new CancelEnrollmentCommand(id));
+            return NoContent();
+            
+            //var result = await _cancelMediator.ExecuteAsync(id).ConfigureAwait(false);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
+            //if (!result.IsSuccess)
+            //{
+            //    return BadRequest(new { error = result.Message });
+            //}
 
-            return Ok(new { message = result.Message });
+            //return Ok(new { message = result.Message });
         }
 
         /// <summary>
@@ -138,16 +149,18 @@ namespace LMS___Mini_Version.Controllers
         /// Orchestrated by TransferEnrollmentMediator (validates → transfers → adjusts fees → commits).
         /// </summary>
         [HttpPost("{id}/transfer/{newTrackId}")]
-        public async Task<ActionResult> Transfer(int id, int newTrackId)
+        public async Task<ActionResult> Transfer(int id, int newTrackId,CancellationToken cancellationToken)
         {
-            var result = await _transferMediator.ExecuteAsync(id, newTrackId).ConfigureAwait(false);
+            //var result = await _transferMediator.ExecuteAsync(id, newTrackId).ConfigureAwait(false);
+            await _mediator.Send(new TransferEnrollmentCommand(id, newTrackId),cancellationToken);
+            return NoContent();
+            //if (!result.IsSuccess)
+            //{
+            //    return BadRequest(new { error = result.Message });
+            //}
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
+            //return Ok(new { message = result.Message });
+            
         }
     }
 }
