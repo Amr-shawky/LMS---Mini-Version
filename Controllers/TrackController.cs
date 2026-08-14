@@ -1,7 +1,10 @@
 ﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Feature.Tracks.Commands;
+using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -18,42 +21,45 @@ namespace LMS___Mini_Version.Controllers
     public class TrackController : ControllerBase
     {
         private readonly ITrackService _trackService;
+        IMediator _mediator;
 
-        public TrackController(ITrackService trackService)
+        public TrackController(ITrackService trackService, IMediator mediator)
         {
             _trackService = trackService;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
-            var dtos = await _trackService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _trackService.GetAllAsync();
+            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            return Ok(viewModels);
+        }
+        [HttpGet("cqrs")]
+        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAllCQRS()
+        {
+            var dtos = await _mediator.Send(new GetAllTrackQuery());
             var viewModels = dtos.Select(d => d.ToSummaryViewModel());
             return Ok(viewModels);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
+        public async Task<ActionResult<TrackDetailViewModel>> GetByIdCQRS(int id)
         {
-            var dto = await _trackService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _mediator.Send(new GetByIdTrackQuery(id));
             if (dto == null) return NotFound();
             return Ok(dto.ToDetailViewModel());
         }
 
-        [HttpPost]
-        public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
+        [HttpPost("cqrs")]
+        public async Task<ActionResult<TrackSummaryViewModel>> CreateCQRS(CreateTrackViewModel vm)
         {
-            var dto = new TrackDto
-            {
-                Name = vm.Name,
-                Fees = vm.Fees,
-                IsActive = vm.IsActive,
-                MaxCapacity = vm.MaxCapacity
-            };
 
-            var created = await _trackService.CreateAsync(dto).ConfigureAwait(false);
+
+            var created = await _mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
             // No CompleteAsync here — the Service saves and returns DTO with correct Id
-            return Ok(created.ToSummaryViewModel());
+            return Ok("track created successfully");
         }
 
         [HttpPut("{id}")]
