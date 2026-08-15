@@ -36,10 +36,12 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+
             // ─── Mediators (Action Coordinators) ──────────────────────────
             // [Trap 5 + 6 Fix] Multi-step actions are orchestrated here.
             // ⚠️ [THE FINAL TRAP] Notice how every new action = another registration.
             //     This is the "Mediator Explosion" anti-pattern. The real fix is CQRS (MediatR).
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
             builder.Services.AddScoped<EnrollInternMediator>();
             builder.Services.AddScoped<CancelEnrollmentMediator>();
             builder.Services.AddScoped<TransferEnrollmentMediator>();
