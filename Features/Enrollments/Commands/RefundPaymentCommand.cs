@@ -23,13 +23,17 @@ namespace LMS___Mini_Version.Features.Enrollments.Commands
 
         public async Task<Unit> Handle(RefundPaymentCommand request, CancellationToken cancellationToken)
         {
-            var payment = await _mediator.Send(new GetPaymentByEnrollmentQuery(request.EnrollmentId));
+            // this breacuse ican update the track entity in the same context
+            // but the correct way i use query to get the payment and then update it in the same context
+            var payment = await _paymentRepository
+                                .GetTable()
+                                .FirstOrDefaultAsync(p => p.EnrollmentId == request.EnrollmentId, cancellationToken);
 
             if (payment == null)
                 throw new KeyNotFoundException($"there is no payment by this Enrollment");
 
-                var paymentEntity = new Payment{ Status = PaymentStatus.Refunded };
-                _paymentRepository.Update(paymentEntity);
+               payment.Status = PaymentStatus.Refunded;
+              _paymentRepository.Update(payment);
 
             return Unit.Value;
         }
