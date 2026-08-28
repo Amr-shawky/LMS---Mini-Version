@@ -120,34 +120,22 @@ namespace LMS___Mini_Version.Controllers
         /// Orchestrated by CancelEnrollmentMediator (cancels → refunds → commits).
         /// </summary>
         [HttpPost("{id}/cancel")]
-        public async Task<ActionResult> Cancel(int id)
+        public async Task<IActionResult> Cancel(int id)
         {
-
-            var result = await _mediator.Send(new CancelEnrollmentCommand(id));
-
-            if(!result)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
+            await _mediator.Send(new CancelEnrollmentOrchestratorCommand(id));
+            return NoContent();
         }
 
         /// <summary>
         /// Transfers an enrollment to a different track and adjusts the payment.
         /// Orchestrated by TransferEnrollmentMediator (validates → transfers → adjusts fees → commits).
         /// </summary>
-        [HttpPost("{id}/transfer/{newTrackId}")]
-        public async Task<ActionResult> Transfer(int id, int newTrackId)
+        [HttpPost("{id}/transfer")]
+        public async Task<IActionResult> Transfer(int id, [FromBody] TransferRequest request)
         {
-            var result = await _mediator.Send(new TransferEnrollmentCommand(id, newTrackId));
-
-            if(!result)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
+            var result = await _mediator.Send(new TransferEnrollmentOrchestratorCommand(id, request.NewTrackId));
+            if (!result) return BadRequest();
+            return NoContent();
         }
     }
 }
