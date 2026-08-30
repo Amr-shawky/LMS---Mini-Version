@@ -20,7 +20,6 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
 
         public async Task Handle(CancelEnrollmentCommand request, CancellationToken cancellationToken)
         {
-            // ─── Step 1: Validate Enrollment ────────────────────────────────
             var enrollment = await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentId), cancellationToken);
             if (enrollment == null)
             {
@@ -32,13 +31,8 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
                 throw new InvalidOperationException("This enrollment is already cancelled.");
             }
 
-            // ─── Step 2: Update Enrollment Status to Cancelled ──────────────
             await _mediator.Send(new UpdateEnrollmentStatusCommand(request.EnrollmentId, EnrollmentStatus.Cancelled), cancellationToken);
-
-            // ─── Step 3: Refund Associated Payment ──────────────────────────
             await _mediator.Send(new RefundPaymentCommand(request.EnrollmentId), cancellationToken);
-
-            // ─── Step 4: Single Atomic Commit to Database ───────────────────
             await _unitOfWork.CompleteAsync();
         }
     }

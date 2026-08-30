@@ -21,7 +21,6 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
 
         public async Task Handle(TransferEnrollmentCommand request, CancellationToken cancellationToken)
         {
-            // ─── Step 1: Validate Enrollment ────────────────────────────────
             var enrollment = await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentId), cancellationToken);
             if (enrollment == null)
             {
@@ -38,7 +37,6 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
                 throw new InvalidOperationException("The intern is already enrolled in this track.");
             }
 
-            // ─── Step 2: Validate Target Track ──────────────────────────────
             var newTrack = await _mediator.Send(new GetTrackByIdQuery(request.NewTrackId), cancellationToken);
             if (newTrack == null)
             {
@@ -50,23 +48,19 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
                 throw new InvalidOperationException($"Target Track '{newTrack.Name}' is not currently active.");
             }
 
-            // ─── Step 3: Check Target Track Capacity ────────────────────────
             var activeCount = await _mediator.Send(new GetTrackActiveEnrollmentCountQuery(request.NewTrackId), cancellationToken);
             if (activeCount >= newTrack.MaxCapacity)
             {
                 throw new InvalidOperationException($"Target Track '{newTrack.Name}' has reached maximum capacity.");
             }
 
-            // ─── Step 4: Move Enrollment to Target Track (Staged) ───────────
             await _mediator.Send(new UpdateEnrollmentTrackCommand(request.EnrollmentId, request.NewTrackId), cancellationToken);
 
-            // ─── Step 5: Adjust Payment Amount if Paid Track (Staged) ───────
             if (newTrack.Fees > 0)
             {
                 await _mediator.Send(new UpdatePaymentAmountCommand(request.EnrollmentId, newTrack.Fees), cancellationToken);
             }
 
-            // ─── Step 6: Single Atomic Commit to Database ───────────────────
             await _unitOfWork.CompleteAsync();
         }
     }
