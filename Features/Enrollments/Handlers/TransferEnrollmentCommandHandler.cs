@@ -1,42 +1,73 @@
-﻿using LMS___Mini_Version.Domain.Repositories;
+﻿using LMS___Mini_Version.Domain.Enums;
+using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Features.Enrollments.Commands;
-using LMS___Mini_Version.Services.Interfaces;
+using LMS___Mini_Version.Features.Enrollments.Queries;
+using LMS___Mini_Version.Features.Payments.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
 using MediatR;
 
-namespace LMS___Mini_Version.Features.Enrollments.Handlers;
-
-public class TransferEnrollmentCommandHandler : IRequestHandler<TransferEnrollmentCommand>
+namespace LMS___Mini_Version.Features.Enrollments.Handlers
 {
-    private readonly ITrackService _trackService;
-    private readonly IEnrollmentService _enrollmentService;
-    private readonly IPaymentService _paymentService;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public TransferEnrollmentCommandHandler(ITrackService trackService, IEnrollmentService enrollmentService, IPaymentService paymentService, IUnitOfWork unitOfWork)
+    public class TransferEnrollmentCommandHandler : IRequestHandler<TransferEnrollmentCommand>
     {
-        _trackService = trackService;
-        _enrollmentService = enrollmentService;
-        _paymentService = paymentService;
-        _unitOfWork = unitOfWork;
-    }
+        private readonly IMediator _mediator;
+        private readonly IUnitOfWork _unitOfWork;
 
-    public async Task Handle(TransferEnrollmentCommand request, CancellationToken cancellationToken)
-    {
-        // Check if the new track has capacity
-        var hasCapacity = await _trackService.CheckCapacityAsync(request.NewTrackId);
-        if (!hasCapacity) return;
-
-        await _enrollmentService.UpdateTrackAsync(request.EnrollmentId, request.NewTrackId);
-
-
-        // Retrieve the new track details to get the fees
-        var newTrack = await _trackService.GetByIdAsync(request.NewTrackId);
-        // Update the payment amount based on the new track's fees
-        if (newTrack != null)
+        public TransferEnrollmentCommandHandler(IMediator mediator, IUnitOfWork unitOfWork)
         {
-            
-            await _paymentService.UpdatePaymentAmountAsync(request.EnrollmentId, newTrack.Fees);
+            _mediator = mediator;
+            _unitOfWork = unitOfWork;
         }
-        await _unitOfWork.CompleteAsync();
+
+        public async Task Handle(TransferEnrollmentCommand request, CancellationToken cancellationToken)
+        {
+            // ─── Step 1: Validate Enrollment ────────────────────────────────
+            var enrollment = await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentId), cancellationToken);
+            if (enrollment == null)
+            {
+                throw new KeyNotFoundException($"Enrollment with ID {request.EnrollmentId} was not found.");
+            }
+
+            if (enrollment.Status == EnrollmentStatus.Cancelled)
+            {
+                throw new InvalidOperationException("Cannot transfer a cancelled enrollment.");
+            }
+
+            if (enrollment.TrackId == request.NewTrackId)
+            {
+                throw new InvalidOperationException("The intern is already enrolled in this track.");
+            }
+
+            // ─── Step 2: Validate Target Track ──────────────────────────────
+            var newTrack = await _mediator.Send(new GetTrackByIdQuery(request.NewTrackId), cancellationToken);
+            if (newTrack == null)
+            {
+                throw new KeyNotFoundException($"Target Track with ID {request.NewTrackId} not found.");
+            }
+
+            if (!newTrack.IsActive)
+            {
+                throw new InvalidOperationException($"Target Track '{newTrack.Name}' is not currently active.");
+            }
+
+            // ─── Step 3: Check Target Track Capacity ────────────────────────
+            var activeCount = await _mediator.Send(new GetTrackActiveEnrollmentCountQuery(request.NewTrackId), cancellationToken);
+            if (activeCount >= newTrack.MaxCapacity)
+            {
+                throw new InvalidOperationException($"Target Track '{newTrack.Name}' has reached maximum capacity.");
+            }
+
+            // ─── Step 4: Move Enrollment to Target Track (Staged) ───────────
+            await _mediator.Send(new UpdateEnrollmentTrackCommand(request.EnrollmentId, request.NewTrackId), cancellationToken);
+
+            // ─── Step 5: Adjust Payment Amount if Paid Track (Staged) ───────
+            if (newTrack.Fees > 0)
+            {
+                await _mediator.Send(new UpdatePaymentAmountCommand(request.EnrollmentId, newTrack.Fees), cancellationToken);
+            }
+
+            // ─── Step 6: Single Atomic Commit to Database ───────────────────
+            await _unitOfWork.CompleteAsync();
+        }
     }
 }
