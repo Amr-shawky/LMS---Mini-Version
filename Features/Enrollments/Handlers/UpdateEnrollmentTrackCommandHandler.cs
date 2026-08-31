@@ -5,25 +5,22 @@ using MediatR;
 
 namespace LMS___Mini_Version.Features.Enrollments.Handlers
 {
-    public class TransferEnrollmentCommandHandler : IRequestHandler<TransferEnrollmentCommand>
+    public class UpdateEnrollmentTrackCommandHandler : IRequestHandler<UpdateEnrollmentTrackCommand>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TransferEnrollmentCommandHandler(IGeneralRepository<Enrollment> enrollmentRepository , IUnitOfWork unitOfWork)
+        public UpdateEnrollmentTrackCommandHandler(IGeneralRepository<Enrollment> enrollmentRepository , IUnitOfWork unitOfWork)
         {
             _enrollmentRepository = enrollmentRepository;
             _unitOfWork = unitOfWork;
         }
-        public async Task<Unit> Handle(TransferEnrollmentCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateEnrollmentTrackCommand request, CancellationToken cancellationToken)
         {
-            var enrollment = await _enrollmentRepository.GetByIdAsync(request.EnrollmentId);
-
+            var enrollment = await _enrollmentRepository.GetByIdAsync(request.EnrollmentID);
             if (enrollment == null)
-                throw new KeyNotFoundException($"EnrollmentId {request.EnrollmentId} Not Found");
-
-            enrollment.TrackId = request.NewTrackId;
-
+                throw new KeyNotFoundException("Enrollement Not Found ");
+            enrollment.TrackId = request.NewTrackID;
             _enrollmentRepository.Update(enrollment);
             await _unitOfWork.CompleteAsync();
             return Unit.Value;

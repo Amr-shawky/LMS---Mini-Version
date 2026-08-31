@@ -50,6 +50,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Add(T entity) => _context.Set<T>().Add(entity);
 
         public void Update(T entity) => _context.Set<T>().Update(entity);
+        //public void Update(T entity) => _context.Attach(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
     }

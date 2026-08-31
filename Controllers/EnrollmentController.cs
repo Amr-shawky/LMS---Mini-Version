@@ -1,5 +1,7 @@
 using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Features.Enrollments.Commands;
+using LMS___Mini_Version.Features.Enrollments.Handlers;
+using LMS___Mini_Version.Features.Enrollments.Orchestrators;
 using LMS___Mini_Version.Features.Enrollments.Queries;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Mediators;
@@ -128,10 +130,7 @@ namespace LMS___Mini_Version.Controllers
         /// </summary>
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
-        {
-            var result = await _mediator.Send(new CancelEnrollmentCommand(id));
-            return result ? NoContent() : NotFound();
-        }
+          => Ok( await _mediator.Send(new CancelEnrollmentOrchestrator(id)));
 
         /// <summary>
         /// Transfers an enrollment to a different track and adjusts the payment.
@@ -139,9 +138,6 @@ namespace LMS___Mini_Version.Controllers
         /// </summary>
         [HttpPost("{id}/transfer/{newTrackId}")]
         public async Task<ActionResult> Transfer(int id, int newTrackId)
-        {
-            var result = await _mediator.Send(new TransferEnrollmentCommand(id, newTrackId));
-            return result ? NoContent() : NotFound($"EnrollmentID {id} Not Found");
-        }
+        => Ok(await _mediator.Send(new TransferEnrollmentOrchestrator(id, newTrackId)));
     }
 }

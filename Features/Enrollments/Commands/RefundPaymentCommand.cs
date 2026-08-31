@@ -2,6 +2,6 @@
 
 namespace LMS___Mini_Version.Features.Enrollments.Commands
 {
-    public record CancelEnrollmentCommand(int EnrollmentId) : IRequest<bool>;
-
+    public record RefundPaymentCommand (int InrollmentId):IRequest;
+    
 }

@@ -20,7 +20,7 @@ namespace LMS___Mini_Version.Features.Tracks.Handlers
         {
             var track = await _trackRepository.GetTable()
                  .FirstOrDefaultAsync(t => t.Id == request.id, cancellationToken);
-            return track == null ? null : track.ToDto();
+            return track == null ? throw new KeyNotFoundException($"TrackId{request.id} NotFound") : track.ToDto();
         }
     }
 }

@@ -10,18 +10,17 @@ namespace LMS___Mini_Version.Features.Enrollments.Handlers
 {
     public class GetEnrollmentsByInternQueryHandler : IRequestHandler<GetEnrollmentsByInternQuery, IEnumerable<EnrollmentDto>>
     {
-        private readonly IGeneralRepository<Enrollment> _enrollmentRepositpry;
+        private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
 
         public GetEnrollmentsByInternQueryHandler(IGeneralRepository<Enrollment> enrollmentRepository)
         {
-             _enrollmentRepositpry = enrollmentRepository;
+            _enrollmentRepository = enrollmentRepository;
         }
         public async Task<IEnumerable<EnrollmentDto>> Handle(GetEnrollmentsByInternQuery request, CancellationToken cancellationToken)
         {
-            var enrollment = await _enrollmentRepositpry.GetTable()
-                 .Where(e => e.InternId == request.internId).ToListAsync(cancellationToken);
+            var enrollment = await _enrollmentRepository.GetTable()
+                .Where(e => e.InternId == request.internId).ToListAsync(cancellationToken);
             return enrollment.Select(e => e.ToDto());
-                 
         }
     }
 }
