@@ -1,73 +1,79 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Tracks.Commands;
+using LMS___Mini_Version.Features.Tracks.Queries;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.Services.Interfaces;
+using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace LMS___Mini_Version.Controllers
 {
+    /// <summary>
+    /// [Trap 1 Fix] This controller depends only on ITrackService (abstraction).
+    /// [SRP Fix] No longer injects IUnitOfWork — the Service owns its own CRUD transactions.
+    /// [Trap 2 Fix] All responses use ViewModels; all inputs use ViewModels.
+    /// [Trap 3 Fix] Every action is async Task — no synchronous blocking.
+    /// [Trap 5 Fix] No business logic in the controller — all delegated to TrackService.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public TrackController(AppDbContext context)
+        private readonly ITrackService _trackService;
+        private readonly IMediator _mediator;
+        public TrackController(ITrackService trackService, IMediator mediator)
         {
-            _context = context;
+            _trackService = trackService;
+            _mediator = mediator;
         }
-
         [HttpGet]
-        public IEnumerable<Track> GetAll()
+        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
-            var tracks = _context.Tracks.ToList();
-            return tracks;
+            var dtos = await _trackService.GetAllAsync().ConfigureAwait(false);
+            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            return Ok(viewModels);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Track> GetById(int id)
+        //GetById Track and Return TrackDetailViewModel by MediatorR
+        public async Task<ActionResult<TrackDetailViewModel>> GetById(int id)
         {
-            var track = _context.Tracks.Find(id);
-
-            if (track == null)
-            {
-                return NotFound();
-            }
-
-            return track;
+            var dto = await _mediator.Send(new GetTrackByIdQuery(id));
+            return dto == null ? NotFound() : Ok(dto.ToDetailViewModel());
         }
 
         [HttpPost]
-        public ActionResult Create(Track track)
+        public async Task<ActionResult<TrackSummaryViewModel>> Create(CreateTrackViewModel vm)
         {
-            _context.Tracks.Add(track);
-            _context.SaveChanges();
+            var dto = new TrackDto
+            {
+                Name = vm.Name,
+                Fees = vm.Fees,
+                IsActive = vm.IsActive,
+                MaxCapacity = vm.MaxCapacity
+            };
 
-            return Ok(track);
+            var created = await _trackService.CreateAsync(dto).ConfigureAwait(false);
+            // No CompleteAsync here — the Service saves and returns DTO with correct Id
+            return Ok(created.ToSummaryViewModel());
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Track updatedTrack)
+        //update Track and Return NoContent by MediatorR
+        public async Task<ActionResult> Update(int id, [FromBody] UpdateTrackViewModel vm)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
-
-            track.Name = updatedTrack.Name;
-            track.Fees = updatedTrack.Fees;
-            track.IsActive = updatedTrack.IsActive;
-
-            _context.SaveChanges();
-            return NoContent();
+            var IsUpdate = await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+            return IsUpdate ? NoContent() : NotFound($"This Track With ID {id} Not Found");
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        //Delete Track and Return NoContent by MediatorR
+        public async Task<ActionResult> Delete(int id)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
-
-            _context.Tracks.Remove(track);
-            _context.SaveChanges();
-
-            return NoContent();
+            var IsDeleted = await _mediator.Send(new DeleteTrackCommand(id));
+            return IsDeleted ? NoContent() : NotFound($"This Track With ID {id} Not Found");
         }
     }
 }

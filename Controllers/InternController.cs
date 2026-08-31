@@ -1,69 +1,88 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Features.Interns.Queries;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.Services.Interfaces;
+using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
+    /// <summary>
+    /// [Trap 1 Fix] Depends on IInternService — NOT AppDbContext.
+    /// [SRP Fix] No longer injects IUnitOfWork — the Service owns its own CRUD transactions.
+    /// [Trap 2 Fix] Accepts/returns ViewModels only.
+    /// [Trap 3 Fix] Fully async.
+    /// [Trap 5 Fix] Zero business logic — delegated to InternService.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IInternService _internService;
+        private readonly IMediator _mediator;
 
-        public InternController(AppDbContext context)
+        public InternController(IInternService internService, IMediator mediator)
         {
-            _context = context;
+            _internService = internService;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IEnumerable<Intern> GetAll()
+        //GetAll Interns and Return InternSummaryViewModel by MediatorR 
+        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
-            return _context.Interns.ToList();
+            var dtos = await _mediator.Send(new GetAllInternsQuery()).ConfigureAwait(false);
+            return Ok(dtos.Select(d => d.ToSummaryViewModel()));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Intern> GetById(int id)
+        //GetById Interns and Return InternSummaryViewModel by MediatorR 
+        public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
         {
-            var intern = _context.Interns.Find(id);
-
-            if (intern == null) return NotFound();
-
-            return intern;
+            var dto = await _mediator.Send(new GetInternByIdQuery(id)).ConfigureAwait(false);
+            return dto == null ? NotFound() : Ok(dto.ToDetailViewModel());
         }
 
         [HttpPost]
-        public ActionResult Create(Intern intern)
+        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm)
         {
-            _context.Interns.Add(intern);
-            _context.SaveChanges();
+            var dto = new InternDto
+            {
+                FullName = vm.FullName,
+                Email = vm.Email,
+                BirthYear = vm.BirthYear,
+                Status = vm.Status,
+                TrackId = vm.TrackId
+            };
 
-            return Ok(intern);
+            var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
+            return Ok(created.ToSummaryViewModel());
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Intern updatedIntern)
+        public async Task<ActionResult> Update(int id, UpdateInternViewModel vm)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
+            var dto = new InternDto
+            {
+                FullName = vm.FullName,
+                Email = vm.Email,
+                BirthYear = vm.BirthYear,
+                Status = vm.Status,
+                TrackId = vm.TrackId
+            };
 
-            intern.FullName = updatedIntern.FullName;
-            intern.Email = updatedIntern.Email;
-            intern.BirthYear = updatedIntern.BirthYear;
-            intern.Status = updatedIntern.Status;
-            intern.TrackId = updatedIntern.TrackId;
+            var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
+            if (!updated) return NotFound();
 
-            _context.SaveChanges();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
-
-            _context.Interns.Remove(intern);
-            _context.SaveChanges();
+            var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
+            if (!deleted) return NotFound();
 
             return NoContent();
         }
