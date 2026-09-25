@@ -40,7 +40,7 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAllCQRS()
         {
             var dtos = await _mediator.Send(new GetAllTrackQuery());
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            var viewModels = dtos.Data.Items.Select(d => d.ToSummaryViewModel());
             return Ok(viewModels);
         }
 

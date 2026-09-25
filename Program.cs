@@ -6,6 +6,7 @@ using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using LMS___Mini_Version.Feature.Tracks.endpoints;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -68,6 +69,8 @@ namespace LMS___Mini_Version
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
+            app.MapGetAlltracksEndpoint();
+
 
             app.Run();
         }
