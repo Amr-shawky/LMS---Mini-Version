@@ -9,68 +9,75 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
     {
 
         private readonly AppDbContext _context;
-
-        private IDbContextTransaction? _transaction;
-        private int _depth = 0;                 
+        private IDbContextTransaction _transaction;
+        private int _depth = 0;
 
         public UnitOfWork(AppDbContext context) => _context = context;
 
-        public async Task ExecuteAsync(Func<Task> action)
+        public async Task ExecuteAsync(Func<Task> action) 
         {
-            var isOuterTransaction = _depth == 0;   
+            var isOuterTransaction = _depth == 0;
 
             if (isOuterTransaction)
                 _transaction = await _context.Database.BeginTransactionAsync();
 
-            _depth++;                                
+            _depth++;
+
             try
             {
                 await action();
-
-                if (isOuterTransaction)              
-                {
-                    await _context.SaveChangesAsync();   
-                    await _transaction!.CommitAsync();
-                }
-            }
-            catch (Exception ex)
-            {
+                
                 if (isOuterTransaction)
                 {
-                    await _transaction!.RollbackAsync();  
+                    await _context.SaveChangesAsync();
+                    await _transaction.CommitAsync();
+                }
+            }
+            catch
+            {
+                if (isOuterTransaction) 
+                {
+                    await _transaction.RollbackAsync();
                 }
 
-                throw;                                
+                throw;
             }
+
             finally
             {
-                _depth--;                            
+                _depth--;
                 if (isOuterTransaction)
                 {
-                    await _transaction!.DisposeAsync();  
+                    await _transaction.DisposeAsync();
                     _transaction = null;
                 }
             }
+
         }
 
-        public async Task AddSavePointAsync(string name)
+
+        public async Task AddSavePointAsync(string name) 
         {
-            await _context.SaveChangesAsync();                 
-            await _transaction!.CreateSavepointAsync(name);
+            await _context.SaveChangesAsync();
+            await _transaction.CreateSavepointAsync(name);
         }
-
 
         public async Task RollbackToSavePointAsync(string name)
         {
-            await _transaction!.RollbackToSavepointAsync(name);
+            await _transaction.RollbackToSavepointAsync(name);
         }
+        
+        public async Task<int> SaveChangesAsync()
+        {
+            var result = await _context.SaveChangesAsync();
+            return result;
+        }
+
+
 
         public void Dispose()
         {
             _transaction?.Dispose();
         }
-
-        public async Task<int> SaveChangesAsync()
-                => await _context.SaveChangesAsync();
     }
 }

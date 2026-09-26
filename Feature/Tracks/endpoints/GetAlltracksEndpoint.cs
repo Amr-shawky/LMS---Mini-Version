@@ -12,7 +12,7 @@ namespace LMS___Mini_Version.Feature.Tracks.endpoints
 {
     public static class GetAlltracksEndpoint
     {
-        public static void MapGetAlltracksEndpoint(this IEndpointRouteBuilder app)
+        public static void MapGetAlltracksEndpoint(this WebApplication app)
         
         {
             var group = app.MapGroup("api/v2/tracks")

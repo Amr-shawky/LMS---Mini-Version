@@ -1,5 +1,5 @@
 using exam_system.Features.Shared;
-using LMS___Mini_Version.Persistence;
+using LMS___Mini_Version.Domain.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -80,7 +80,7 @@ namespace LMS___Mini_Version.Feature.Shared
         }
 
         // ─────────────────────────────────────────────────────────────
-        // 3) The single place that owns Begin / Commit / Rollback
+        // 3) The single place that owns transactions via IUnitOfWork
         // ─────────────────────────────────────────────────────────────
 
         private static async Task<TResult> RunInTransactionAsync<TResult>(
@@ -88,36 +88,42 @@ namespace LMS___Mini_Version.Feature.Shared
             HttpContext httpContext,
             Func<TResult, bool>? shouldCommit = null)
         {
-            var dbContext = httpContext.RequestServices.GetRequiredService<AppDbContext>();
+            var unitOfWork = httpContext.RequestServices.GetRequiredService<IUnitOfWork>();
             var logger = httpContext.RequestServices.GetRequiredService<ILogger<EndpointDefinition>>();
 
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            TResult result = default!;
 
             try
             {
-                var result = await handler();
-
-                if (shouldCommit is null || shouldCommit(result))
+                await unitOfWork.ExecuteAsync(async () =>
                 {
-                    await dbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                }
-                else
-                {
-                    await transaction.RollbackAsync();   // business failure, no exception
-                }
+                    result = await handler();
 
+                    if (shouldCommit != null && !shouldCommit(result))
+                    {
+                        // Business failure: signal rollback to UnitOfWork
+                        throw new BusinessRollbackException();
+                    }
+                });
+
+                return result;
+            }
+            catch (BusinessRollbackException)
+            {
+                // Transaction was rolled back by UnitOfWork for business failure; return result
                 return result;
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-
                 logger.LogError(ex, "Transaction rolled back due to exception in endpoint: {Endpoint}",
                     httpContext.Request.Path);
 
                 throw;   // let the global exception middleware build the error response
             }
+        }
+
+        private sealed class BusinessRollbackException : Exception
+        {
         }
     }
 }
