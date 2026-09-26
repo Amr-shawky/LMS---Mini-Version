@@ -80,7 +80,7 @@ namespace LMS___Mini_Version.Mediators
 
             // Step 5: Save the enrollment first so it gets a real ID from the database.
             // Without this, the Payment's EnrollmentId would be 0 (invalid FK).
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             // Step 6: If the track has fees, create a payment record using the real enrollment ID
             PaymentDto? payment = null;
@@ -96,7 +96,7 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 7: COMMIT the payment record
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return EnrollmentResultDto.Succeed(enrollment.ToDto(), payment);
         }

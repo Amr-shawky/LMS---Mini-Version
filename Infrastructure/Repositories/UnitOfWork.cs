@@ -1,35 +1,76 @@
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
-    /// <summary>
-    /// [SRP] Unit of Work implementation — responsible ONLY for transaction management.
-    /// Wraps the DbContext and commits all staged changes atomically via CompleteAsync().
-    /// 
-    /// Repositories are no longer created or exposed here.
-    /// Each Service injects its own IGeneralRepository&lt;T&gt; directly via DI,
-    /// and all repositories share the same scoped DbContext instance automatically.
-    /// </summary>
+
     public class UnitOfWork : IUnitOfWork
     {
+
         private readonly AppDbContext _context;
 
-        public UnitOfWork(AppDbContext context)
+        private IDbContextTransaction? _transaction;
+        private int _depth = 0;                 
+
+        public UnitOfWork(AppDbContext context) => _context = context;
+
+        public async Task ExecuteAsync(Func<Task> action)
         {
-            _context = context;
+            var isOuterTransaction = _depth == 0;   
+
+            if (isOuterTransaction)
+                _transaction = await _context.Database.BeginTransactionAsync();
+
+            _depth++;                                
+            try
+            {
+                await action();
+
+                if (isOuterTransaction)              
+                {
+                    await _context.SaveChangesAsync();   
+                    await _transaction!.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (isOuterTransaction)
+                {
+                    await _transaction!.RollbackAsync();  
+                }
+
+                throw;                                
+            }
+            finally
+            {
+                _depth--;                            
+                if (isOuterTransaction)
+                {
+                    await _transaction!.DisposeAsync();  
+                    _transaction = null;
+                }
+            }
         }
 
-        /// <summary>
-        /// Commits ALL staged changes across ALL repositories in a single DB transaction.
-        /// </summary>
-        public async Task<int> CompleteAsync()
-            => await _context.SaveChangesAsync().ConfigureAwait(false);
+        public async Task AddSavePointAsync(string name)
+        {
+            await _context.SaveChangesAsync();                 
+            await _transaction!.CreateSavepointAsync(name);
+        }
+
+
+        public async Task RollbackToSavePointAsync(string name)
+        {
+            await _transaction!.RollbackToSavepointAsync(name);
+        }
 
         public void Dispose()
         {
-            _context.Dispose();
-            GC.SuppressFinalize(this);
+            _transaction?.Dispose();
         }
+
+        public async Task<int> SaveChangesAsync()
+                => await _context.SaveChangesAsync();
     }
 }

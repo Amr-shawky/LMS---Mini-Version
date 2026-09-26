@@ -17,6 +17,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
         }
         public async Task<Unit> Handle(CreateTrackCommand request, CancellationToken cancellationToken)
         {
+            
             var track = new Track
             {
                 Name = request.Name,
@@ -26,8 +27,8 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
             };
             
             _trackRepository.Add(track);
-            await _unitOfWork.CompleteAsync();
-
+            await _unitOfWork.SaveChangesAsync();
+            
             return Unit.Value;
         }
     }

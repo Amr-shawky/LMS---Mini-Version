@@ -64,7 +64,7 @@ namespace LMS___Mini_Version.Services.Implementations
             _trackRepository.Add(entity);
 
             // Save so EF populates entity.Id with the DB-generated value
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             // Now entity.Id has the real value — return accurate DTO
             return entity.ToDto();
@@ -81,7 +81,7 @@ namespace LMS___Mini_Version.Services.Implementations
             track.MaxCapacity = dto.MaxCapacity;
 
             _trackRepository.Update(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
 
@@ -91,7 +91,7 @@ namespace LMS___Mini_Version.Services.Implementations
             if (track == null) return false;
 
             _trackRepository.Delete(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
 

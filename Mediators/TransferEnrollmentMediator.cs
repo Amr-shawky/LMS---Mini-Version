@@ -95,7 +95,7 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 6: ATOMIC COMMIT — track change + payment adjustment saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return MediatorResult.Succeed(
                 $"Enrollment transferred to '{newTrack.Name}' successfully. New fees: {newTrack.Fees:C}.");

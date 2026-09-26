@@ -65,7 +65,7 @@ namespace LMS___Mini_Version.Mediators
             await _paymentService.RefundPaymentAsync(enrollmentId).ConfigureAwait(false);
 
             // Step 4: ATOMIC COMMIT — cancellation + refund saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return MediatorResult.Succeed("Enrollment cancelled and payment refunded successfully.");
         }

@@ -1,4 +1,5 @@
-﻿using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
+﻿using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
 using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
 using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using LMS___Mini_Version.Feature.Tracks.Query;
@@ -9,10 +10,12 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
     public class TransferEnrollmentOrchestratorHandler : IRequestHandler<TransferEnrollmentOrchestrator, Unit>
     {
         private readonly IMediator _mediator;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TransferEnrollmentOrchestratorHandler(IMediator mediator)
+        public TransferEnrollmentOrchestratorHandler(IMediator mediator, IUnitOfWork unitOfWork)
         {
             _mediator = mediator;
+            _unitOfWork = unitOfWork;
         }
         public async Task<Unit> Handle(TransferEnrollmentOrchestrator request, CancellationToken cancellationToken)
         {
@@ -77,15 +80,29 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 
             //step 4 update track ID 
 
-            await _mediator.Send(new updateEnrollmentTrackCommand(request.EnrollmentID, request.newTrackID));
+            await _unitOfWork.ExecuteAsync(async () => {
 
-            if (track.Fees > 0)
-            {
+                await _mediator.Send(new updateEnrollmentTrackCommand(request.EnrollmentID, request.newTrackID));
 
-                await _mediator.Send(new refundPaymentCommand(request.EnrollmentID));
-            }
+                if (track.Fees > 0)
+                {
+                    await _unitOfWork.AddSavePointAsync("tst");
+                    try
+                    {
+                        await _mediator.Send(new refundPaymentCommand(request.EnrollmentID));      // Optional
+                    }
+                    catch (Exception ex)
+                    {
+                        await _unitOfWork.RollbackToSavePointAsync("RefundSavePoint");
+                    }
+                }
 
-            return Unit.Value;
+            });
+
+
+
+                return Unit.Value;
+            
         }
     }
 }

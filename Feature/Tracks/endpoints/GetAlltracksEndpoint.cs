@@ -1,9 +1,11 @@
 ﻿using exam_system.Features.Shared;
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.Feature.Tracks.Commands;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.ViewModels.Track;
 using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Feature.Tracks.endpoints
@@ -13,7 +15,10 @@ namespace LMS___Mini_Version.Feature.Tracks.endpoints
         public static void MapGetAlltracksEndpoint(this IEndpointRouteBuilder app)
         
         {
-            app.MapGet("api/Track/v2", async (IMediator mediator, int PageIndex = 1, int PageSize = 10) => {
+            var group = app.MapGroup("api/v2/tracks")
+                           .WithTags("Track");
+                           
+            group.MapGet("/", async (IMediator mediator, int PageIndex = 1, int PageSize = 10) => {
 
 
                 var response = await mediator.Send(new GetAllTrackQuery(PageIndex, PageSize));
@@ -37,8 +42,20 @@ namespace LMS___Mini_Version.Feature.Tracks.endpoints
 
                 return result;
 
-            }).WithTags("Track");
-        
+            })
+                .WithName("GetAllTracks")
+                .WithSummary("Get paginated list of tracks")
+                .WithDescription("Retrieves active tracks with summary details including fees and status.")
+                .Produces<EndpointResponse<PaginatedResult<TrackSummaryViewModel>>>(StatusCodes.Status200OK);
+
+
+            group.MapPost("/", async (IMediator mediator , CreateTrackViewModel vm ) => {
+
+                var request = await mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+
+
+                return Results.Ok();
+            });
         }
     }
 }

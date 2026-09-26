@@ -29,7 +29,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             
             enrollmententity.Status = request.Status;
             _enrollmentrepo.Update(enrollmententity);
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.SaveChangesAsync();
             
             return Unit.Value;
         }

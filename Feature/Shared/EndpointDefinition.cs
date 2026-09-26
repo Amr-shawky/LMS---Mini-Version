@@ -1,5 +1,10 @@
-﻿using exam_system.Features.Shared;
-using System.Transactions;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.Persistence;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LMS___Mini_Version.Feature.Shared
 {
@@ -12,10 +17,10 @@ namespace LMS___Mini_Version.Feature.Shared
         // ─────────────────────────────────────────────────────────────
         
         protected static IResult Response<T>(RequestResponse<T> result)
-            => Results.Ok((EndpointResponse<T>)result);
+            => Results.Ok(EndpointResponse<T>.FromResult(result));
 
-        protected static IResult Response<T>(PagingViewModel<T> result)
-            => Results.Ok(EndpointResponse<PagingViewModel<T>>.Ok(result));
+        protected static IResult Response<T>(PaginatedResult<T> result)
+            => Results.Ok(EndpointResponse<PaginatedResult<T>>.Ok(result));
 
         // ─────────────────────────────────────────────────────────────
         // 2) Public overloads — each one only decides HOW to shape the response.
@@ -25,6 +30,12 @@ namespace LMS___Mini_Version.Feature.Shared
         /// <summary>Handler already returns an IResult → return it as is.</summary>
         /// <remarks>T is unused; kept only so existing call sites keep compiling.</remarks>
         protected static Task<IResult> ExecuteWithTransactionAsync<T>(
+            Func<Task<IResult>> handler,
+            HttpContext httpContext)
+            => RunInTransactionAsync(handler, httpContext);
+
+        /// <summary>Handler already returns an IResult without requiring generic type argument.</summary>
+        protected static Task<IResult> ExecuteWithTransactionAsync(
             Func<Task<IResult>> handler,
             HttpContext httpContext)
             => RunInTransactionAsync(handler, httpContext);
@@ -49,11 +60,11 @@ namespace LMS___Mini_Version.Feature.Shared
                 return true;
             }, httpContext);
 
-            return Results.Ok(EndPointResponse<bool>.Success(true, "Operation completed successfully"));
+            return Results.Ok(EndpointResponse<bool>.Ok(true, "Operation completed successfully"));
         }
 
         /// <summary>
-        /// Handler returns a RequestResult (business success/failure without exceptions).
+        /// Handler returns a RequestResponse (business success/failure without exceptions).
         /// A business failure ROLLS BACK instead of committing.
         /// </summary>
         protected static async Task<IResult> ExecuteWithTransactionAsync<T>(
@@ -63,11 +74,9 @@ namespace LMS___Mini_Version.Feature.Shared
             var result = await RunInTransactionAsync(
                 handler,
                 httpContext,
-                shouldCommit: r => r.IsSuccess);
+                shouldCommit: r => r.Success);
 
-            return result.IsSuccess
-                ? Results.Ok(EndPointResponse<T>.Success(result.Data, result.Message))
-                : Results.Ok(EndPointResponse<T>.Failure(result.ErrorCode, result.Message));
+            return Results.Ok(EndpointResponse<T>.FromResult(result));
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -79,27 +88,30 @@ namespace LMS___Mini_Version.Feature.Shared
             HttpContext httpContext,
             Func<TResult, bool>? shouldCommit = null)
         {
-            var transactionManager = httpContext.RequestServices.GetRequiredService<TransactionManager>();
+            var dbContext = httpContext.RequestServices.GetRequiredService<AppDbContext>();
             var logger = httpContext.RequestServices.GetRequiredService<ILogger<EndpointDefinition>>();
 
-            transactionManager.BeginTransaction();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
             try
             {
                 var result = await handler();
 
                 if (shouldCommit is null || shouldCommit(result))
-                    await transactionManager.CommitTransactionAsync();
+                {
+                    await dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
                 else
-                    await transactionManager.RollbackTransactionAsync();   // business failure, no exception
+                {
+                    await transaction.RollbackAsync();   // business failure, no exception
+                }
 
                 return result;
             }
             catch (Exception ex)
             {
-                // FIX: the original checked a local `transaction` variable that was never assigned,
-                // so this block never ran. We now roll back unconditionally.
-                await transactionManager.RollbackTransactionAsync();
+                await transaction.RollbackAsync();
 
                 logger.LogError(ex, "Transaction rolled back due to exception in endpoint: {Endpoint}",
                     httpContext.Request.Path);

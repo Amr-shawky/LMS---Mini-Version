@@ -31,7 +31,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 
             paymententity.Status = PaymentStatus.Refunded;
 
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Unit.Value;
         }
