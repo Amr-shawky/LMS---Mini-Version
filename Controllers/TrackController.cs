@@ -45,7 +45,7 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TrackDetailViewModel>> GetByIdCQRS(int id)
+        public async Task<ActionResult<TrackDetailViewModel>> GetByIdCQRS( int id)
         {
             var dto = await _mediator.Send(new GetByIdTrackQuery(id));
             if (dto == null) return NotFound();

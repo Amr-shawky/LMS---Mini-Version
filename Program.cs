@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MediatR;
 using LMS___Mini_Version.Feature.Tracks.endpoints;
 using LMS___Mini_Version.Feature.Tracks.endpoints.test;
+using LMS___Mini_Version.Feature.Tracks.Query;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -21,9 +22,9 @@ namespace LMS___Mini_Version
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
-      
+
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -61,10 +62,18 @@ namespace LMS___Mini_Version
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
-            app.MapGetAlltracksEndpoint();
-            app.MapTrackTestEndpoints();
-            app.MapUpdateTrackEndpoint();
+            //app.MapTrackTestEndpoints();
 
+            //app.MapGet("test", () => "hello world");
+            app.MapGet("api/v4/test", async (IMediator mediator) => {
+
+                var tracks = await mediator.Send(new GetAllTrackQuery());
+                return tracks;
+            }).WithTags("Track")
+            .WithSummary("get all track minimal api");
+
+
+            app.MapUpdateTrackEndpoint();
             app.Run();
         }
     }

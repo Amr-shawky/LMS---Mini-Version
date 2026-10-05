@@ -1,11 +1,12 @@
-﻿using LMS___Mini_Version.Domain.Repositories;
+﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
-    public class GeneralRepository<T> : IGeneralRepository<T> where T : class
+    public class GeneralRepository<T> : IGeneralRepository<T> where T : baseEntity
     {
         private readonly AppDbContext _context;
 
@@ -33,31 +34,75 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
+        #region entry
 
-        public Task SaveIncludeAsync(T entity, params string[] properties)
+        //entry.State
+        //entry.Properties
+        //entry.Metadata
+        //entry.CurrentValues
+        //entry.OriginalValues
+        #endregion
+        public void SaveInclude(T entity, params string[] Includedproperties)
         {
-            var entityEntry = _context.Entry(entity);
-            var keyProperty = entityEntry.Metadata.FindPrimaryKey()?.Properties.FirstOrDefault()?.Name ?? "Id";
-            var entityKeyValue = entityEntry.Property(keyProperty).CurrentValue;
 
-            var local = _context.Set<T>().Local
-                .FirstOrDefault(e => _context.Entry(e).Property(keyProperty).CurrentValue?.Equals(entityKeyValue) == true);
+            var localEntity = _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id);
 
-            EntityEntry<T> entry = local == null
-                ? _context.Attach(entity)
-                : _context.Entry(local);
+            EntityEntry entry;
 
-            if (local != null)
+            if (localEntity is null)
             {
-                _context.Entry(local).CurrentValues.SetValues(entity);
+                entry = _context.Entry(entity);
+            }
+            else
+            {
+                entry = _context.ChangeTracker.Entries<T>().First(e => e.Entity.Id == entity.Id);
             }
 
-            foreach (var property in properties)
+            foreach (var property in entry.Properties)
             {
-                entry.Property(property).IsModified = true;
+                if (Includedproperties.Contains(property.Metadata.Name))
+                {
+                    property.IsModified = true;
+                }
+
+                else
+                {
+                    property.IsModified = false;
+                }
             }
 
-            return Task.CompletedTask;
         }
     }
 }
+
+#region save
+/*
+ 
+ var localEntity  = _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id);
+
+            EntityEntry entry;
+
+             if(localEntity is null)
+            {
+                entry = _context.Entry(entity);
+            }
+            else
+            {
+                entry = _context.ChangeTracker.Entries<T>().First(e => e.Entity.Id == entity.Id);
+            }
+
+            foreach (var property in entry.Properties)
+            {
+                if (Includedproperties.Contains(property.Metadata.Name))
+                {
+                    property.IsModified = true;
+                }
+
+                else
+                {
+                    property.IsModified = false;
+                }
+            }
+ */
+
+#endregion
