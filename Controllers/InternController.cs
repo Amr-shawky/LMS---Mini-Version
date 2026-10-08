@@ -2,6 +2,7 @@
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -17,11 +18,11 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly IInternService _internService;
+        private readonly IMediator _mediator;
 
-        public InternController(IInternService internService)
+        public InternController(IMediator mediator)
         {
-            _internService = internService;
+            _mediator = mediator;
         }
 
         [HttpGet]

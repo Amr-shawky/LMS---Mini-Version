@@ -20,12 +20,10 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        private readonly ITrackService _trackService;
         IMediator _mediator;
 
-        public TrackController(ITrackService trackService, IMediator mediator)
+        public TrackController( IMediator mediator)
         {
-            _trackService = trackService;
             _mediator = mediator;
         }
 

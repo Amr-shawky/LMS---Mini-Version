@@ -45,32 +45,17 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
     {
-        // ⚠️ THE TRAP: 4 dependencies and counting — every new action adds another one!
-        private readonly IEnrollmentService _enrollmentService;
-        private readonly EnrollInternMediator _enrollMediator;
-        private readonly CancelEnrollmentMediator _cancelMediator;
-        private readonly TransferEnrollmentMediator _transferMediator;
         private readonly IMediator _mediator;
 
         // ⚠️ Constructor bloat — imagine this with 10+ business actions!
         public EnrollmentController(
-            IEnrollmentService enrollmentService,
-            EnrollInternMediator enrollMediator,
-            CancelEnrollmentMediator cancelMediator,
-            TransferEnrollmentMediator transferMediator,
             IMediator mediator
             )
         {
-            _enrollmentService = enrollmentService;
-            _enrollMediator = enrollMediator;
-            _cancelMediator = cancelMediator;
-            _transferMediator = transferMediator;
             _mediator = mediator;
         }
 
-        // ═══════════════════════════════════════════════════════
-        //  READ ENDPOINTS (delegated to IEnrollmentService)
-        // ═══════════════════════════════════════════════════════
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
@@ -96,9 +81,6 @@ namespace LMS___Mini_Version.Controllers
             return Ok(viewModels);
         }
 
-        // ═══════════════════════════════════════════════════════
-        //  ACTION ENDPOINTS (each delegated to its own Mediator)
-        // ═══════════════════════════════════════════════════════
 
         /// <summary>
         /// Enrolls an intern in a track.
