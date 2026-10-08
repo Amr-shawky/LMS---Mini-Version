@@ -10,12 +10,10 @@ namespace LMS___Mini_Version.Feature.Tracks.Commands
     public class DeleteTrackCommandHandler : IRequestHandler<DeleteTrackCommand, RequestResponse>
     {
         private readonly IGeneralRepository<Track> _trackRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteTrackCommandHandler(IGeneralRepository<Track> trackRepository, IUnitOfWork unitOfWork)
+        public DeleteTrackCommandHandler(IGeneralRepository<Track> trackRepository)
         {
             _trackRepository = trackRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse> Handle(DeleteTrackCommand request, CancellationToken cancellationToken)
@@ -27,7 +25,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Commands
             }
 
             _trackRepository.Delete(track);
-            await _unitOfWork.SaveChangesAsync();
+            await _trackRepository.SaveChangesAsync();
 
             return RequestResponse.Ok("Track deleted successfully");
         }

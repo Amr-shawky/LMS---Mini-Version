@@ -9,12 +9,10 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
     public class CreateTrackCommandHandler : IRequestHandler<CreateTrackCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Track> _trackRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateTrackCommandHandler(IGeneralRepository<Track> trackRepository, IUnitOfWork unitOfWork)
+        public CreateTrackCommandHandler(IGeneralRepository<Track> trackRepository)
         {
             _trackRepository = trackRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse<int>> Handle(CreateTrackCommand request, CancellationToken cancellationToken)
@@ -28,7 +26,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
             };
             
             _trackRepository.Add(track);
-            await _unitOfWork.SaveChangesAsync();
+            await _trackRepository.SaveChangesAsync();
             
             return RequestResponse<int>.Created(track.Id);
         }

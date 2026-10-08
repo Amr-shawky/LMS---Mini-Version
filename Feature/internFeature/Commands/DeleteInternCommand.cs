@@ -10,12 +10,10 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
     public class DeleteInternCommandHandler : IRequestHandler<DeleteInternCommand, RequestResponse>
     {
         private readonly IGeneralRepository<Intern> _internRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteInternCommandHandler(IGeneralRepository<Intern> internRepository, IUnitOfWork unitOfWork)
+        public DeleteInternCommandHandler(IGeneralRepository<Intern> internRepository)
         {
             _internRepository = internRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse> Handle(DeleteInternCommand request, CancellationToken cancellationToken)
@@ -27,7 +25,7 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
             }
 
             _internRepository.Delete(intern);
-            await _unitOfWork.SaveChangesAsync();
+            await _internRepository.SaveChangesAsync();
 
             return RequestResponse.Ok("Intern deleted successfully");
         }

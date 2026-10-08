@@ -9,12 +9,10 @@ namespace LMS___Mini_Version.Feature.paymentFeature.Handlers
     public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Payment> _paymentRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CreatePaymentCommandHandler(IGeneralRepository<Payment> paymentRepository, IUnitOfWork unitOfWork)
+        public CreatePaymentCommandHandler(IGeneralRepository<Payment> paymentRepository)
         {
             _paymentRepository = paymentRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse<int>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -29,7 +27,7 @@ namespace LMS___Mini_Version.Feature.paymentFeature.Handlers
             };
 
             _paymentRepository.Add(payment);
-            await _unitOfWork.SaveChangesAsync();
+            await _paymentRepository.SaveChangesAsync();
 
             return RequestResponse<int>.Created(payment.Id);
         }

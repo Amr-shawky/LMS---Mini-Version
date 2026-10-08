@@ -12,12 +12,9 @@ namespace LMS___Mini_Version.Feature.Tracks.Commands
     public class UpdateTrackCommandHandler : IRequestHandler<UpdateTrackCommand, RequestResponse> 
     {
         private readonly IGeneralRepository<Track> _trackrepository;
-        private readonly IUnitOfWork _unitOfWork;
-        public UpdateTrackCommandHandler(IGeneralRepository<Track> trackrepository,
-            IUnitOfWork unitOfWork)
+        public UpdateTrackCommandHandler(IGeneralRepository<Track> trackrepository)
         {
             _trackrepository = trackrepository;
-            _unitOfWork = unitOfWork;
         }
         public async Task<RequestResponse> Handle(UpdateTrackCommand request, CancellationToken cancellationToken)
         {
@@ -28,7 +25,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Commands
             _trackrepository.SaveInclude(track,nameof(Track.Fees));
 
 
-            await _unitOfWork.SaveChangesAsync();
+            await _trackrepository.SaveChangesAsync();
             return RequestResponse.Ok();
         } 
             #region update 

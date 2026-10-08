@@ -10,12 +10,10 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
     public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Intern> _internRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateInternCommandHandler(IGeneralRepository<Intern> internRepository, IUnitOfWork unitOfWork)
+        public CreateInternCommandHandler(IGeneralRepository<Intern> internRepository)
         {
             _internRepository = internRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse<int>> Handle(CreateInternCommand request, CancellationToken cancellationToken)
@@ -30,7 +28,7 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
             };
 
             _internRepository.Add(intern);
-            await _unitOfWork.SaveChangesAsync();
+            await _internRepository.SaveChangesAsync();
 
             return RequestResponse<int>.Created(intern.Id);
         }

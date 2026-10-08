@@ -10,12 +10,10 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
     public class UpdateInternCommandHandler : IRequestHandler<UpdateInternCommand, RequestResponse>
     {
         private readonly IGeneralRepository<Intern> _internRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateInternCommandHandler(IGeneralRepository<Intern> internRepository, IUnitOfWork unitOfWork)
+        public UpdateInternCommandHandler(IGeneralRepository<Intern> internRepository)
         {
             _internRepository = internRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse> Handle(UpdateInternCommand request, CancellationToken cancellationToken)
@@ -33,7 +31,7 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
             intern.TrackId = request.TrackId;
 
             _internRepository.Update(intern);
-            await _unitOfWork.SaveChangesAsync();
+            await _internRepository.SaveChangesAsync();
 
             return RequestResponse.Ok("Intern updated successfully");
         }
