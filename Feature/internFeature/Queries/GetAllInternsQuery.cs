@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.internFeature.Queries
 {
-    public record GetAllInternsQuery : IRequest<RequestResponse<IEnumerable<InternDto>>>;
+    public record GetAllInternsQuery(int PageIndex = 1, int PageSize = 10) : IRequest<RequestResponse<PaginatedResult<InternDto>>>;
 }

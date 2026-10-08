@@ -21,30 +21,23 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<TrackSummaryViewModel>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<TrackSummaryViewModel>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var response = await _mediator.Send(new GetAllTracksQuery());
-            if (!response.Success)
+            var response = await _mediator.Send(new GetAllTrackQuery(pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
             {
-                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<TrackSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            var viewModels = response.Data!.Select(d => d.ToSummaryViewModel());
-            return Ok(EndpointResponse<IEnumerable<TrackSummaryViewModel>>.Ok(viewModels));
+            var viewModels = response.Data.Items.Select(d => d.ToSummaryViewModel()).ToList();
+            var paginated = PaginatedResult<TrackSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Ok(paginated));
         }
 
         [HttpGet("cqrs")]
         public async Task<ActionResult<EndpointResponse<PaginatedResult<TrackSummaryViewModel>>>> GetAllCQRS([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var response = await _mediator.Send(new GetAllTrackQuery(pageIndex, pageSize));
-            if (!response.Success)
-            {
-                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
-            }
-
-            var viewModels = response.Data!.Items.Select(d => d.ToSummaryViewModel()).ToList();
-            var paginated = PaginatedResult<TrackSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
-            return Ok(EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Ok(paginated));
+            return await GetAll(pageIndex, pageSize);
         }
 
         [HttpGet("{id}")]

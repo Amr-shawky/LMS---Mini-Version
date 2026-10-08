@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.paymentFeature.Queries
 {
-    public record GetAllPaymentsQuery : IRequest<RequestResponse<IEnumerable<PaymentDto>>>;
+    public record GetAllPaymentsQuery(int PageIndex = 1, int PageSize = 10) : IRequest<RequestResponse<PaginatedResult<PaymentDto>>>;
 }

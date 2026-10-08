@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Queries
 {
-    public record GetAllEnrollmentsQuery : IRequest<RequestResponse<IEnumerable<EnrollmentDto>>>;
+    public record GetAllEnrollmentsQuery(int PageIndex = 1, int PageSize = 10) : IRequest<RequestResponse<PaginatedResult<EnrollmentDto>>>;
 }

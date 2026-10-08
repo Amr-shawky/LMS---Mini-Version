@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Feature.internFeature.Handlers
 {
-    public class GetAllInternsQueryHandler : IRequestHandler<GetAllInternsQuery, RequestResponse<IEnumerable<InternDto>>>
+    public class GetAllInternsQueryHandler : IRequestHandler<GetAllInternsQuery, RequestResponse<PaginatedResult<InternDto>>>
     {
         private readonly IGeneralRepository<Intern> _internRepository;
 
@@ -17,9 +17,13 @@ namespace LMS___Mini_Version.Feature.internFeature.Handlers
             _internRepository = internRepository;
         }
 
-        public async Task<RequestResponse<IEnumerable<InternDto>>> Handle(GetAllInternsQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<PaginatedResult<InternDto>>> Handle(GetAllInternsQuery request, CancellationToken cancellationToken)
         {
-            var dtos = await _internRepository.GetAll()
+            var query = _internRepository.GetAll();
+
+            var dtos = await query
+                .Skip(request.PageSize * (request.PageIndex - 1))
+                .Take(request.PageSize)
                 .Select(i => new InternDto
                 {
                     Id = i.Id,
@@ -31,7 +35,16 @@ namespace LMS___Mini_Version.Feature.internFeature.Handlers
                     TrackName = i.Track != null ? i.Track.Name : string.Empty
                 }).ToListAsync(cancellationToken);
 
-            return RequestResponse<IEnumerable<InternDto>>.Ok(dtos);
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var paginatedResult = PaginatedResult<InternDto>.Create(
+                dtos,
+                totalCount,
+                request.PageIndex,
+                request.PageSize
+            );
+
+            return RequestResponse<PaginatedResult<InternDto>>.Ok(paginatedResult);
         }
     }
 }

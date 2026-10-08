@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Feature.paymentFeature.Handlers
 {
-    public class GetAllPaymentsQueryHandler : IRequestHandler<GetAllPaymentsQuery, RequestResponse<IEnumerable<PaymentDto>>>
+    public class GetAllPaymentsQueryHandler : IRequestHandler<GetAllPaymentsQuery, RequestResponse<PaginatedResult<PaymentDto>>>
     {
         private readonly IGeneralRepository<Payment> _paymentRepository;
 
@@ -17,9 +17,13 @@ namespace LMS___Mini_Version.Feature.paymentFeature.Handlers
             _paymentRepository = paymentRepository;
         }
 
-        public async Task<RequestResponse<IEnumerable<PaymentDto>>> Handle(GetAllPaymentsQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<PaginatedResult<PaymentDto>>> Handle(GetAllPaymentsQuery request, CancellationToken cancellationToken)
         {
-            var payments = await _paymentRepository.GetAll()
+            var query = _paymentRepository.GetAll();
+
+            var payments = await query
+                .Skip(request.PageSize * (request.PageIndex - 1))
+                .Take(request.PageSize)
                 .Select(p => new PaymentDto
                 {
                     Id = p.Id,
@@ -30,7 +34,16 @@ namespace LMS___Mini_Version.Feature.paymentFeature.Handlers
                     Status = p.Status
                 }).ToListAsync(cancellationToken);
 
-            return RequestResponse<IEnumerable<PaymentDto>>.Ok(payments);
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var paginatedResult = PaginatedResult<PaymentDto>.Create(
+                payments,
+                totalCount,
+                request.PageIndex,
+                request.PageSize
+            );
+
+            return RequestResponse<PaginatedResult<PaymentDto>>.Ok(paginatedResult);
         }
     }
 }

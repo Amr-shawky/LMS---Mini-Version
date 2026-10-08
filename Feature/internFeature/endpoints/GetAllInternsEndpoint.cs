@@ -13,18 +13,19 @@ namespace LMS___Mini_Version.Feature.internFeature.endpoints
     {
         public static void MapGetAllInternsEndpoint(this IEndpointRouteBuilder app)
         {
-            app.MapGet("api/Intern/v2", async (IMediator mediator) =>
+            app.MapGet("api/Intern/v2", async (IMediator mediator, int pageIndex = 1, int pageSize = 10) =>
             {
-                var response = await mediator.Send(new GetAllInternsQuery());
-                if (!response.Success)
+                var response = await mediator.Send(new GetAllInternsQuery(pageIndex, pageSize));
+                if (!response.Success || response.Data == null)
                 {
-                    return Results.BadRequest(EndpointResponse<IEnumerable<InternSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                    return Results.BadRequest(EndpointResponse<PaginatedResult<InternSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
                 }
 
-                var viewModels = response.Data!.Select(d => d.ToSummaryViewModel());
-                return Results.Ok(EndpointResponse<IEnumerable<InternSummaryViewModel>>.Ok(viewModels));
+                var viewModels = response.Data.Items.Select(d => d.ToSummaryViewModel()).ToList();
+                var paginated = PaginatedResult<InternSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+                return Results.Ok(EndpointResponse<PaginatedResult<InternSummaryViewModel>>.Ok(paginated));
             }).WithTags("Intern V2")
-            .WithSummary("Get all interns (v2)");
+            .WithSummary("Get all interns paginated (v2)");
         }
     }
 }

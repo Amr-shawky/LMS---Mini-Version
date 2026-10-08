@@ -20,16 +20,17 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentViewModel>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<EnrollmentViewModel>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var response = await _mediator.Send(new GetAllEnrollmentsQuery());
-            if (!response.Success)
+            var response = await _mediator.Send(new GetAllEnrollmentsQuery(pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
             {
-                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<EnrollmentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<EnrollmentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            var viewModels = response.Data!.Select(d => d.ToViewModel());
-            return Ok(EndpointResponse<IEnumerable<EnrollmentViewModel>>.Ok(viewModels));
+            var viewModels = response.Data.Items.Select(d => d.ToViewModel()).ToList();
+            var paginated = PaginatedResult<EnrollmentViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<EnrollmentViewModel>>.Ok(paginated));
         }
 
         [HttpGet("{id}")]
@@ -45,16 +46,17 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentViewModel>>>> GetByIntern(int internId)
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<EnrollmentViewModel>>>> GetByIntern(int internId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var response = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
-            if (!response.Success)
+            var response = await _mediator.Send(new GetEnrollmentsByInternQuery(internId, pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
             {
-                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<EnrollmentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<EnrollmentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            var viewModels = response.Data!.Select(d => d.ToViewModel());
-            return Ok(EndpointResponse<IEnumerable<EnrollmentViewModel>>.Ok(viewModels));
+            var viewModels = response.Data.Items.Select(d => d.ToViewModel()).ToList();
+            var paginated = PaginatedResult<EnrollmentViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<EnrollmentViewModel>>.Ok(paginated));
         }
 
         [HttpPost]

@@ -20,16 +20,17 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<InternSummaryViewModel>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<InternSummaryViewModel>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var response = await _mediator.Send(new GetAllInternsQuery());
-            if (!response.Success)
+            var response = await _mediator.Send(new GetAllInternsQuery(pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
             {
-                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<InternSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<InternSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            var viewModels = response.Data!.Select(d => d.ToSummaryViewModel());
-            return Ok(EndpointResponse<IEnumerable<InternSummaryViewModel>>.Ok(viewModels));
+            var viewModels = response.Data.Items.Select(d => d.ToSummaryViewModel()).ToList();
+            var paginated = PaginatedResult<InternSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<InternSummaryViewModel>>.Ok(paginated));
         }
 
         [HttpGet("{id}")]

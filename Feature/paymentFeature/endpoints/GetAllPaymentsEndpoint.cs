@@ -13,18 +13,19 @@ namespace LMS___Mini_Version.Feature.paymentFeature.endpoints
     {
         public static void MapGetAllPaymentsEndpoint(this IEndpointRouteBuilder app)
         {
-            app.MapGet("api/Payment/v2", async (IMediator mediator) =>
+            app.MapGet("api/Payment/v2", async (IMediator mediator, int pageIndex = 1, int pageSize = 10) =>
             {
-                var response = await mediator.Send(new GetAllPaymentsQuery());
-                if (!response.Success)
+                var response = await mediator.Send(new GetAllPaymentsQuery(pageIndex, pageSize));
+                if (!response.Success || response.Data == null)
                 {
-                    return Results.BadRequest(EndpointResponse<IEnumerable<PaymentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                    return Results.BadRequest(EndpointResponse<PaginatedResult<PaymentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
                 }
 
-                var viewModels = response.Data!.Select(d => d.ToViewModel());
-                return Results.Ok(EndpointResponse<IEnumerable<PaymentViewModel>>.Ok(viewModels));
+                var viewModels = response.Data.Items.Select(d => d.ToViewModel()).ToList();
+                var paginated = PaginatedResult<PaymentViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+                return Results.Ok(EndpointResponse<PaginatedResult<PaymentViewModel>>.Ok(paginated));
             }).WithTags("Payment V2")
-            .WithSummary("Get all payments (v2)");
+            .WithSummary("Get all payments paginated (v2)");
         }
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 {
-    public class GetAllEnrollmentsQueryHandler : IRequestHandler<GetAllEnrollmentsQuery, RequestResponse<IEnumerable<EnrollmentDto>>>
+    public class GetAllEnrollmentsQueryHandler : IRequestHandler<GetAllEnrollmentsQuery, RequestResponse<PaginatedResult<EnrollmentDto>>>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
 
@@ -17,9 +17,13 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             _enrollmentRepository = enrollmentRepository;
         }
 
-        public async Task<RequestResponse<IEnumerable<EnrollmentDto>>> Handle(GetAllEnrollmentsQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<PaginatedResult<EnrollmentDto>>> Handle(GetAllEnrollmentsQuery request, CancellationToken cancellationToken)
         {
-            var dtos = await _enrollmentRepository.GetAll()
+            var query = _enrollmentRepository.GetAll();
+
+            var dtos = await query
+                .Skip(request.PageSize * (request.PageIndex - 1))
+                .Take(request.PageSize)
                 .Select(e => new EnrollmentDto
                 {
                     Id = e.Id,
@@ -31,7 +35,16 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
                     Status = e.Status
                 }).ToListAsync(cancellationToken);
 
-            return RequestResponse<IEnumerable<EnrollmentDto>>.Ok(dtos);
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var paginatedResult = PaginatedResult<EnrollmentDto>.Create(
+                dtos,
+                totalCount,
+                request.PageIndex,
+                request.PageSize
+            );
+
+            return RequestResponse<PaginatedResult<EnrollmentDto>>.Ok(paginatedResult);
         }
     }
 }

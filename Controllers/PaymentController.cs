@@ -19,16 +19,17 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<EndpointResponse<IEnumerable<PaymentViewModel>>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<PaymentViewModel>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var response = await _mediator.Send(new GetAllPaymentsQuery());
-            if (!response.Success)
+            var response = await _mediator.Send(new GetAllPaymentsQuery(pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
             {
-                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<PaymentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<PaymentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            var viewModels = response.Data!.Select(d => d.ToViewModel());
-            return Ok(EndpointResponse<IEnumerable<PaymentViewModel>>.Ok(viewModels));
+            var viewModels = response.Data.Items.Select(d => d.ToViewModel()).ToList();
+            var paginated = PaginatedResult<PaymentViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<PaymentViewModel>>.Ok(paginated));
         }
 
         [HttpGet("enrollment/{enrollmentId}")]
