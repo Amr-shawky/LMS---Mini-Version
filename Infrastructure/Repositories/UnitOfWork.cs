@@ -67,13 +67,6 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
             await _transaction.RollbackToSavepointAsync(name);
 
         }
-        
-        public async Task<int> SaveChangesAsync()
-        {
-            var result = await _context.SaveChangesAsync();
-            return result;
-            // should in generic repo 
-        }
 
         public void Dispose()
         {

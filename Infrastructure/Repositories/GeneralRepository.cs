@@ -21,13 +21,10 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
-            => await _context.Set<T>().ToListAsync().ConfigureAwait(false);
+            => await _context.Set<T>().ToListAsync();
 
         public async Task<T?> GetByIdAsync(int id)
-            => await _context.Set<T>().FindAsync(id).ConfigureAwait(false);
-
-        public IQueryable<T> GetTable()
-            => _context.Set<T>();
+            => await _context.Set<T>().FindAsync(id);
 
         public void Add(T entity) => _context.Set<T>().Add(entity);
 
@@ -72,6 +69,13 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
             }
 
         }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            var result = await _context.SaveChangesAsync();
+            return result;
+        }
+
     }
 }
 
