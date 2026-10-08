@@ -1,7 +1,7 @@
-﻿using MediatR;
+using exam_system.Features.Shared;
+using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators
 {
-    public record TransferEnrollmentOrchestrator(int EnrollmentID, int newTrackID) : IRequest;
-
+    public record TransferEnrollmentOrchestrator(int EnrollmentID, int newTrackID) : IRequest<RequestResponse>;
 }

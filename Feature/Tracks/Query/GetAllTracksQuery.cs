@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.Tracks.Query
 {
-    public record GetByIdTrackQuery(int Id) : IRequest<RequestResponse<TrackDto>>;
+    public record GetAllTracksQuery : IRequest<RequestResponse<IEnumerable<TrackDto>>>;
 }

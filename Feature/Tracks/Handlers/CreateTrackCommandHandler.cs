@@ -1,23 +1,24 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.Tracks.Commands;
 using MediatR;
 
 namespace LMS___Mini_Version.Feature.Tracks.Handlers
 {
-    public class CreateTrackCommandHandler : IRequestHandler<CreateTrackCommand>
+    public class CreateTrackCommandHandler : IRequestHandler<CreateTrackCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Track> _trackRepository;
-        
         private readonly IUnitOfWork _unitOfWork;
+
         public CreateTrackCommandHandler(IGeneralRepository<Track> trackRepository, IUnitOfWork unitOfWork)
         {
             _trackRepository = trackRepository;
             _unitOfWork = unitOfWork;
         }
-        public async Task<Unit> Handle(CreateTrackCommand request, CancellationToken cancellationToken)
+
+        public async Task<RequestResponse<int>> Handle(CreateTrackCommand request, CancellationToken cancellationToken)
         {
-            
             var track = new Track
             {
                 Name = request.Name,
@@ -29,7 +30,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
             _trackRepository.Add(track);
             await _unitOfWork.SaveChangesAsync();
             
-            return Unit.Value;
+            return RequestResponse<int>.Created(track.Id);
         }
     }
 }

@@ -1,91 +1,103 @@
-﻿using LMS___Mini_Version.DTOs;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Feature.Tracks.Commands;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Mapping;
-using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Track;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [Trap 1 Fix] This controller depends only on ITrackService (abstraction).
-    /// [SRP Fix] No longer injects IUnitOfWork — the Service owns its own CRUD transactions.
-    /// [Trap 2 Fix] All responses use ViewModels; all inputs use ViewModels.
-    /// [Trap 3 Fix] Every action is async Task — no synchronous blocking.
-    /// [Trap 5 Fix] No business logic in the controller — all delegated to TrackService.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        IMediator _mediator;
+        private readonly IMediator _mediator;
 
-        public TrackController( IMediator mediator)
+        public TrackController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<TrackSummaryViewModel>>>> GetAll()
         {
-            var dtos = await _trackService.GetAllAsync();
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
-            return Ok(viewModels);
+            var response = await _mediator.Send(new GetAllTracksQuery());
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<TrackSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data!.Select(d => d.ToSummaryViewModel());
+            return Ok(EndpointResponse<IEnumerable<TrackSummaryViewModel>>.Ok(viewModels));
         }
+
         [HttpGet("cqrs")]
-        public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAllCQRS()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<TrackSummaryViewModel>>>> GetAllCQRS([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var dtos = await _mediator.Send(new GetAllTrackQuery());
-            var viewModels = dtos.Data.Items.Select(d => d.ToSummaryViewModel());
-            return Ok(viewModels);
+            var response = await _mediator.Send(new GetAllTrackQuery(pageIndex, pageSize));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data!.Items.Select(d => d.ToSummaryViewModel()).ToList();
+            var paginated = PaginatedResult<TrackSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Ok(paginated));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TrackDetailViewModel>> GetByIdCQRS( int id)
+        public async Task<ActionResult<EndpointResponse<TrackDetailViewModel>>> GetByIdCQRS(int id)
         {
-            var dto = await _mediator.Send(new GetByIdTrackQuery(id));
-            if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
+            var response = await _mediator.Send(new GetByIdTrackQuery(id));
+            if (!response.Success || response.Data == null)
+            {
+                return NotFound(EndpointResponse<TrackDetailViewModel>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            return Ok(EndpointResponse<TrackDetailViewModel>.Ok(response.Data.ToDetailViewModel()));
         }
 
         [HttpPost("cqrs")]
-        public async Task<ActionResult<TrackSummaryViewModel>> CreateCQRS(CreateTrackViewModel vm)
+        public async Task<ActionResult<EndpointResponse<TrackSummaryViewModel>>> CreateCQRS(CreateTrackViewModel vm)
         {
+            var createResponse = await _mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+            if (!createResponse.Success)
+            {
+                return StatusCode(createResponse.StatusCode, EndpointResponse<TrackSummaryViewModel>.Fail(createResponse.Message, createResponse.StatusCode, createResponse.Errors));
+            }
 
+            var trackResponse = await _mediator.Send(new GetByIdTrackQuery(createResponse.Data));
+            var summaryVm = trackResponse.Data != null
+                ? trackResponse.Data.ToSummaryViewModel()
+                : new TrackSummaryViewModel { Id = createResponse.Data, Name = vm.Name, Fees = vm.Fees, IsActive = vm.IsActive };
 
-            var created = await _mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
-            // No CompleteAsync here — the Service saves and returns DTO with correct Id
-            return Ok("track created successfully");
+            return Ok(EndpointResponse<TrackSummaryViewModel>.Created(summaryVm, "Track created successfully"));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateTrackViewModel vm)
+        public async Task<ActionResult<EndpointResponse>> Update(int id, UpdateTrackViewModel vm)
         {
-            var dto = new TrackDto
+            var response = await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+            if (!response.Success)
             {
-                Name = vm.Name,
-                Fees = vm.Fees,
-                IsActive = vm.IsActive,
-                MaxCapacity = vm.MaxCapacity
-            };
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
-
-            // No CompleteAsync here — the Service saves internally
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Track updated successfully"));
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult<EndpointResponse>> Delete(int id)
         {
-            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
+            var response = await _mediator.Send(new DeleteTrackCommand(id));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            // No CompleteAsync here — the Service saves internally
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Track deleted successfully"));
         }
     }
 }

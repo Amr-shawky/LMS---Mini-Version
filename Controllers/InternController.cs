@@ -1,19 +1,13 @@
-﻿using LMS___Mini_Version.DTOs;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.Feature.internFeature.Commands;
+using LMS___Mini_Version.Feature.internFeature.Queries;
 using LMS___Mini_Version.Mapping;
-using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [Trap 1 Fix] Depends on IInternService — NOT AppDbContext.
-    /// [SRP Fix] No longer injects IUnitOfWork — the Service owns its own CRUD transactions.
-    /// [Trap 2 Fix] Accepts/returns ViewModels only.
-    /// [Trap 3 Fix] Fully async.
-    /// [Trap 5 Fix] Zero business logic — delegated to InternService.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class InternController : ControllerBase
@@ -26,62 +20,69 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<InternSummaryViewModel>>>> GetAll()
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
-            return Ok(viewModels);
+            var response = await _mediator.Send(new GetAllInternsQuery());
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<InternSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data!.Select(d => d.ToSummaryViewModel());
+            return Ok(EndpointResponse<IEnumerable<InternSummaryViewModel>>.Ok(viewModels));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<InternDetailViewModel>>> GetById(int id)
         {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
+            var response = await _mediator.Send(new GetInternByIdQuery(id));
+            if (!response.Success || response.Data == null)
+            {
+                return NotFound(EndpointResponse<InternDetailViewModel>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            return Ok(EndpointResponse<InternDetailViewModel>.Ok(response.Data.ToDetailViewModel()));
         }
 
         [HttpPost]
-        public async Task<ActionResult<InternSummaryViewModel>> Create(CreateInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse<InternSummaryViewModel>>> Create(CreateInternViewModel vm)
         {
-            var dto = new InternDto
+            var createResponse = await _mediator.Send(new CreateInternCommand(vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId));
+            if (!createResponse.Success)
             {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                BirthYear = vm.BirthYear,
-                Status = vm.Status,
-                TrackId = vm.TrackId
-            };
+                return StatusCode(createResponse.StatusCode, EndpointResponse<InternSummaryViewModel>.Fail(createResponse.Message, createResponse.StatusCode, createResponse.Errors));
+            }
 
-            var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
-            return Ok(created.ToSummaryViewModel());
+            var internResponse = await _mediator.Send(new GetInternByIdQuery(createResponse.Data));
+            var summaryVm = internResponse.Data != null
+                ? internResponse.Data.ToSummaryViewModel()
+                : new InternSummaryViewModel { Id = createResponse.Data, FullName = vm.FullName, Email = vm.Email, Status = vm.Status };
+
+            return Ok(EndpointResponse<InternSummaryViewModel>.Created(summaryVm, "Intern created successfully"));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UpdateInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse>> Update(int id, UpdateInternViewModel vm)
         {
-            var dto = new InternDto
+            var response = await _mediator.Send(new UpdateInternCommand(id, vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId));
+            if (!response.Success)
             {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                BirthYear = vm.BirthYear,
-                Status = vm.Status,
-                TrackId = vm.TrackId
-            };
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
-            if (!updated) return NotFound();
-
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Intern updated successfully"));
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult<EndpointResponse>> Delete(int id)
         {
-            var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
-            if (!deleted) return NotFound();
+            var response = await _mediator.Send(new DeleteInternCommand(id));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Intern deleted successfully"));
         }
     }
 }

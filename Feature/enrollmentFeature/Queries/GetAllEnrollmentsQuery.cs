@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Queries
 {
-    public record GetEnrollmentByIdQuery(int EnrollmentId) : IRequest<RequestResponse<EnrollmentDto>>;
+    public record GetAllEnrollmentsQuery : IRequest<RequestResponse<IEnumerable<EnrollmentDto>>>;
 }

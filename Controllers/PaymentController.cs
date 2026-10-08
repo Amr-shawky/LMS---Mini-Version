@@ -1,39 +1,46 @@
+using exam_system.Features.Shared;
+using LMS___Mini_Version.Feature.paymentFeature.Queries;
 using LMS___Mini_Version.Mapping;
-using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Payment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// Read-only controller for Payment data.
-    /// Payments are created through the EnrollInternMediator — not directly.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
     {
         private readonly IMediator _mediator;
+
         public PaymentController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PaymentViewModel>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<PaymentViewModel>>>> GetAll()
         {
-            var dtos = await _paymentService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
+            var response = await _mediator.Send(new GetAllPaymentsQuery());
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<PaymentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data!.Select(d => d.ToViewModel());
+            return Ok(EndpointResponse<IEnumerable<PaymentViewModel>>.Ok(viewModels));
         }
 
         [HttpGet("enrollment/{enrollmentId}")]
-        public async Task<ActionResult<PaymentViewModel>> GetByEnrollment(int enrollmentId)
+        public async Task<ActionResult<EndpointResponse<PaymentViewModel>>> GetByEnrollment(int enrollmentId)
         {
-            var dto = await _paymentService.GetByEnrollmentAsync(enrollmentId).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToViewModel());
+            var response = await _mediator.Send(new GetPaymentByEnrollmentQuery(enrollmentId));
+            if (!response.Success || response.Data == null)
+            {
+                return NotFound(EndpointResponse<PaymentViewModel>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            return Ok(EndpointResponse<PaymentViewModel>.Ok(response.Data.ToViewModel()));
         }
     }
 }

@@ -1,131 +1,96 @@
-using LMS___Mini_Version.DTOs;
+using exam_system.Features.Shared;
 using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
+using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using LMS___Mini_Version.Mapping;
-using LMS___Mini_Version.Mediators;
-using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Enrollment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// ╔═══════════════════════════════════════════════════════════════════════════════════╗
-    /// ║  [THE FINAL TRAP: Mediator Explosion / Constructor Over-Injection]                ║
-    /// ╠═══════════════════════════════════════════════════════════════════════════════════╣
-    /// ║                                                                                   ║
-    /// ║  Look at the constructor below!                                                   ║
-    /// ║                                                                                   ║
-    /// ║  Because we created a "Class per Action" Mediator pattern,                        ║
-    /// ║  this controller now has to inject a DIFFERENT Mediator for                       ║
-    /// ║  EVERY complex business action:                                                   ║
-    /// ║                                                                                   ║
-    /// ║    - EnrollInternMediator      → POST  /api/enrollment                            ║
-    /// ║    - CancelEnrollmentMediator  → POST  /api/enrollment/{id}/cancel                ║
-    /// ║    - TransferEnrollmentMediator→ POST  /api/enrollment/{id}/transfer/{newTrackId} ║
-    /// ║                                                                                   ║
-    /// ║  Every NEW business action = another constructor parameter.                       ║
-    /// ║  This violates the Open/Closed Principle: adding a new action                     ║
-    /// ║  FORCES us to modify this controller's constructor.                               ║
-    /// ║                                                                                   ║
-    /// ║  As the system grows, the constructor will bloat with 10+                         ║
-    /// ║  mediators, making the class hard to maintain and test.                           ║
-    /// ║                                                                                   ║
-    /// ║  ► The REAL Solution: Replace all these manual mediators with                     ║
-    /// ║    the CQRS pattern using MediatR library, where each action                      ║
-    /// ║    becomes a self-contained Command/Query that is dispatched                      ║
-    /// ║    through a SINGLE IMediator interface:                                          ║
-    /// ║                                                                                   ║
-    /// ║    Before: 4 constructor parameters (and growing)                                 ║
-    /// ║    After:  1 constructor parameter → IMediator                                    ║
-    /// ║                                                                                   ║
-    /// ╚═══════════════════════════════════════════════════════════════════════════════════╝
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class EnrollmentController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        // ⚠️ Constructor bloat — imagine this with 10+ business actions!
-        public EnrollmentController(
-            IMediator mediator
-            )
+        public EnrollmentController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
+        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentViewModel>>>> GetAll()
         {
-            var dtos = await _enrollmentService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
+            var response = await _mediator.Send(new GetAllEnrollmentsQuery());
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<EnrollmentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data!.Select(d => d.ToViewModel());
+            return Ok(EndpointResponse<IEnumerable<EnrollmentViewModel>>.Ok(viewModels));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<EnrollmentViewModel>>> GetById(int id)
         {
-            var dto = await _enrollmentService.GetByIdAsync(id).ConfigureAwait(false);
-            if (dto == null) return NotFound();
-            return Ok(dto.ToViewModel());
+            var response = await _mediator.Send(new GetEnrollmentByIdQuery(id));
+            if (!response.Success || response.Data == null)
+            {
+                return NotFound(EndpointResponse<EnrollmentViewModel>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            return Ok(EndpointResponse<EnrollmentViewModel>.Ok(response.Data.ToViewModel()));
         }
 
         [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
+        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollmentViewModel>>>> GetByIntern(int internId)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
-            return Ok(viewModels);
-        }
-
-
-        /// <summary>
-        /// Enrolls an intern in a track.
-        /// Orchestrated by EnrollInternMediator (validates → creates enrollment → creates payment → commits).
-        /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
-        {
-            var result = await _enrollMediator.ExecuteAsync(new CreateEnrollmentDto
+            var response = await _mediator.Send(new GetEnrollmentsByInternQuery(internId));
+            if (!response.Success)
             {
-                InternId = vm.InternId,
-                TrackId = vm.TrackId
-            }).ConfigureAwait(false);
-
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.ErrorMessage });
+                return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<EnrollmentViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            return Ok(result.Enrollment!.ToViewModel());
+            var viewModels = response.Data!.Select(d => d.ToViewModel());
+            return Ok(EndpointResponse<IEnumerable<EnrollmentViewModel>>.Ok(viewModels));
         }
 
-        /// <summary>
-        /// Cancels an enrollment and refunds the payment.
-        /// Orchestrated by CancelEnrollmentMediator (cancels → refunds → commits).
-        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<EndpointResponse<EnrollmentViewModel>>> Enroll(EnrollInternViewModel vm)
+        {
+            var result = await _mediator.Send(new EnrollInternOrchestrator(vm.InternId, vm.TrackId));
+            if (!result.Success || result.Data == null)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse<EnrollmentViewModel>.Fail(result.Message, result.StatusCode, result.Errors));
+            }
+
+            return Ok(EndpointResponse<EnrollmentViewModel>.Created(result.Data.ToViewModel(), "Enrollment created successfully"));
+        }
+
         [HttpPost("{id}/cancel")]
-        public async Task<ActionResult> Cancel(int id)
+        public async Task<ActionResult<EndpointResponse>> Cancel(int id)
         {
             var result = await _mediator.Send(new cancelEnrollmentOrchestrator(id));
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse.Fail(result.Message, result.StatusCode, result.Errors));
+            }
 
-
-            return Ok();
+            return Ok(EndpointResponse.Ok("Enrollment cancelled successfully"));
         }
 
-        /// <summary>
-        /// Transfers an enrollment to a different track and adjusts the payment.
-        /// Orchestrated by TransferEnrollmentMediator (validates → transfers → adjusts fees → commits).
-        /// </summary>
         [HttpPost("{id}/transfer/{newTrackId}")]
-        public async Task<ActionResult> Transfer(int id, int newTrackId)
+        public async Task<ActionResult<EndpointResponse>> Transfer(int id, int newTrackId)
         {
             var result = await _mediator.Send(new TransferEnrollmentOrchestrator(id, newTrackId));
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse.Fail(result.Message, result.StatusCode, result.Errors));
+            }
 
-            return Ok();
+            return Ok(EndpointResponse.Ok("Enrollment transferred successfully"));
         }
     }
 }

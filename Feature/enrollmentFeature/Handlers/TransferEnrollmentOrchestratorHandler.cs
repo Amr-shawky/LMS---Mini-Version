@@ -1,4 +1,5 @@
-﻿using LMS___Mini_Version.Domain.Repositories;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
 using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
 using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
@@ -7,7 +8,7 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 {
-    public class TransferEnrollmentOrchestratorHandler : IRequestHandler<TransferEnrollmentOrchestrator, Unit>
+    public class TransferEnrollmentOrchestratorHandler : IRequestHandler<TransferEnrollmentOrchestrator, RequestResponse>
     {
         private readonly IMediator _mediator;
         private readonly IUnitOfWork _unitOfWork;
@@ -17,92 +18,82 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             _mediator = mediator;
             _unitOfWork = unitOfWork;
         }
-        public async Task<Unit> Handle(TransferEnrollmentOrchestrator request, CancellationToken cancellationToken)
+
+        public async Task<RequestResponse> Handle(TransferEnrollmentOrchestrator request, CancellationToken cancellationToken)
         {
             // step 1 enrollment validation 
-            var enrollment = await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentID));
+            var enrollmentResponse = await _mediator.Send(new GetEnrollmentByIdQuery(request.EnrollmentID), cancellationToken);
 
-            //valid enrollment exist 
-            if (enrollment == null)
+            // valid enrollment exist 
+            if (!enrollmentResponse.Success || enrollmentResponse.Data == null)
             {
-                throw new KeyNotFoundException($"enrollemnt {request.EnrollmentID} not found");
+                return RequestResponse.Fail($"Enrollment {request.EnrollmentID} not found", 404);
             }
+
+            var enrollment = enrollmentResponse.Data;
 
             // check if cancelled 
-
-            if(enrollment.Status == Domain.Enums.EnrollmentStatus.Cancelled)
+            if (enrollment.Status == Domain.Enums.EnrollmentStatus.Cancelled)
             {
-                throw new InvalidOperationException($"cannot transfer a cancelled enrollment ");
+                return RequestResponse.Fail("Cannot transfer a cancelled enrollment", 400);
             }
 
-            // check if the track alredy enrollment 
-
-            if(enrollment.TrackId == request.newTrackID)
+            // check if already enrolled in this track 
+            if (enrollment.TrackId == request.newTrackID)
             {
-                throw new InvalidOperationException("the intern already enrolled this track");
+                return RequestResponse.Fail("The intern is already enrolled in this track", 400);
             }
-
 
             //-----------------------
 
-            //step 2 : track validation 
+            // step 2 : track validation 
+            var trackResponse = await _mediator.Send(new GetByIdTrackQuery(request.newTrackID), cancellationToken);
 
-            var track = await _mediator.Send(new GetByIdTrackQuery(request.newTrackID));
-
-            // track is exist 
-
-            if (track == null)
+            // track exists 
+            if (!trackResponse.Success || trackResponse.Data == null)
             {
-                throw new KeyNotFoundException($"track {request.newTrackID} not found");
-
+                return RequestResponse.Fail($"Track {request.newTrackID} not found", 404);
             }
+
+            var track = trackResponse.Data;
 
             // is the track active  
-
             if (!track.IsActive)
             {
-                throw new InvalidOperationException($"track {request.newTrackID} not active");
-            
+                return RequestResponse.Fail($"Track {request.newTrackID} is not active", 400);
             }
 
+            // step 3 validate active capacity 
+            var activeenrolledcount = await _mediator.Send(new getActiveEnrollmentCountByTrackQuery(request.newTrackID), cancellationToken);
 
-            //step 3 validate active capicity 
-
-            var activeenrolledcount = await _mediator.Send(new getActiveEnrollmentCountByTrackQuery(request.newTrackID));
-            
-            // reached max capicity ? 
-            if(activeenrolledcount >= track.MaxCapacity)
+            // reached max capacity ? 
+            if (activeenrolledcount >= track.MaxCapacity)
             {
-                throw new InvalidOperationException("target track has reached maximum capacity ");
+                return RequestResponse.Fail("Target track has reached maximum capacity", 400);
             }
 
             //-------------------------
 
-            //step 4 update track ID 
-
-            await _unitOfWork.ExecuteAsync(async () => {
-
-                await _mediator.Send(new updateEnrollmentTrackCommand(request.EnrollmentID, request.newTrackID));
+            // step 4 update track ID 
+            await _unitOfWork.ExecuteAsync(async () =>
+            {
+                await _mediator.Send(new updateEnrollmentTrackCommand(request.EnrollmentID, request.newTrackID), cancellationToken);
 
                 if (track.Fees > 0)
                 {
                     await _unitOfWork.AddSavePointAsync("RefundSavePoint");
                     try
                     {
-                        await _mediator.Send(new refundPaymentCommand(request.EnrollmentID));      // Optional
+                        await _mediator.Send(new refundPaymentCommand(request.EnrollmentID), cancellationToken);
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         await _unitOfWork.RollbackToSavePointAsync("RefundSavePoint");
                     }
                 }
-
             });
 
-
-
-                return Unit.Value;
-            
+            return RequestResponse.Ok("Enrollment transferred successfully");
         }
     }
 }

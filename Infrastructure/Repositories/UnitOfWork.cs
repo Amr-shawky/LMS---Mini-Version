@@ -9,7 +9,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
     {
 
         private readonly AppDbContext _context;
-        private IDbContextTransaction _transaction;
+        private IDbContextTransaction? _transaction;
         private int _depth = 0;
 
         public UnitOfWork(AppDbContext context) => _context = context;
