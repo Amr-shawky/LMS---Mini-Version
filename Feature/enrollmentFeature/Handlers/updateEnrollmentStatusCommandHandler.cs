@@ -8,14 +8,10 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
     public class updateEnrollmentStatusCommandHandler : IRequestHandler<updateEnrollmentStatusCommand>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentrepo;
-        public readonly IUnitOfWork _unitOfWork;
-        private readonly IMediator _mediator;
         
-        public updateEnrollmentStatusCommandHandler(IUnitOfWork unitOfWork, IMediator mediator,IGeneralRepository<Enrollment> enrollmentrepo) 
+        public updateEnrollmentStatusCommandHandler(IGeneralRepository<Enrollment> enrollmentrepo) 
         {
             _enrollmentrepo = enrollmentrepo;
-            _mediator = mediator;
-            _unitOfWork = unitOfWork;
         }
         public async Task<Unit> Handle(updateEnrollmentStatusCommand request, CancellationToken cancellationToken)
         {
@@ -29,7 +25,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             
             enrollmententity.Status = request.Status;
             _enrollmentrepo.Update(enrollmententity);
-            await _unitOfWork.SaveChangesAsync();
+            await _enrollmentrepo.SaveChangesAsync();
             
             return Unit.Value;
         }

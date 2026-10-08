@@ -12,12 +12,10 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
     public class CreateEnrollmentCommandHandler : IRequestHandler<CreateEnrollmentCommand, RequestResponse<EnrollmentDto>>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateEnrollmentCommandHandler(IGeneralRepository<Enrollment> enrollmentRepository, IUnitOfWork unitOfWork)
+        public CreateEnrollmentCommandHandler(IGeneralRepository<Enrollment> enrollmentRepository)
         {
             _enrollmentRepository = enrollmentRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse<EnrollmentDto>> Handle(CreateEnrollmentCommand request, CancellationToken cancellationToken)
@@ -31,7 +29,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
             };
 
             _enrollmentRepository.Add(enrollment);
-            await _unitOfWork.SaveChangesAsync();
+            await _enrollmentRepository.SaveChangesAsync();
 
             var dto = new EnrollmentDto
             {

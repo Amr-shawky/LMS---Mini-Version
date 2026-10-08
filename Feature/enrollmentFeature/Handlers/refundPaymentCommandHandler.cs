@@ -10,12 +10,10 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
     public class refundPaymentCommandHandler : IRequestHandler<refundPaymentCommand, Unit>
     {
         private readonly IGeneralRepository<Payment> _paymentrepo;
-        private readonly IUnitOfWork _unitOfWork;
         
-        public refundPaymentCommandHandler(IGeneralRepository<Payment> paymentrepo, IUnitOfWork unitOfWork)
+        public refundPaymentCommandHandler(IGeneralRepository<Payment> paymentrepo)
         {
             _paymentrepo = paymentrepo;
-            _unitOfWork = unitOfWork;
 
         }
         public async Task<Unit> Handle(refundPaymentCommand request, CancellationToken cancellationToken)
@@ -31,7 +29,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 
             paymententity.Status = PaymentStatus.Refunded;
 
-            await _unitOfWork.SaveChangesAsync();
+            await _paymentrepo.SaveChangesAsync();
 
             return Unit.Value;
         }
