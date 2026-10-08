@@ -6,6 +6,9 @@ using MediatR;
 using LMS___Mini_Version.Feature.Tracks.endpoints;
 using LMS___Mini_Version.Feature.Tracks.endpoints.test;
 using LMS___Mini_Version.Feature.Tracks.Query;
+using LMS___Mini_Version.Feature.internFeature.endpoints;
+using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
+using LMS___Mini_Version.Feature.paymentFeature.endpoints;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -48,9 +51,33 @@ namespace LMS___Mini_Version
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
-            //app.MapTrackTestEndpoints();
 
-            //app.MapGet("test", () => "hello world");
+            // ─── Track Minimal API v2 Endpoints ────────────────────────
+            app.MapGetAllTracksEndpoint();
+            app.MapGetTrackByIdEndpoint();
+            app.MapCreateTrackEndpoint();
+            app.MapUpdateTrackV2Endpoint();
+            app.MapDeleteTrackEndpoint();
+
+            // ─── Intern Minimal API v2 Endpoints ───────────────────────
+            app.MapGetAllInternsEndpoint();
+            app.MapGetInternByIdEndpoint();
+            app.MapCreateInternEndpoint();
+            app.MapUpdateInternEndpoint();
+            app.MapDeleteInternEndpoint();
+
+            // ─── Payment Minimal API v2 Endpoints ──────────────────────
+            app.MapGetAllPaymentsEndpoint();
+            app.MapGetPaymentByEnrollmentEndpoint();
+
+            // ─── Enrollment Minimal API v2 Endpoints ───────────────────
+            app.MapGetAllEnrollmentsEndpoint();
+            app.MapGetEnrollmentByIdEndpoint();
+            app.MapGetEnrollmentsByInternEndpoint();
+            app.MapEnrollInternEndpoint();
+            app.MapCancelEnrollmentEndpoint();
+            app.MapTransferEnrollmentEndpoint();
+
             app.MapGet("api/v4/test", async (IMediator mediator) => {
 
                 var tracks = await mediator.Send(new GetAllTrackQuery());
