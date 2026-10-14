@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.Feature.internFeature.Commands;
+using LMS___Mini_Version.Feature.internFeature.Queries;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.ViewModels.Intern;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -8,64 +12,78 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public InternController(AppDbContext context)
+        public InternController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IEnumerable<Intern> GetAll()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<InternSummaryViewModel>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            return _context.Interns.ToList();
+            var response = await _mediator.Send(new GetAllInternsQuery(pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<InternSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data.Items.Select(d => d.ToSummaryViewModel()).ToList();
+            var paginated = PaginatedResult<InternSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<InternSummaryViewModel>>.Ok(paginated));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Intern> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<InternDetailViewModel>>> GetById(int id)
         {
-            var intern = _context.Interns.Find(id);
+            var response = await _mediator.Send(new GetInternByIdQuery(id));
+            if (!response.Success || response.Data == null)
+            {
+                return NotFound(EndpointResponse<InternDetailViewModel>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            if (intern == null) return NotFound();
-
-            return intern;
+            return Ok(EndpointResponse<InternDetailViewModel>.Ok(response.Data.ToDetailViewModel()));
         }
 
         [HttpPost]
-        public ActionResult Create(Intern intern)
+        public async Task<ActionResult<EndpointResponse<InternSummaryViewModel>>> Create(CreateInternViewModel vm)
         {
-            _context.Interns.Add(intern);
-            _context.SaveChanges();
+            var createResponse = await _mediator.Send(new CreateInternCommand(vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId));
+            if (!createResponse.Success)
+            {
+                return StatusCode(createResponse.StatusCode, EndpointResponse<InternSummaryViewModel>.Fail(createResponse.Message, createResponse.StatusCode, createResponse.Errors));
+            }
 
-            return Ok(intern);
+            var internResponse = await _mediator.Send(new GetInternByIdQuery(createResponse.Data));
+            var summaryVm = internResponse.Data != null
+                ? internResponse.Data.ToSummaryViewModel()
+                : new InternSummaryViewModel { Id = createResponse.Data, FullName = vm.FullName, Email = vm.Email, Status = vm.Status };
+
+            return Ok(EndpointResponse<InternSummaryViewModel>.Created(summaryVm, "Intern created successfully"));
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Intern updatedIntern)
+        public async Task<ActionResult<EndpointResponse>> Update(int id, UpdateInternViewModel vm)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
+            var response = await _mediator.Send(new UpdateInternCommand(id, vm.FullName, vm.Email, vm.BirthYear, vm.Status, vm.TrackId));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            intern.FullName = updatedIntern.FullName;
-            intern.Email = updatedIntern.Email;
-            intern.BirthYear = updatedIntern.BirthYear;
-            intern.Status = updatedIntern.Status;
-            intern.TrackId = updatedIntern.TrackId;
-
-            _context.SaveChanges();
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Intern updated successfully"));
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult<EndpointResponse>> Delete(int id)
         {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
+            var response = await _mediator.Send(new DeleteInternCommand(id));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            _context.Interns.Remove(intern);
-            _context.SaveChanges();
-
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Intern deleted successfully"));
         }
     }
 }

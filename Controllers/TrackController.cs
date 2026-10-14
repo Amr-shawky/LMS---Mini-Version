@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
-using LMS___Mini_Version.Persistence;
+using exam_system.Features.Shared;
+using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.Feature.Tracks.Commands;
+using LMS___Mini_Version.Feature.Tracks.Query;
+using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.ViewModels.Track;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -8,66 +13,84 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public TrackController(AppDbContext context)
+        public TrackController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IEnumerable<Track> GetAll()
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<TrackSummaryViewModel>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var tracks = _context.Tracks.ToList();
-            return tracks;
+            var response = await _mediator.Send(new GetAllTrackQuery(pageIndex, pageSize));
+            if (!response.Success || response.Data == null)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Fail(response.Message, response.StatusCode, response.Errors));
+            }
+
+            var viewModels = response.Data.Items.Select(d => d.ToSummaryViewModel()).ToList();
+            var paginated = PaginatedResult<TrackSummaryViewModel>.Create(viewModels, response.Data.TotalCount, response.Data.PageIndex, response.Data.PageSize);
+            return Ok(EndpointResponse<PaginatedResult<TrackSummaryViewModel>>.Ok(paginated));
+        }
+
+        [HttpGet("cqrs")]
+        public async Task<ActionResult<EndpointResponse<PaginatedResult<TrackSummaryViewModel>>>> GetAllCQRS([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            return await GetAll(pageIndex, pageSize);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Track> GetById(int id)
+        public async Task<ActionResult<EndpointResponse<TrackDetailViewModel>>> GetByIdCQRS(int id)
         {
-            var track = _context.Tracks.Find(id);
-
-            if (track == null)
+            var response = await _mediator.Send(new GetByIdTrackQuery(id));
+            if (!response.Success || response.Data == null)
             {
-                return NotFound();
+                return NotFound(EndpointResponse<TrackDetailViewModel>.Fail(response.Message, response.StatusCode, response.Errors));
             }
 
-            return track;
+            return Ok(EndpointResponse<TrackDetailViewModel>.Ok(response.Data.ToDetailViewModel()));
         }
 
-        [HttpPost]
-        public ActionResult Create(Track track)
+        [HttpPost("cqrs")]
+        public async Task<ActionResult<EndpointResponse<TrackSummaryViewModel>>> CreateCQRS(CreateTrackViewModel vm)
         {
-            _context.Tracks.Add(track);
-            _context.SaveChanges();
+            var createResponse = await _mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+            if (!createResponse.Success)
+            {
+                return StatusCode(createResponse.StatusCode, EndpointResponse<TrackSummaryViewModel>.Fail(createResponse.Message, createResponse.StatusCode, createResponse.Errors));
+            }
 
-            return Ok(track);
+            var trackResponse = await _mediator.Send(new GetByIdTrackQuery(createResponse.Data));
+            var summaryVm = trackResponse.Data != null
+                ? trackResponse.Data.ToSummaryViewModel()
+                : new TrackSummaryViewModel { Id = createResponse.Data, Name = vm.Name, Fees = vm.Fees, IsActive = vm.IsActive };
+
+            return Ok(EndpointResponse<TrackSummaryViewModel>.Created(summaryVm, "Track created successfully"));
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(int id, Track updatedTrack)
+        public async Task<ActionResult<EndpointResponse>> Update(int id, UpdateTrackViewModel vm)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
+            var response = await _mediator.Send(new UpdateTrackCommand(id, vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            track.Name = updatedTrack.Name;
-            track.Fees = updatedTrack.Fees;
-            track.IsActive = updatedTrack.IsActive;
-
-            _context.SaveChanges();
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Track updated successfully"));
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult<EndpointResponse>> Delete(int id)
         {
-            var track = _context.Tracks.Find(id);
-            if (track == null) return NotFound();
+            var response = await _mediator.Send(new DeleteTrackCommand(id));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.Message, response.StatusCode, response.Errors));
+            }
 
-            _context.Tracks.Remove(track);
-            _context.SaveChanges();
-
-            return NoContent();
+            return Ok(EndpointResponse.Ok("Track deleted successfully"));
         }
     }
 }
