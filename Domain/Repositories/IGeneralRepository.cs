@@ -1,17 +1,23 @@
-﻿namespace LMS___Mini_Version.Domain.Repositories
+﻿using LMS___Mini_Version.Domain.Entities;
+
+namespace LMS___Mini_Version.Domain.Repositories
 {
-    public interface IGeneralRepository<T> where T : class
+    public interface IGeneralRepository<T> where T : baseEntity
     {
-        IEnumerable<T> GetAll();
+        Task<IEnumerable<T>> GetAllAsync();
 
-        T GetById(int id);
+        IQueryable<T> GetAll();
 
-        IQueryable<T> GetTable();
+        Task<T?> GetByIdAsync(int id);
 
         void Add(T entity);
 
         void Update(T entity);
 
-        void Delete(int id);
+        void Delete(T entity);
+
+        void SaveInclude(T entity, params string[] properties);
+
+        Task<int> SaveChangesAsync();
     }
 }
