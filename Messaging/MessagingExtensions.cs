@@ -1,5 +1,6 @@
 ﻿using LMS___Mini_Version.contracts;
 using LMS___Mini_Version.Feature.consumers;
+using LMS___Mini_Version.Persistence;
 using MassTransit;
 
 namespace LMS___Mini_Version.Messaging
@@ -21,7 +22,10 @@ namespace LMS___Mini_Version.Messaging
                         h.Username("guest");
                         h.Password("guest");
                     });
-                    cfg.UseInMemoryOutbox(context);
+                    x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                    {
+                        o.UseSqlServer();
+                    });
                     cfg.configurefanout(context);
                     cfg.configureDirect(context);
                 });

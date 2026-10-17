@@ -1,5 +1,6 @@
 ﻿using LMS___Mini_Version.contracts;
 using LMS___Mini_Version.Feature.consumers;
+using LMS___Mini_Version.Persistence;
 using MassTransit;
 
 namespace LMS___Mini_Version.Messaging
@@ -58,6 +59,7 @@ namespace LMS___Mini_Version.Messaging
                     p.ExchangeType = "direct";
                     p.RoutingKey = "cash";
                 });
+                c.UseEntityFrameworkOutbox<AppDbContext>(context);
 
                 c.ConfigureConsumer<CashPaymentConsumer>(context);
             });
