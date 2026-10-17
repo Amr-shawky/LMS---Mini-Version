@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -60,6 +61,10 @@ namespace LMS___Mini_Version.Persistence
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
         }
     }
 }
