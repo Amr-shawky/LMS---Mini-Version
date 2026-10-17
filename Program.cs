@@ -40,9 +40,11 @@ namespace LMS___Mini_Version
 
 
 
-                x.UsingRabbitMq((context, cfg) => {
+                x.UsingRabbitMq((context, cfg) =>
+                {
 
-                    cfg.Host("localhost", "/", h => {
+                    cfg.Host("localhost", "/", h =>
+                    {
                         h.Username("guest");
                         h.Password("guest");
                     });
@@ -70,7 +72,8 @@ namespace LMS___Mini_Version
 
                     });
 
-                    cfg.ReceiveEndpoint("track-created-queue",e => {
+                    cfg.ReceiveEndpoint("track-created-queue", e =>
+                    {
 
                         e.ConfigureConsumer<trackcreatedConsumer>(context);
                     });
@@ -81,11 +84,13 @@ namespace LMS___Mini_Version
                     });
 
 
-                    cfg.ReceiveEndpoint("cash-queue", c => {
+                    cfg.ReceiveEndpoint("cash-queue", c =>
+                    {
 
                         c.ConfigureConsumeTopology = false;
 
-                        c.Bind("payment-exchange", p => {
+                        c.Bind("payment-exchange", p =>
+                        {
 
                             p.ExchangeType = "direct";
                             p.RoutingKey = "cash";
@@ -94,28 +99,23 @@ namespace LMS___Mini_Version
                         c.ConfigureConsumer<CashPaymentConsumer>(context);
                     });
 
-                    cfg.ReceiveEndpoint("visa-queue", v => {
+                    cfg.ReceiveEndpoint("visa-queue", v =>
+                    {
 
                         v.ConfigureConsumeTopology = false;
 
-                        v.Bind("payment-exchange", e => {
+                        v.Bind("payment-exchange", e =>
+                        {
 
                             e.ExchangeType = "direct";
                             e.RoutingKey = "visa";
-                        
-                        });
-                        //v.UseInMemoryOutbox(context);
-                        v.UseMessageRetry(r => {
 
-                            r.Interval(3,TimeSpan.FromSeconds(2));
                         });
-                        
-                        //v.UseDelayedRedelivery(r =>
-                        //{
-                        //    r.Intervals(
-                        //        TimeSpan.FromMinutes(1),
-                        //        TimeSpan.FromMinutes(5));
-                        //});
+                        v.UseMessageRetry(r =>
+                        {
+                            r.Immediate(3);
+
+                        });
 
                         v.ConfigureConsumer<VisaPaymentConsumer>(context);
                     });
@@ -209,25 +209,29 @@ namespace LMS___Mini_Version
             app.MapCancelEnrollmentEndpoint();
             app.MapTransferEnrollmentEndpoint();
 
-            app.MapPost("api/test/visa", async(IPublishEndpoint publish) => {
+            app.MapPost("api/test/visa", async (IPublishEndpoint publish) =>
+            {
 
-                await publish.Publish(new PaymentProcessedMessage {PaymentId =2,Amount=40}
-                
+                await publish.Publish(new PaymentProcessedMessage { PaymentId = 2, Amount = 40 }
+
                 ,
-                context => {
+                context =>
+                {
 
                     context.SetRoutingKey("visa");
                 });
 
                 return Results.Ok("visa payment event published");
-            
+
             });
 
-            app.MapPost("api/test/cash", async (IPublishEndpoint publish) => {
+            app.MapPost("api/test/cash", async (IPublishEndpoint publish) =>
+            {
 
                 await publish.Publish(new PaymentProcessedMessage { PaymentId = 2, Amount = 40 }
                 ,
-                context => {
+                context =>
+                {
 
                     context.SetRoutingKey("cash");
                 });
@@ -236,7 +240,8 @@ namespace LMS___Mini_Version
 
             });
 
-            app.MapGet("api/v4/test", async (IMediator mediator) => {
+            app.MapGet("api/v4/test", async (IMediator mediator) =>
+            {
 
                 var tracks = await mediator.Send(new GetAllTrackQuery());
                 return tracks;
