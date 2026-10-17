@@ -20,8 +20,8 @@ namespace LMS___Mini_Version.Feature.consumers
             Console.WriteLine("2. Event Published");
 
             // Simulate a failed database SaveChanges
-            //throw new InvalidOperationException(
-            //    "Database SaveChanges Failed!");
+            throw new InvalidOperationException(
+                "Database SaveChanges Failed!");
         }
     }
 }
