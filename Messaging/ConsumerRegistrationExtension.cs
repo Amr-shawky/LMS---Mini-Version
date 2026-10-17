@@ -14,6 +14,7 @@ namespace LMS___Mini_Version.Messaging
             //new 
             Registration.AddConsumer<VisaPaymentConsumer>();
             Registration.AddConsumer<CashPaymentConsumer>();
+            Registration.AddConsumer<PaymentConfirmedConsumer>();
         }
     }
 }

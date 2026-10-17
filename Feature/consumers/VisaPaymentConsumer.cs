@@ -12,23 +12,17 @@ namespace LMS___Mini_Version.Feature.consumers
         }
         public Task Consume(ConsumeContext<PaymentProcessedMessage> context)
         {
-            //var attempts = context.GetRetryAttempt();
+            int attempt = context.GetRetryAttempt();
 
-            //Console.WriteLine($"payment id :{context.Message.PaymentId}" +
-//                $"retry number {attempts}");
-            Console.WriteLine(
-                $"VISA Payment Received: {context.Message.PaymentId}");
+            Console.WriteLine($"{DateTime.Now} Attempt Number: {attempt}");
 
-            _logger.LogWarning($"VISA Payment Received: {context.Message.PaymentId}");
+            if (attempt < 2)
+            {
+                throw new InvalidOperationException(
+                    "Temporary payment processing failure");
+            }
 
-            //if (attempts < 2)
-            //{
-            //throw new InvalidOperationException(
-            //"Testing MassTransit failure handling");
-
-            //}
-            //Console.WriteLine("Payment Processed Successfully!");
-
+            Console.WriteLine("VISA Payment Processed Successfully!");
 
             return Task.CompletedTask;
 

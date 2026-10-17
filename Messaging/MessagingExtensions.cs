@@ -22,7 +22,6 @@ namespace LMS___Mini_Version.Messaging
                         h.Password("guest");
                     });
                     cfg.UseInMemoryOutbox(context);
-
                     cfg.configurefanout(context);
                     cfg.configureDirect(context);
                 });

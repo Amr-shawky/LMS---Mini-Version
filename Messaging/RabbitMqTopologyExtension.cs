@@ -6,7 +6,7 @@ namespace LMS___Mini_Version.Messaging
 {
     public static class RabbitMqTopologyExtension
     {
-        public static void configurefanout(this IRabbitMqBusFactoryConfigurator cfg , IBusRegistrationContext context)
+        public static void configurefanout(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
         {
             cfg.Message<trackcreatedmessage>(m =>
             {
@@ -22,6 +22,15 @@ namespace LMS___Mini_Version.Messaging
                 e.ConfigureConsumer<NotificationConsumer>(context);
             });
 
+            cfg.Message<PaymentConfirmedMessage>(p =>
+            {
+                p.SetEntityName("payment-confirmed-message");
+            });
+
+            cfg.ReceiveEndpoint("Payment-confirmed-queue", p => {
+
+                p.ConfigureConsumer<PaymentConfirmedConsumer>(context);
+            });
         }
 
         public static void configureDirect(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
@@ -64,8 +73,7 @@ namespace LMS___Mini_Version.Messaging
                 });
                 v.UseMessageRetry(r =>
                 {
-
-                    r.Interval(3, TimeSpan.FromSeconds(2));
+                    r.Interval(3, TimeSpan.FromSeconds(5));
                 });
                 v.ConfigureConsumer<VisaPaymentConsumer>(context);
             });

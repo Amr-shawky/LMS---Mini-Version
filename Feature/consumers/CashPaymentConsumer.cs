@@ -10,12 +10,18 @@ namespace LMS___Mini_Version.Feature.consumers
 
             _logger = logger;
         }
-        public Task Consume(ConsumeContext<PaymentProcessedMessage> context)
+        public async Task Consume(ConsumeContext<PaymentProcessedMessage> context)
         {
-            Console.WriteLine(
-                $"CASH Payment Received: {context.Message.PaymentId}");
+            Console.WriteLine("1. Cash Consumer Started");
 
-            return Task.CompletedTask;
+            await context.Publish(
+                new PaymentConfirmedMessage(context.Message.PaymentId));
+
+            Console.WriteLine("2. Event Published");
+
+            // Simulate a failed database SaveChanges
+            //throw new InvalidOperationException(
+            //    "Database SaveChanges Failed!");
         }
     }
 }
