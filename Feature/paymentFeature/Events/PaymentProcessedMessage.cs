@@ -1,4 +1,4 @@
-﻿namespace LMS___Mini_Version.Feature.paymentFeature.Enents
+﻿namespace LMS___Mini_Version.Feature.paymentFeature.Events
 {
     public record PaymentProcessedMessage(int PaymentId, decimal Amount);
 

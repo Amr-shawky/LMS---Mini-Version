@@ -1,15 +1,15 @@
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
 using LMS___Mini_Version.Feature.internFeature.endpoints;
-using LMS___Mini_Version.Feature.paymentFeature.Consumers;
 using LMS___Mini_Version.Feature.paymentFeature.endpoints;
-using LMS___Mini_Version.Feature.paymentFeature.Enents;
+using LMS___Mini_Version.Feature.paymentFeature.Events;
 using LMS___Mini_Version.Feature.Tracks.endpoints;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Infrastructure.Messaging;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Persistence;
 using MassTransit;
+using MassTransit.Configuration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 namespace LMS___Mini_Version
@@ -33,6 +33,7 @@ namespace LMS___Mini_Version
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
             builder.Services.AddMessaging();
+            
 
             var app = builder.Build();
 

@@ -1,4 +1,4 @@
-﻿using LMS___Mini_Version.Feature.paymentFeature.Enents;
+﻿using LMS___Mini_Version.Feature.paymentFeature.Events;
 using MassTransit;
 
 namespace LMS___Mini_Version.Feature.paymentFeature.Consumers
