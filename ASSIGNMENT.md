@@ -1,10 +1,16 @@
 # LMS Mini — Backend Refactoring & Messaging Assignment
 
 - **Format:** Individual assignment
-- **Time limit:** Up to 2 weeks
+- **Assignment date:** Saturday, **October 24, 2026**
+- **Time limit:** **10 calendar days** (not two weeks)
+- **Submission deadline:** **Tuesday, November 3, 2026, at 11:59 PM — Cairo, Egypt local time**
 - **Stack:** ASP.NET Core (.NET 8), EF Core, SQL Server, MediatR/CQRS, Minimal APIs, RabbitMQ, MassTransit **v8**
 - **Repository:** https://github.com/Amr-shawky/LMS---Mini-Version
 - **Required starting branch:** [`assignment/enrollment-refactoring-starter`](https://github.com/Amr-shawky/LMS---Mini-Version/tree/assignment/enrollment-refactoring-starter)
+
+### Important — next project eligibility and team placement
+
+**Your performance on this assignment is an important factor, but not the only factor, in assessing your eligibility to join the next project and determining which team you will be assigned to.** Your completed work, implementation quality, understanding of the covered topics, and submission by the stated deadline will be considered. Completing the assignment does not automatically guarantee a particular team or a place on the next project.
 
 ## 1. Goal
 
@@ -201,7 +207,11 @@ Open **SQL Server Profiler**, perform a real read or selective update, and inclu
 4. Include a **short implementation summary in your README** (or the PR description): what was refactored, messaging/outbox setup, the chosen retry strategy, and why your savepoint is in its chosen location. No long report, screenshots, or test document is required.
 5. Confirm that the project builds and that you performed the manual checks above before submission.
 
-**Maximum duration: 2 weeks.** Focus on correct behavior, clear responsibilities, and a working integrated flow rather than unnecessary abstractions.
+### Already implemented these topics in a previous project?
+
+If you have **already applied the assignment requirements in a previous project**, contact **me directly as your mentor** before the deadline. Share the previous project repository or PR link and point out where you implemented the relevant concepts. I will personally review the work, verify that you actually implemented and understand the requirements, and decide whether to **approve that previous work as your assignment submission**. **Previous work is not automatically accepted without mentor review and approval.**
+
+**Final deadline: Tuesday, November 3, 2026, 11:59 PM (Cairo, Egypt local time).** This is **10 calendar days from October 24, 2026**, not two weeks. Focus on correct behavior, clear responsibilities, and a working integrated flow rather than unnecessary abstractions.
 
 ---
 
