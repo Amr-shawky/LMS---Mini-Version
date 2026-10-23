@@ -71,12 +71,8 @@ namespace LMS___Mini_Version
             app.MapGetPaymentByEnrollmentEndpoint();
 
             // ─── Enrollment Minimal API v2 Endpoints ───────────────────
-            app.MapGetAllEnrollmentsEndpoint();
-            app.MapGetEnrollmentByIdEndpoint();
+            // Remaining Enrollment v2 endpoint (outside the assignment scope).
             app.MapGetEnrollmentsByInternEndpoint();
-            app.MapEnrollInternEndpoint();
-            app.MapCancelEnrollmentEndpoint();
-            app.MapTransferEnrollmentEndpoint();
 
             app.MapGet("api/v4/test", async (IMediator mediator) => {
 
