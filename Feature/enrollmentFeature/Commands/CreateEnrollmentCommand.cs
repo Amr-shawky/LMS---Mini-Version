@@ -29,8 +29,8 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
             };
 
             _enrollmentRepository.Add(enrollment);
-            await _enrollmentRepository.SaveChangesAsync();
-
+            await _enrollmentRepository.SaveChangesAsync(cancellationToken);
+                
             var dto = new EnrollmentDto
             {
                 Id = enrollment.Id,

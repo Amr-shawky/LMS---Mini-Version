@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Commands
             _trackrepository.SaveInclude(track,nameof(Track.Fees));
 
 
-            await _trackrepository.SaveChangesAsync();
+            //await _trackrepository.SaveChangesAsync();
             return RequestResponse.Ok();
         } 
             #region update 

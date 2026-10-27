@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
             };
 
             _internRepository.Add(intern);
-            await _internRepository.SaveChangesAsync();
+            await _internRepository.SaveChangesAsync(cancellationToken);
 
             return RequestResponse<int>.Created(intern.Id);
         }

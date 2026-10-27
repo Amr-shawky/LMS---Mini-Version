@@ -17,6 +17,7 @@ namespace LMS___Mini_Version.Domain.Repositories
         void Delete(T entity);
 
         void SaveInclude(T entity, params string[] includedProperties);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
     }
 }

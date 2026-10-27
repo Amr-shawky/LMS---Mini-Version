@@ -10,19 +10,23 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 {
     public class GetAllEnrollmentsQueryHandler : IRequestHandler<GetAllEnrollmentsQuery, RequestResponse<PaginatedResult<EnrollmentDto>>>
     {
-        private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
+        private readonly IGeneralRepository<Enrollment> _enrollmentRepo;
 
-        public GetAllEnrollmentsQueryHandler(IGeneralRepository<Enrollment> enrollmentRepository)
+        public GetAllEnrollmentsQueryHandler(IGeneralRepository<Enrollment> enrollmentRepo)
         {
-            _enrollmentRepository = enrollmentRepository;
+            _enrollmentRepo = enrollmentRepo;
         }
 
         public async Task<RequestResponse<PaginatedResult<EnrollmentDto>>> Handle(GetAllEnrollmentsQuery request, CancellationToken cancellationToken)
         {
-            var query = _enrollmentRepository.GetAll();
+            var skip = request.PageSize * (request.PageIndex - 1);
+
+            var query = _enrollmentRepo.GetAll();
 
             var dtos = await query
-                .Skip(request.PageSize * (request.PageIndex - 1))
+                .OrderByDescending(e=>e.EnrollmentDate)
+                .ThenBy(e => e.Id)
+                .Skip(skip)
                 .Take(request.PageSize)
                 .Select(e => new EnrollmentDto
                 {
@@ -44,7 +48,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
                 request.PageSize
             );
 
-            return RequestResponse<PaginatedResult<EnrollmentDto>>.Ok(paginatedResult);
+            return RequestResponse<PaginatedResult<EnrollmentDto>>.Ok(paginatedResult, "Enrollments retrieved successfully.");
         }
     }
 }

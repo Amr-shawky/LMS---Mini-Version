@@ -54,9 +54,14 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
 
                 property.IsModified = includedProperties.Contains(property.Metadata.Name); 
             } 
-        } 
+        }
         
-    
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+
+
 
     }
 }

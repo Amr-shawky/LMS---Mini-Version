@@ -26,7 +26,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
             };
             
             _trackRepository.Add(track);
-            await _trackRepository.SaveChangesAsync();
+            await _trackRepository.SaveChangesAsync(cancellationToken);
             
             return RequestResponse<int>.Created(track.Id);
         }

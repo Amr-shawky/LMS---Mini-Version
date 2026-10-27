@@ -8,122 +8,122 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS___Mini_Version.Feature.Shared
 {
-    public abstract class EndpointDefinition
-    {
-        public abstract void RegisterEndpoints(IEndpointRouteBuilder app);
+    //    public abstract class EndpointDefinition
+    //    {
+    //        public abstract void RegisterEndpoints(IEndpointRouteBuilder app);
 
-        // ─────────────────────────────────────────────────────────────
-        // 1) Response helpers (no transaction involved)
-        // ─────────────────────────────────────────────────────────────
-        
-        protected static IResult Response<T>(RequestResponse<T> result)
-            => Results.Ok(EndpointResponse<T>.FromResult(result));
+    //        // ─────────────────────────────────────────────────────────────
+    //        // 1) Response helpers (no transaction involved)
+    //        // ─────────────────────────────────────────────────────────────
 
-        protected static IResult Response<T>(PaginatedResult<T> result)
-            => Results.Ok(EndpointResponse<PaginatedResult<T>>.Ok(result));
+    //        protected static IResult Response<T>(RequestResponse<T> result)
+    //            => Results.Ok(EndpointResponse<T>.FromResult(result));
 
-        // ─────────────────────────────────────────────────────────────
-        // 2) Public overloads — each one only decides HOW to shape the response.
-        //    The transaction logic lives in ONE place: RunInTransactionAsync.
-        // ─────────────────────────────────────────────────────────────
+    //        protected static IResult Response<T>(PaginatedResult<T> result)
+    //            => Results.Ok(EndpointResponse<PaginatedResult<T>>.Ok(result));
 
-        /// <summary>Handler already returns an IResult → return it as is.</summary>
-        /// <remarks>T is unused; kept only so existing call sites keep compiling.</remarks>
-        protected static Task<IResult> ExecuteWithTransactionAsync<T>(
-            Func<Task<IResult>> handler,
-            HttpContext httpContext)
-            => RunInTransactionAsync(handler, httpContext);
+    //        // ─────────────────────────────────────────────────────────────
+    //        // 2) Public overloads — each one only decides HOW to shape the response.
+    //        //    The transaction logic lives in ONE place: RunInTransactionAsync.
+    //        // ─────────────────────────────────────────────────────────────
 
-        /// <summary>Handler already returns an IResult without requiring generic type argument.</summary>
-        protected static Task<IResult> ExecuteWithTransactionAsync(
-            Func<Task<IResult>> handler,
-            HttpContext httpContext)
-            => RunInTransactionAsync(handler, httpContext);
+    //        /// <summary>Handler already returns an IResult → return it as is.</summary>
+    //        /// <remarks>T is unused; kept only so existing call sites keep compiling.</remarks>
+    //        protected static Task<IResult> ExecuteWithTransactionAsync<T>(
+    //            Func<Task<IResult>> handler,
+    //            HttpContext httpContext)
+    //            => RunInTransactionAsync(handler, httpContext);
 
-        /// <summary>Handler returns a plain value → wrap it in a success response.</summary>
-        protected static async Task<IResult> ExecuteWithTransactionAsync<T>(
-            Func<Task<T>> handler,
-            HttpContext httpContext)
-        {
-            var result = await RunInTransactionAsync(handler, httpContext);
-            return Results.Ok(EndpointResponse<T>.Ok(result));
-        }
+    //        /// <summary>Handler already returns an IResult without requiring generic type argument.</summary>
+    //        protected static Task<IResult> ExecuteWithTransactionAsync(
+    //            Func<Task<IResult>> handler,
+    //            HttpContext httpContext)
+    //            => RunInTransactionAsync(handler, httpContext);
 
-        /// <summary>Handler returns nothing → respond with a generic success message.</summary>
-        protected static async Task<IResult> ExecuteWithTransactionAsync(
-            Func<Task> handler,
-            HttpContext httpContext)
-        {
-            await RunInTransactionAsync(async () =>
-            {
-                await handler();
-                return true;
-            }, httpContext);
+    //        /// <summary>Handler returns a plain value → wrap it in a success response.</summary>
+    //        protected static async Task<IResult> ExecuteWithTransactionAsync<T>(
+    //            Func<Task<T>> handler,
+    //            HttpContext httpContext)
+    //        {
+    //            var result = await RunInTransactionAsync(handler, httpContext);
+    //            return Results.Ok(EndpointResponse<T>.Ok(result));
+    //        }
 
-            return Results.Ok(EndpointResponse<bool>.Ok(true, "Operation completed successfully"));
-        }
+    //        /// <summary>Handler returns nothing → respond with a generic success message.</summary>
+    //        protected static async Task<IResult> ExecuteWithTransactionAsync(
+    //            Func<Task> handler,
+    //            HttpContext httpContext)
+    //        {
+    //            await RunInTransactionAsync(async () =>
+    //            {
+    //                await handler();
+    //                return true;
+    //            }, httpContext);
 
-        /// <summary>
-        /// Handler returns a RequestResponse (business success/failure without exceptions).
-        /// A business failure ROLLS BACK instead of committing.
-        /// </summary>
-        protected static async Task<IResult> ExecuteWithTransactionAsync<T>(
-            Func<Task<RequestResponse<T>>> handler,
-            HttpContext httpContext)
-        {
-            var result = await RunInTransactionAsync(
-                handler,
-                httpContext,
-                shouldCommit: r => r.Success);
+    //            return Results.Ok(EndpointResponse<bool>.Ok(true, "Operation completed successfully"));
+    //        }
 
-            return Results.Ok(EndpointResponse<T>.FromResult(result));
-        }
+    //        /// <summary>
+    //        /// Handler returns a RequestResponse (business success/failure without exceptions).
+    //        /// A business failure ROLLS BACK instead of committing.
+    //        /// </summary>
+    //        protected static async Task<IResult> ExecuteWithTransactionAsync<T>(
+    //            Func<Task<RequestResponse<T>>> handler,
+    //            HttpContext httpContext)
+    //        {
+    //            var result = await RunInTransactionAsync(
+    //                handler,
+    //                httpContext,
+    //                shouldCommit: r => r.Success);
 
-        // ─────────────────────────────────────────────────────────────
-        // 3) The single place that owns transactions via IUnitOfWork
-        // ─────────────────────────────────────────────────────────────
+    //            return Results.Ok(EndpointResponse<T>.FromResult(result));
+    //        }
 
-        private static async Task<TResult> RunInTransactionAsync<TResult>(
-            Func<Task<TResult>> handler,
-            HttpContext httpContext,
-            Func<TResult, bool>? shouldCommit = null)
-        {
-            var unitOfWork = httpContext.RequestServices.GetRequiredService<IUnitOfWork>();
-            var logger = httpContext.RequestServices.GetRequiredService<ILogger<EndpointDefinition>>();
+    //         ─────────────────────────────────────────────────────────────
+    //         3) The single place that owns transactions via IUnitOfWork
+    //         ─────────────────────────────────────────────────────────────
 
-            TResult result = default!;
+    //        private static async Task<TResult> RunInTransactionAsync<TResult>(
+    //            Func<Task<TResult>> handler,
+    //            HttpContext httpContext,
+    //            Func<TResult, bool>? shouldCommit = null)
+    //        {
+    //            var unitOfWork = httpContext.RequestServices.GetRequiredService<IUnitOfWork>();
+    //            var logger = httpContext.RequestServices.GetRequiredService<ILogger<EndpointDefinition>>();
 
-            try
-            {
-                await unitOfWork.ExecuteAsync(async () =>
-                {
-                    result = await handler();
+    //            TResult result = default!;
 
-                    if (shouldCommit != null && !shouldCommit(result))
-                    {
-                        // Business failure: signal rollback to UnitOfWork
-                        throw new BusinessRollbackException();
-                    }
-                });
+    //            try
+    //            {
+    //                await unitOfWork.ExecuteAsync(async () =>
+    //                {
+    //                    result = await handler();
 
-                return result;
-            }
-            catch (BusinessRollbackException)
-            {
-                // Transaction was rolled back by UnitOfWork for business failure; return result
-                return result;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Transaction rolled back due to exception in endpoint: {Endpoint}",
-                    httpContext.Request.Path);
+    //                    if (shouldCommit != null && !shouldCommit(result))
+    //                    {
+    //                        // Business failure: signal rollback to UnitOfWork
+    //                        throw new BusinessRollbackException();
+    //                    }
+    //                });
 
-                throw;   // let the global exception middleware build the error response
-            }
-        }
+    //                return result;
+    //            }
+    //            catch (BusinessRollbackException)
+    //            {
+    //                // Transaction was rolled back by UnitOfWork for business failure; return result
+    //                return result;
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                logger.LogError(ex, "Transaction rolled back due to exception in endpoint: {Endpoint}",
+    //                    httpContext.Request.Path);
 
-        private sealed class BusinessRollbackException : Exception
-        {
-        }
-    }
+    //                throw;   // let the global exception middleware build the error response
+    //            }
+    //        }
+
+    //        private sealed class BusinessRollbackException : Exception
+    //        {
+    //        }
+    //    }
 }

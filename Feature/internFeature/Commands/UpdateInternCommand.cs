@@ -31,7 +31,7 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
             intern.TrackId = request.TrackId;
 
             _internRepository.Update(intern);
-            await _internRepository.SaveChangesAsync();
+            await _internRepository.SaveChangesAsync(cancellationToken);
 
             return RequestResponse.Ok("Intern updated successfully");
         }

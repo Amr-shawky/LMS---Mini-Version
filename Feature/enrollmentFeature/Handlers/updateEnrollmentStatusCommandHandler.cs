@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             
             enrollmententity.Status = request.Status;
             _enrollmentrepo.Update(enrollmententity);
-            await _enrollmentrepo.SaveChangesAsync();
+            await _enrollmentrepo.SaveChangesAsync(cancellationToken);
             
             return Unit.Value;
         }

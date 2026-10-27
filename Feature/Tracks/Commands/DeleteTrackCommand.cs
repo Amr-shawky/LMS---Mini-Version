@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Commands
             }
 
             _trackRepository.Delete(track);
-            await _trackRepository.SaveChangesAsync();
+            await _trackRepository.SaveChangesAsync(cancellationToken);
 
             return RequestResponse.Ok("Track deleted successfully");
         }

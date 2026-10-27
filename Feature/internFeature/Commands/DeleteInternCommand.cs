@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Feature.internFeature.Commands
             }
 
             _internRepository.Delete(intern);
-            await _internRepository.SaveChangesAsync();
+            await _internRepository.SaveChangesAsync(cancellationToken);
 
             return RequestResponse.Ok("Intern deleted successfully");
         }

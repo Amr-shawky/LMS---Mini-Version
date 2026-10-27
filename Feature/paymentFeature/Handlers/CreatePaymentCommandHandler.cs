@@ -27,7 +27,7 @@ namespace LMS___Mini_Version.Feature.paymentFeature.Handlers
             };
 
             _paymentRepository.Add(payment);
-            await _paymentRepository.SaveChangesAsync();
+            await _paymentRepository.SaveChangesAsync(cancellationToken);
 
             return RequestResponse<int>.Created(payment.Id);
         }
