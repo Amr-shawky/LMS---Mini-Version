@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS___Mini_Version.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260301140224_mFinal")]
-    partial class mFinal
+    [Migration("20261026125326_create-database")]
+    partial class createdatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

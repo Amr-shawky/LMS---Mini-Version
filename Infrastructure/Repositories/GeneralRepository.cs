@@ -2,6 +2,7 @@
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
@@ -30,16 +31,32 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
-        public void SaveInclude(T entity, params string[] Includedproperties)
-        {
-            throw new NotImplementedException();
-        }
 
-        public async Task<int> SaveChangesAsync()
+        public void SaveInclude(T entity, params string[] includedProperties)
         {
-            var result = await _context.SaveChangesAsync();
-            return result;
-        }
+            // 1. Check if the entity is already being tracked in m emory
+            var localEntity = _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id); 
+            EntityEntry entry; 
+
+            if (localEntity == null) { 
+                entry =  _context.Attach(entity); 
+            } 
+            else { 
+                entry = _context.Entry(localEntity); 
+                entry.CurrentValues.SetValues (entity); 
+            } 
+
+            // 3. Loop through all properties of the entity
+            foreach (var property in entry.Properties) 
+            { 
+                if (property.Metadata.IsPrimaryKey()) 
+                    continue; 
+
+                property.IsModified = includedProperties.Contains(property.Metadata.Name); 
+            } 
+        } 
+        
+    
 
     }
 }
