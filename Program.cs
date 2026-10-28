@@ -59,6 +59,8 @@ namespace LMS___Mini_Version
             app.MapUpdateTrackV2Endpoint();
             app.MapDeleteTrackEndpoint();
 
+            app.MapGetAllEnrollmentsEndpoint();
+
             // ─── Intern Minimal API v2 Endpoints ───────────────────────
             app.MapGetAllInternsEndpoint();
             app.MapGetInternByIdEndpoint();
