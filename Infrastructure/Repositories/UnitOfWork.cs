@@ -5,7 +5,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
 {
     /// <summary>
     /// [SRP] Unit of Work implementation — responsible ONLY for transaction management.
-    /// Wraps the DbContext and commits all staged changes atomically via CompleteAsync().
+    /// Wraps the DbContext and commits all staged changes atomically via SaveChangesAsync().
     /// 
     /// Repositories are no longer created or exposed here.
     /// Each Service injects its own IGeneralRepository&lt;T&gt; directly via DI,
@@ -23,7 +23,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         /// <summary>
         /// Commits ALL staged changes across ALL repositories in a single DB transaction.
         /// </summary>
-        public async Task<int> CompleteAsync()
+        public async Task<int> SaveChangesAsync()
             => await _context.SaveChangesAsync().ConfigureAwait(false);
 
         public void Dispose()

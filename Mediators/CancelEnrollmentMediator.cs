@@ -12,7 +12,7 @@ namespace LMS___Mini_Version.Mediators
     ///   1. Fetch the enrollment             → IEnrollmentService.GetByIdAsync()
     ///   2. Change status to Cancelled       → IEnrollmentService.UpdateStatusAsync()     (staged)
     ///   3. Process refund for payment       → IPaymentService.RefundPaymentAsync()       (staged)
-    ///   4. Commit everything atomically     → IUnitOfWork.CompleteAsync()
+    ///   4. Commit everything atomically     → IUnitOfWork.SaveChangesAsync()
     ///
     /// By cancelling enrollment AND refunding payment in one commit,
     /// we guarantee: either BOTH happen, or NEITHER happens (no partial state).
@@ -65,7 +65,7 @@ namespace LMS___Mini_Version.Mediators
             await _paymentService.RefundPaymentAsync(enrollmentId).ConfigureAwait(false);
 
             // Step 4: ATOMIC COMMIT — cancellation + refund saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return MediatorResult.Succeed("Enrollment cancelled and payment refunded successfully.");
         }

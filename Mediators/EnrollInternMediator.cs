@@ -1,7 +1,6 @@
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 
 namespace LMS___Mini_Version.Mediators
@@ -11,7 +10,7 @@ namespace LMS___Mini_Version.Mediators
     /// This prevents cyclic dependencies between Services: InternService does NOT inject TrackService,
     /// and vice versa. The Mediator coordinates them instead.
     ///
-    /// [Trap 6 Fix] The Mediator calls _unitOfWork.CompleteAsync() ONCE at the very end,
+    /// [Trap 6 Fix] The Mediator calls _unitOfWork.SaveChangesAsync() ONCE at the very end,
     /// ensuring all steps (enrollment creation + payment creation) are committed atomically.
     /// If ANY step fails, NOTHING is saved to the database.
     ///
@@ -21,7 +20,7 @@ namespace LMS___Mini_Version.Mediators
     ///   3. Check track capacity      → ITrackService.CheckCapacityAsync()
     ///   4. Create enrollment         → IEnrollmentService.CreateEnrollmentAsync()    (staged)
     ///   5. Create payment (if paid)  → IPaymentService.CreatePaymentAsync()          (staged)
-    ///   6. Commit everything         → IUnitOfWork.CompleteAsync()                    (atomic)
+    ///   6. Commit everything         → IUnitOfWork.SaveChangesAsync()                    (atomic)
     /// </summary>
     public class EnrollInternMediator
     {
@@ -80,7 +79,7 @@ namespace LMS___Mini_Version.Mediators
 
             // Step 5: Save the enrollment first so it gets a real ID from the database.
             // Without this, the Payment's EnrollmentId would be 0 (invalid FK).
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             // Step 6: If the track has fees, create a payment record using the real enrollment ID
             PaymentDto? payment = null;
@@ -96,7 +95,7 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 7: COMMIT the payment record
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return EnrollmentResultDto.Succeed(enrollment.ToDto(), payment);
         }

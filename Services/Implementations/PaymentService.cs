@@ -2,7 +2,6 @@ using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +11,7 @@ namespace LMS___Mini_Version.Services.Implementations
     /// [SRP Fix] Injects IGeneralRepository&lt;Payment&gt; and IUnitOfWork directly.
     /// 
     /// Mediator-coordinated methods (CreatePaymentAsync, RefundPaymentAsync, UpdatePaymentAmountAsync)
-    /// only STAGE changes — the Mediator calls UoW.CompleteAsync() at the end for atomicity.
+    /// only STAGE changes — the Mediator calls UoW.SaveChangesAsync() at the end for atomicity.
     /// 
     /// Read methods are unaffected.
     /// </summary>
@@ -32,7 +31,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<IEnumerable<PaymentDto>> GetAllAsync()
         {
             var payments = await _paymentRepository
-                .GetTable()
+                .GetAll()
                 .Include(p => p.Enrollment)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -43,7 +42,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<PaymentDto?> GetByEnrollmentAsync(int enrollmentId)
         {
             var payment = await _paymentRepository
-                .GetTable()
+                .GetAll()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
                 .ConfigureAwait(false);
 
@@ -76,7 +75,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<bool> RefundPaymentAsync(int enrollmentId)
         {
             var payment = await _paymentRepository
-                .GetTable()
+                .GetAll()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
                 .ConfigureAwait(false);
 
@@ -95,7 +94,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<bool> UpdatePaymentAmountAsync(int enrollmentId, decimal newAmount)
         {
             var payment = await _paymentRepository
-                .GetTable()
+                .GetAll()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
                 .ConfigureAwait(false);
 

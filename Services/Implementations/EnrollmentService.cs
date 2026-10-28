@@ -2,7 +2,6 @@ using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +11,7 @@ namespace LMS___Mini_Version.Services.Implementations
     /// [SRP Fix] Injects IGeneralRepository&lt;Enrollment&gt; and IUnitOfWork directly.
     /// 
     /// Mediator-coordinated methods (CreateEnrollmentAsync, UpdateStatusAsync, UpdateTrackAsync)
-    /// only STAGE changes — the Mediator calls UoW.CompleteAsync() at the end for atomicity.
+    /// only STAGE changes — the Mediator calls UoW.SaveChangesAsync() at the end for atomicity.
     /// 
     /// Read methods are unaffected.
     /// </summary>
@@ -32,7 +31,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<IEnumerable<EnrollmentDto>> GetAllAsync()
         {
             var enrollments = await _enrollmentRepository
-                .GetTable()
+                .GetAll()
                 .Include(e => e.Intern)
                 .Include(e => e.Track)
                 .ToListAsync()
@@ -44,7 +43,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<EnrollmentDto?> GetByIdAsync(int id)
         {
             var enrollment = await _enrollmentRepository
-                .GetTable()
+                .GetAll()
                 .Include(e => e.Intern)
                 .Include(e => e.Track)
                 .FirstOrDefaultAsync(e => e.Id == id)
@@ -56,7 +55,7 @@ namespace LMS___Mini_Version.Services.Implementations
         /// <summary>
         /// Stages a new Enrollment entity in the Change Tracker.
         /// Returns the tracked entity so the Mediator can read the real Id after SaveChanges.
-        /// Does NOT call SaveChanges — the Mediator will call UoW.CompleteAsync()
+        /// Does NOT call SaveChanges — the Mediator will call UoW.SaveChangesAsync()
         /// after all steps (enrollment + payment) are staged for atomicity.
         /// </summary>
         public async Task<Enrollment> CreateEnrollmentAsync(CreateEnrollmentDto dto)
@@ -76,7 +75,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<IEnumerable<EnrollmentDto>> GetByInternAsync(int internId)
         {
             var enrollments = await _enrollmentRepository
-                .GetTable()
+                .GetAll()
                 .Include(e => e.Track)
                 .Include(e => e.Intern)
                 .Where(e => e.InternId == internId)

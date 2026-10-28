@@ -14,7 +14,7 @@ namespace LMS___Mini_Version.Mediators
     ///   3. Check new track capacity              → ITrackService.CheckCapacityAsync()
     ///   4. Move enrollment to new track          → IEnrollmentService.UpdateTrackAsync()    (staged)
     ///   5. Calculate fee difference + update pay → IPaymentService.UpdatePaymentAmountAsync() (staged)
-    ///   6. Commit everything atomically          → IUnitOfWork.CompleteAsync()
+    ///   6. Commit everything atomically          → IUnitOfWork.SaveChangesAsync()
     ///
     /// This prevents the intern from being "stuck" between two tracks
     /// if any step fails — either the full transfer succeeds or nothing changes.
@@ -95,7 +95,7 @@ namespace LMS___Mini_Version.Mediators
             }
 
             // Step 6: ATOMIC COMMIT — track change + payment adjustment saved in one transaction
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return MediatorResult.Succeed(
                 $"Enrollment transferred to '{newTrack.Name}' successfully. New fees: {newTrack.Fees:C}.");

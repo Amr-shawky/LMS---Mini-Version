@@ -6,7 +6,7 @@
 
 ## 🎯 Complex Actions (The Mediators)
 
-Mediators are **Action Coordinators** — they orchestrate multi-step business workflows across multiple Services, then commit all changes atomically via `IUnitOfWork.CompleteAsync()`.
+Mediators are **Action Coordinators** — they orchestrate multi-step business workflows across multiple Services, then commit all changes atomically via `IUnitOfWork.SaveChangesAsync()`.
 
 ---
 
@@ -22,7 +22,7 @@ Orchestrates the full enrollment of an intern into a track.
 | 3 | `ITrackService.CheckCapacityAsync()` | Ensure track has available capacity |
 | 4 | `IEnrollmentService.CreateEnrollmentAsync()` | Stage new enrollment (Change Tracker) |
 | 5 | `IPaymentService.CreatePaymentAsync()` | Stage payment if track has fees > 0 |
-| 6 | `IUnitOfWork.CompleteAsync()` | **Atomic commit** — all or nothing |
+| 6 | `IUnitOfWork.SaveChangesAsync()` | **Atomic commit** — all or nothing |
 
 ---
 
@@ -36,7 +36,7 @@ Orchestrates enrollment cancellation with an automatic payment refund.
 | 1 | `IEnrollmentService.GetByIdAsync()` | Fetch and validate enrollment |
 | 2 | `IEnrollmentService.UpdateStatusAsync()` | Mark status as `Cancelled` (staged) |
 | 3 | `IPaymentService.RefundPaymentAsync()` | Mark payment as `Refunded` (staged) |
-| 4 | `IUnitOfWork.CompleteAsync()` | **Atomic commit** — cancel + refund together |
+| 4 | `IUnitOfWork.SaveChangesAsync()` | **Atomic commit** — cancel + refund together |
 
 ---
 
@@ -52,13 +52,13 @@ Orchestrates transferring an enrollment from one track to another with fee adjus
 | 3 | `ITrackService.CheckCapacityAsync()` | Ensure new track has capacity |
 | 4 | `IEnrollmentService.UpdateTrackAsync()` | Move enrollment to new track (staged) |
 | 5 | `IPaymentService.UpdatePaymentAmountAsync()` | Adjust payment to new track's fees (staged) |
-| 6 | `IUnitOfWork.CompleteAsync()` | **Atomic commit** — transfer + fee adjustment together |
+| 6 | `IUnitOfWork.SaveChangesAsync()` | **Atomic commit** — transfer + fee adjustment together |
 
 ---
 
 ## ⚙️ Atomic Steps (The Services)
 
-Services handle **single-entity operations** (Steps). They never call `SaveChanges()` — changes are staged in the EF Change Tracker and committed by the caller (Mediator or Controller) via `IUnitOfWork.CompleteAsync()`.
+Services handle **single-entity operations** (Steps). They never call `SaveChanges()` — changes are staged in the EF Change Tracker and committed by the caller (Mediator or Controller) via `IUnitOfWork.SaveChangesAsync()`.
 
 | Service | Primary Responsibilities |
 |---------|------------------------|
@@ -99,7 +99,7 @@ Client Request
 ┌─────────────────────────────────────────────────┐
 │              IUnitOfWork                         │
 │  ┌──────────────┐  ┌──────────────────────────┐ │
-│  │ Repository<T> │  │ CompleteAsync()           │ │
+│  │ Repository<T> │  │ SaveChangesAsync()           │ │
 │  │ (Change Track)│  │ (single SaveChangesAsync)│ │
 │  └──────────────┘  └──────────────────────────┘ │
 └──────────────────────┬──────────────────────────┘
@@ -191,5 +191,5 @@ LMS - Mini Version/
 | 3 | Synchronous Blocking | ✅ Fixed | Full `async/await` with `ConfigureAwait(false)` |
 | 4 | IQueryable Memory Leak | ✅ Fixed | `IQueryable` in Repos → `ToListAsync()` in Services |
 | 5 | Business Logic Leakage | ✅ Fixed | Services (Steps) + Mediators (Actions) |
-| 6 | SaveChanges Transaction Dilemma | ✅ Fixed | Unit of Work `CompleteAsync()` |
+| 6 | SaveChanges Transaction Dilemma | ✅ Fixed | Unit of Work `SaveChangesAsync()` |
 | 7 | **Mediator Explosion** | ⚠️ **Intentional** | Paves the way for CQRS / MediatR |

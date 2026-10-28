@@ -1,7 +1,6 @@
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,10 +11,10 @@ namespace LMS___Mini_Version.Services.Implementations
     /// Repositories handle data access; UoW handles transaction commits.
     /// 
     /// [Trap 3 Fix] All methods are fully async.
-    /// [Trap 4 Fix] Uses GetTable() (IQueryable) for DB-side queries.
+    /// [Trap 4 Fix] Uses GetAll() (IQueryable) for DB-side queries.
     /// [Trap 5 Fix] Contains only single-entity "Steps" — no cross-entity orchestration.
     /// 
-    /// CRUD methods (Create, Update, Delete) call CompleteAsync() internally and return final results.
+    /// CRUD methods (Create, Update, Delete) call SaveChangesAsync() internally and return final results.
     /// Mediator-coordinated methods (CheckCapacityAsync) only read — no save needed.
     /// </summary>
     public class TrackService : ITrackService
@@ -37,7 +36,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<IEnumerable<TrackDto>> GetAllAsync()
         {
             var tracks = await _trackRepository
-                .GetTable()
+                .GetAll()
                 .Include(t => t.Enrollments)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -64,7 +63,7 @@ namespace LMS___Mini_Version.Services.Implementations
             _trackRepository.Add(entity);
 
             // Save so EF populates entity.Id with the DB-generated value
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             // Now entity.Id has the real value — return accurate DTO
             return entity.ToDto();
@@ -81,7 +80,7 @@ namespace LMS___Mini_Version.Services.Implementations
             track.MaxCapacity = dto.MaxCapacity;
 
             _trackRepository.Update(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
 
@@ -91,7 +90,7 @@ namespace LMS___Mini_Version.Services.Implementations
             if (track == null) return false;
 
             _trackRepository.Delete(track);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
 
@@ -102,7 +101,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<bool> CheckCapacityAsync(int trackId)
         {
             var activeCount = await _enrollmentRepository
-                .GetTable()
+                .GetAll()
                 .CountAsync(e => e.TrackId == trackId
                               && e.Status != Domain.Enums.EnrollmentStatus.Cancelled)
                 .ConfigureAwait(false);

@@ -1,7 +1,6 @@
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +9,7 @@ namespace LMS___Mini_Version.Services.Implementations
     /// <summary>
     /// [SRP Fix] Injects IGeneralRepository&lt;Intern&gt; and IUnitOfWork directly.
     /// 
-    /// CRUD methods (Create, Update, Delete) call CompleteAsync() internally.
+    /// CRUD methods (Create, Update, Delete) call SaveChangesAsync() internally.
     /// </summary>
     public class InternService : IInternService
     {
@@ -28,7 +27,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<IEnumerable<InternDto>> GetAllAsync()
         {
             var interns = await _internRepository
-                .GetTable()
+                .GetAll()
                 .Include(i => i.Track)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -39,7 +38,7 @@ namespace LMS___Mini_Version.Services.Implementations
         public async Task<InternDto?> GetByIdAsync(int id)
         {
             var intern = await _internRepository
-                .GetTable()
+                .GetAll()
                 .Include(i => i.Track)
                 .FirstOrDefaultAsync(i => i.Id == id)
                 .ConfigureAwait(false);
@@ -61,7 +60,7 @@ namespace LMS___Mini_Version.Services.Implementations
             _internRepository.Add(entity);
 
             // Save so EF populates entity.Id with the DB-generated value
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return entity.ToDto();
         }
@@ -78,7 +77,7 @@ namespace LMS___Mini_Version.Services.Implementations
             intern.TrackId = dto.TrackId;
 
             _internRepository.Update(intern);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
 
@@ -88,7 +87,7 @@ namespace LMS___Mini_Version.Services.Implementations
             if (intern == null) return false;
 
             _internRepository.Delete(intern);
-            await _unitOfWork.CompleteAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
     }
