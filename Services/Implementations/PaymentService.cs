@@ -23,39 +23,35 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<PaymentDto>> GetAllAsync()
         {
-            var payments = await _paymentRepository
+            return await _paymentRepository
                 .GetAll()
-                .Include(p => p.Enrollment)
-                .ToListAsync()
-                ;
-
-            return payments.Select(p => new PaymentDto
-            {
-                Id = p.Id,
-                EnrollmentId = p.EnrollmentId,
-                Amount = p.Amount,
-                PaymentDate = p.PaymentDate,
-                Method = p.Method,
-                Status = p.Status
-            });
+                .Select(p => new PaymentDto
+                {
+                    Id = p.Id,
+                    EnrollmentId = p.EnrollmentId,
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    Method = p.Method,
+                    Status = p.Status
+                })
+                .ToListAsync();
         }
 
         public async Task<PaymentDto?> GetByEnrollmentAsync(int enrollmentId)
         {
-            var payment = await _paymentRepository
+            return await _paymentRepository
                 .GetAll()
-                .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                ;
-
-            return payment is null ? null : new PaymentDto
-            {
-                Id = payment.Id,
-                EnrollmentId = payment.EnrollmentId,
-                Amount = payment.Amount,
-                PaymentDate = payment.PaymentDate,
-                Method = payment.Method,
-                Status = payment.Status
-            };
+                .Where(p => p.EnrollmentId == enrollmentId)
+                .Select(p => new PaymentDto
+                {
+                    Id = p.Id,
+                    EnrollmentId = p.EnrollmentId,
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    Method = p.Method,
+                    Status = p.Status
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<PaymentDto> CreatePaymentAsync(PaymentDto dto)

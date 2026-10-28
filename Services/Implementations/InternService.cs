@@ -22,42 +22,37 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<InternDto>> GetAllAsync()
         {
-            var interns = await _internRepository
+            return await _internRepository
                 .GetAll()
-                .Include(i => i.Track)
-                .ToListAsync()
-                ;
-
-            return interns.Select(i => new InternDto
-            {
-                Id = i.Id,
-                FullName = i.FullName,
-                Email = i.Email,
-                BirthYear = i.BirthYear,
-                Status = i.Status,
-                TrackId = i.TrackId,
-                TrackName = i.Track?.Name ?? string.Empty
-            });
+                .Select(i => new InternDto
+                {
+                    Id = i.Id,
+                    FullName = i.FullName,
+                    Email = i.Email,
+                    BirthYear = i.BirthYear,
+                    Status = i.Status,
+                    TrackId = i.TrackId,
+                    TrackName = i.Track != null ? i.Track.Name : string.Empty
+                })
+                .ToListAsync();
         }
 
         public async Task<InternDto?> GetByIdAsync(int id)
         {
-            var intern = await _internRepository
+            return await _internRepository
                 .GetAll()
-                .Include(i => i.Track)
-                .FirstOrDefaultAsync(i => i.Id == id)
-                ;
-
-            return intern is null ? null : new InternDto
-            {
-                Id = intern.Id,
-                FullName = intern.FullName,
-                Email = intern.Email,
-                BirthYear = intern.BirthYear,
-                Status = intern.Status,
-                TrackId = intern.TrackId,
-                TrackName = intern.Track?.Name ?? string.Empty
-            };
+                .Where(i => i.Id == id)
+                .Select(i => new InternDto
+                {
+                    Id = i.Id,
+                    FullName = i.FullName,
+                    Email = i.Email,
+                    BirthYear = i.BirthYear,
+                    Status = i.Status,
+                    TrackId = i.TrackId,
+                    TrackName = i.Track != null ? i.Track.Name : string.Empty
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<InternDto> CreateAsync(InternDto dto)

@@ -23,44 +23,37 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<EnrollmentDto>> GetAllAsync()
         {
-            var enrollments = await _enrollmentRepository
+            return await _enrollmentRepository
                 .GetAll()
-                .Include(e => e.Intern)
-                .Include(e => e.Track)
-                .ToListAsync()
-                ;
-
-            return enrollments.Select(e => new EnrollmentDto
-            {
-                Id = e.Id,
-                InternId = e.InternId,
-                InternName = e.Intern?.FullName ?? string.Empty,
-                TrackId = e.TrackId,
-                TrackName = e.Track?.Name ?? string.Empty,
-                EnrollmentDate = e.EnrollmentDate,
-                Status = e.Status
-            });
+                .Select(e => new EnrollmentDto
+                {
+                    Id = e.Id,
+                    InternId = e.InternId,
+                    InternName = e.Intern != null ? e.Intern.FullName : string.Empty,
+                    TrackId = e.TrackId,
+                    TrackName = e.Track != null ? e.Track.Name : string.Empty,
+                    EnrollmentDate = e.EnrollmentDate,
+                    Status = e.Status
+                })
+                .ToListAsync();
         }
 
         public async Task<EnrollmentDto?> GetByIdAsync(int id)
         {
-            var enrollment = await _enrollmentRepository
+            return await _enrollmentRepository
                 .GetAll()
-                .Include(e => e.Intern)
-                .Include(e => e.Track)
-                .FirstOrDefaultAsync(e => e.Id == id)
-                ;
-
-            return enrollment is null ? null : new EnrollmentDto
-            {
-                Id = enrollment.Id,
-                InternId = enrollment.InternId,
-                InternName = enrollment.Intern?.FullName ?? string.Empty,
-                TrackId = enrollment.TrackId,
-                TrackName = enrollment.Track?.Name ?? string.Empty,
-                EnrollmentDate = enrollment.EnrollmentDate,
-                Status = enrollment.Status
-            };
+                .Where(e => e.Id == id)
+                .Select(e => new EnrollmentDto
+                {
+                    Id = e.Id,
+                    InternId = e.InternId,
+                    InternName = e.Intern != null ? e.Intern.FullName : string.Empty,
+                    TrackId = e.TrackId,
+                    TrackName = e.Track != null ? e.Track.Name : string.Empty,
+                    EnrollmentDate = e.EnrollmentDate,
+                    Status = e.Status
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Enrollment> CreateEnrollmentAsync(CreateEnrollmentDto dto)
@@ -79,24 +72,20 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<EnrollmentDto>> GetByInternAsync(int internId)
         {
-            var enrollments = await _enrollmentRepository
+            return await _enrollmentRepository
                 .GetAll()
-                .Include(e => e.Track)
-                .Include(e => e.Intern)
                 .Where(e => e.InternId == internId)
-                .ToListAsync()
-                ;
-
-            return enrollments.Select(e => new EnrollmentDto
-            {
-                Id = e.Id,
-                InternId = e.InternId,
-                InternName = e.Intern?.FullName ?? string.Empty,
-                TrackId = e.TrackId,
-                TrackName = e.Track?.Name ?? string.Empty,
-                EnrollmentDate = e.EnrollmentDate,
-                Status = e.Status
-            });
+                .Select(e => new EnrollmentDto
+                {
+                    Id = e.Id,
+                    InternId = e.InternId,
+                    InternName = e.Intern != null ? e.Intern.FullName : string.Empty,
+                    TrackId = e.TrackId,
+                    TrackName = e.Track != null ? e.Track.Name : string.Empty,
+                    EnrollmentDate = e.EnrollmentDate,
+                    Status = e.Status
+                })
+                .ToListAsync();
         }
 
         public async Task<bool> UpdateStatusAsync(int enrollmentId, EnrollmentStatus newStatus)

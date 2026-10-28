@@ -25,39 +25,35 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<IEnumerable<TrackDto>> GetAllAsync()
         {
-            var tracks = await _trackRepository
+            return await _trackRepository
                 .GetAll()
-                .Include(t => t.Enrollments)
-                .ToListAsync()
-                ;
-
-            return tracks.Select(t => new TrackDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Fees = t.Fees,
-                IsActive = t.IsActive,
-                MaxCapacity = t.MaxCapacity,
-                CurrentEnrollmentCount = t.Enrollments.Count
-            });
+                .Select(t => new TrackDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Fees = t.Fees,
+                    IsActive = t.IsActive,
+                    MaxCapacity = t.MaxCapacity,
+                    CurrentEnrollmentCount = t.Enrollments.Count
+                })
+                .ToListAsync();
         }
 
         public async Task<TrackDto?> GetByIdAsync(int id)
         {
-            var track = await _trackRepository.GetAll()
-                .Include(t => t.Enrollments)
-                .FirstOrDefaultAsync(t => t.Id == id)
-                ;
-
-            return track is null ? null : new TrackDto
-            {
-                Id = track.Id,
-                Name = track.Name,
-                Fees = track.Fees,
-                IsActive = track.IsActive,
-                MaxCapacity = track.MaxCapacity,
-                CurrentEnrollmentCount = track.Enrollments.Count
-            };
+            return await _trackRepository
+                .GetAll()
+                .Where(t => t.Id == id)
+                .Select(t => new TrackDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Fees = t.Fees,
+                    IsActive = t.IsActive,
+                    MaxCapacity = t.MaxCapacity,
+                    CurrentEnrollmentCount = t.Enrollments.Count
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<TrackDto> CreateAsync(TrackDto dto)
