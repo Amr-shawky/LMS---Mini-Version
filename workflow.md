@@ -133,23 +133,7 @@ Because we created a "Class per Action" Mediator pattern, **every new business a
 
 This violates the **Open/Closed Principle** — adding new functionality forces modifications to existing classes. As the system scales to 10+ actions, the constructor becomes unmaintainable ("Constructor Over-Injection").
 
-**The Real Solution — CQRS with MediatR:**
-
-Replace all manual Mediators with the **Command/Query Responsibility Segregation** pattern using the `MediatR` library:
-
-```csharp
-// BEFORE: 4 constructor parameters (and growing)
-public EnrollmentController(
-    IEnrollmentService enrollmentService,
-    EnrollInternMediator enrollMediator,
-    CancelEnrollmentMediator cancelMediator,
-    TransferEnrollmentMediator transferMediator)
-
-// AFTER: 1 constructor parameter (forever)
-public EnrollmentController(IMediator mediator)
-```
-
-Each action becomes a self-contained **Command** (e.g., `EnrollInternCommand`, `CancelEnrollmentCommand`) with its own **Handler**. The `IMediator` dispatches commands to the correct handler automatically — the Controller never needs to know which handler handles what.
+**Current teaching focus:** Explore the limitations of injecting one manually implemented coordinator for every new business action. No messaging-dispatch framework is introduced at this stage.
 
 ---
 
@@ -192,4 +176,4 @@ LMS - Mini Version/
 | 4 | IQueryable Memory Leak | ✅ Fixed | `IQueryable` in Repos → `ToListAsync()` in Services |
 | 5 | Business Logic Leakage | ✅ Fixed | Services (Steps) + Mediators (Actions) |
 | 6 | SaveChanges Transaction Dilemma | ✅ Fixed | Unit of Work `SaveChangesAsync()` |
-| 7 | **Mediator Explosion** | ⚠️ **Intentional** | Paves the way for CQRS / MediatR |
+| 7 | **Mediator Explosion** | ⚠️ **Intentional** | Illustrates constructor over-injection |

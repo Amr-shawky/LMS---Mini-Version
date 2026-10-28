@@ -5,7 +5,6 @@ using LMS___Mini_Version.Persistence;
 using LMS___Mini_Version.Services.Implementations;
 using LMS___Mini_Version.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using MediatR;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -33,7 +32,6 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<CancelEnrollmentMediator>();
             builder.Services.AddScoped<TransferEnrollmentMediator>();
 
-            builder.Services.AddMediatR(typeof(Program).Assembly);
 
             var app = builder.Build();
 
