@@ -1,9 +1,6 @@
 namespace LMS___Mini_Version.DTOs
 {
-    /// <summary>
-    /// [Trap 2 Fix] Data Transfer Object for Track — used between Service ↔ Mediator layers.
-    /// Decouples the internal entity structure from what flows between architectural layers.
-    /// </summary>
+
     public class TrackDto
     {
         public int Id { get; set; }

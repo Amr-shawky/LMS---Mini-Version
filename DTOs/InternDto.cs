@@ -1,8 +1,6 @@
 namespace LMS___Mini_Version.DTOs
 {
-    /// <summary>
-    /// [Trap 2 Fix] Data Transfer Object for Intern.
-    /// </summary>
+
     public class InternDto
     {
         public int Id { get; set; }

@@ -1,4 +1,4 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Enums;
 
 namespace LMS___Mini_Version.Persistence
@@ -46,7 +46,6 @@ namespace LMS___Mini_Version.Persistence
             context.Interns.AddRange(interns);
             context.SaveChanges();
 
-            // Seed some enrollments
             var enrollments = new List<Enrollment>
             {
                 new Enrollment { InternId = 1, TrackId = 1, EnrollmentDate = new DateTime(2026, 1, 15), Status = EnrollmentStatus.Active },
@@ -59,7 +58,6 @@ namespace LMS___Mini_Version.Persistence
             context.Enrollments.AddRange(enrollments);
             context.SaveChanges();
 
-            // Seed payments for the enrollments above
             var payments = new List<Payment>
             {
                 new Payment { EnrollmentId = 1, Amount = 8000, PaymentDate = new DateTime(2026, 1, 15), Method = PaymentMethod.CreditCard, Status = PaymentStatus.Completed },

@@ -6,11 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Services.Implementations
 {
-    /// <summary>
-    /// [SRP Fix] Injects IGeneralRepository&lt;Intern&gt; and IUnitOfWork directly.
-    /// 
-    /// CRUD methods (Create, Update, Delete) call SaveChangesAsync() internally.
-    /// </summary>
+
     public class InternService : IInternService
     {
         private readonly IGeneralRepository<Intern> _internRepository;
@@ -32,7 +28,16 @@ namespace LMS___Mini_Version.Services.Implementations
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            return interns.Select(i => i.ToDto());
+            return interns.Select(i => new InternDto
+            {
+                Id = i.Id,
+                FullName = i.FullName,
+                Email = i.Email,
+                BirthYear = i.BirthYear,
+                Status = i.Status,
+                TrackId = i.TrackId,
+                TrackName = i.Track?.Name ?? string.Empty
+            });
         }
 
         public async Task<InternDto?> GetByIdAsync(int id)
@@ -43,7 +48,16 @@ namespace LMS___Mini_Version.Services.Implementations
                 .FirstOrDefaultAsync(i => i.Id == id)
                 .ConfigureAwait(false);
 
-            return intern?.ToDto();
+            return intern is null ? null : new InternDto
+            {
+                Id = intern.Id,
+                FullName = intern.FullName,
+                Email = intern.Email,
+                BirthYear = intern.BirthYear,
+                Status = intern.Status,
+                TrackId = intern.TrackId,
+                TrackName = intern.Track?.Name ?? string.Empty
+            };
         }
 
         public async Task<InternDto> CreateAsync(InternDto dto)
@@ -59,10 +73,18 @@ namespace LMS___Mini_Version.Services.Implementations
 
             _internRepository.Add(entity);
 
-            // Save so EF populates entity.Id with the DB-generated value
             await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-            return entity.ToDto();
+            return new InternDto
+            {
+                Id = entity.Id,
+                FullName = entity.FullName,
+                Email = entity.Email,
+                BirthYear = entity.BirthYear,
+                Status = entity.Status,
+                TrackId = entity.TrackId,
+                TrackName = entity.Track?.Name ?? dto.TrackName
+            };
         }
 
         public async Task<bool> UpdateAsync(int id, InternDto dto)

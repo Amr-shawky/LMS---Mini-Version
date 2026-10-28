@@ -1,8 +1,6 @@
 namespace LMS___Mini_Version.ViewModels.Track
 {
-    /// <summary>
-    /// [Trap 2 Fix] Detailed view model for single-track endpoints — includes capacity info.
-    /// </summary>
+
     public class TrackDetailViewModel
     {
         public int Id { get; set; }

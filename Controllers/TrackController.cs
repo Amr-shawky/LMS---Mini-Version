@@ -1,4 +1,4 @@
-﻿using LMS___Mini_Version.DTOs;
+using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Feature.Tracks.Commands;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Services.Interfaces;
@@ -8,13 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [Trap 1 Fix] This controller depends only on ITrackService (abstraction).
-    /// [SRP Fix] No longer injects IUnitOfWork — the Service owns its own CRUD transactions.
-    /// [Trap 2 Fix] All responses use ViewModels; all inputs use ViewModels.
-    /// [Trap 3 Fix] Every action is async Task — no synchronous blocking.
-    /// [Trap 5 Fix] No business logic in the controller — all delegated to TrackService.
-    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     public class TrackController : ControllerBase
@@ -32,14 +26,26 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAll()
         {
             var dtos = await _trackService.GetAllAsync();
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            var viewModels = dtos.Select(d => new TrackSummaryViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Fees = d.Fees,
+                IsActive = d.IsActive
+            });
             return Ok(viewModels);
         }
         [HttpGet("cqrs")]
         public async Task<ActionResult<IEnumerable<TrackSummaryViewModel>>> GetAllCQRS()
         {
             var dtos = await _mediator.Send(new GetAllTrackQuery());
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            var viewModels = dtos.Select(d => new TrackSummaryViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Fees = d.Fees,
+                IsActive = d.IsActive
+            });
             return Ok(viewModels);
         }
 
@@ -48,16 +54,23 @@ namespace LMS___Mini_Version.Controllers
         {
             var dto = await _mediator.Send(new GetByIdTrackQuery(id));
             if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
+            return Ok(new TrackDetailViewModel
+            {
+                Id = dto.Id,
+                Name = dto.Name,
+                Fees = dto.Fees,
+                IsActive = dto.IsActive,
+                MaxCapacity = dto.MaxCapacity,
+                CurrentEnrollmentCount = dto.CurrentEnrollmentCount
+            });
         }
 
         [HttpPost("cqrs")]
         public async Task<ActionResult<TrackSummaryViewModel>> CreateCQRS(CreateTrackViewModel vm)
         {
 
-
             var created = await _mediator.Send(new CreateTrackCommand(vm.Name, vm.Fees, vm.IsActive, vm.MaxCapacity));
-            // No SaveChangesAsync here — the Service saves and returns DTO with correct Id
+
             return Ok("track created successfully");
         }
 
@@ -75,7 +88,6 @@ namespace LMS___Mini_Version.Controllers
             var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
             if (!updated) return NotFound();
 
-            // No SaveChangesAsync here — the Service saves internally
             return NoContent();
         }
 
@@ -85,7 +97,6 @@ namespace LMS___Mini_Version.Controllers
             var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
             if (!deleted) return NotFound();
 
-            // No SaveChangesAsync here — the Service saves internally
             return NoContent();
         }
     }

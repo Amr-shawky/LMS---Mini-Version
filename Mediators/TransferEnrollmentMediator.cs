@@ -5,20 +5,7 @@ using LMS___Mini_Version.Services.Interfaces;
 
 namespace LMS___Mini_Version.Mediators
 {
-    /// <summary>
-    /// Action Coordinator — orchestrates the multi-step "Transfer an Enrollment" action.
-    ///
-    /// Workflow:
-    ///   1. Fetch the existing enrollment        → IEnrollmentService.GetByIdAsync()
-    ///   2. Validate new track (exists, active)   → ITrackService.GetByIdAsync()
-    ///   3. Check new track capacity              → ITrackService.CheckCapacityAsync()
-    ///   4. Move enrollment to new track          → IEnrollmentService.UpdateTrackAsync()    (staged)
-    ///   5. Calculate fee difference + update pay → IPaymentService.UpdatePaymentAmountAsync() (staged)
-    ///   6. Commit everything atomically          → IUnitOfWork.SaveChangesAsync()
-    ///
-    /// This prevents the intern from being "stuck" between two tracks
-    /// if any step fails — either the full transfer succeeds or nothing changes.
-    /// </summary>
+
     public class TransferEnrollmentMediator
     {
         private readonly IEnrollmentService _enrollmentService;
@@ -40,7 +27,7 @@ namespace LMS___Mini_Version.Mediators
 
         public async Task<MediatorResult> ExecuteAsync(int enrollmentId, int newTrackId)
         {
-            // Step 1: Fetch the existing enrollment
+
             var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId).ConfigureAwait(false);
             if (enrollment == null)
             {
@@ -57,7 +44,6 @@ namespace LMS___Mini_Version.Mediators
                 return MediatorResult.Fail("The intern is already enrolled in this track.");
             }
 
-            // Step 2: Validate the new track exists and is active
             var newTrack = await _trackService.GetByIdAsync(newTrackId).ConfigureAwait(false);
             if (newTrack == null)
             {
@@ -68,14 +54,12 @@ namespace LMS___Mini_Version.Mediators
                 return MediatorResult.Fail($"Target Track '{newTrack.Name}' is not currently active.");
             }
 
-            // Step 3: Check new track capacity
             var hasCapacity = await _trackService.CheckCapacityAsync(newTrackId).ConfigureAwait(false);
             if (!hasCapacity)
             {
                 return MediatorResult.Fail($"Target Track '{newTrack.Name}' has reached its maximum capacity.");
             }
 
-            // Step 4: Move enrollment to new track (staged, NOT saved)
             var trackUpdated = await _enrollmentService
                 .UpdateTrackAsync(enrollmentId, newTrackId)
                 .ConfigureAwait(false);
@@ -85,8 +69,6 @@ namespace LMS___Mini_Version.Mediators
                 return MediatorResult.Fail("Failed to update the enrollment's track.");
             }
 
-            // Step 5: Calculate fee difference and update payment amount (staged, NOT saved)
-            // The new track's fees become the new payment amount
             if (newTrack.Fees > 0)
             {
                 await _paymentService
@@ -94,7 +76,6 @@ namespace LMS___Mini_Version.Mediators
                     .ConfigureAwait(false);
             }
 
-            // Step 6: ATOMIC COMMIT — track change + payment adjustment saved in one transaction
             await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
             return MediatorResult.Succeed(

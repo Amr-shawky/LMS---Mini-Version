@@ -1,4 +1,4 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -18,28 +18,24 @@ namespace LMS___Mini_Version.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // Enrollment → Intern (many-to-one)
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.Intern)
                 .WithMany(i => i.Enrollments)
                 .HasForeignKey(e => e.InternId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Enrollment → Track (many-to-one)
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.Track)
                 .WithMany(t => t.Enrollments)
                 .HasForeignKey(e => e.TrackId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Payment → Enrollment (one-to-one)
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.Enrollment)
                 .WithOne(e => e.Payment)
                 .HasForeignKey<Payment>(p => p.EnrollmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Store enums as strings for readability in the DB
             modelBuilder.Entity<Enrollment>()
                 .Property(e => e.Status)
                 .HasConversion<string>();
@@ -52,7 +48,6 @@ namespace LMS___Mini_Version.Persistence
                 .Property(p => p.Status)
                 .HasConversion<string>();
 
-            // Decimal precision for fees and amounts
             modelBuilder.Entity<Track>()
                 .Property(t => t.Fees)
                 .HasPrecision(18, 2);

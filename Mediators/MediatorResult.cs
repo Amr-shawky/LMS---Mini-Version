@@ -1,8 +1,6 @@
 namespace LMS___Mini_Version.Mediators
 {
-    /// <summary>
-    /// Generic result wrapper used by all Mediators for consistent response handling.
-    /// </summary>
+
     public class MediatorResult
     {
         public bool IsSuccess { get; set; }

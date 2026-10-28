@@ -6,17 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Services.Implementations
 {
-    /// <summary>
-    /// [SRP Fix] Injects IGeneralRepository&lt;Track&gt;, IGeneralRepository&lt;Enrollment&gt;, and IUnitOfWork directly.
-    /// Repositories handle data access; UoW handles transaction commits.
-    /// 
-    /// [Trap 3 Fix] All methods are fully async.
-    /// [Trap 4 Fix] Uses GetAll() (IQueryable) for DB-side queries.
-    /// [Trap 5 Fix] Contains only single-entity "Steps" — no cross-entity orchestration.
-    /// 
-    /// CRUD methods (Create, Update, Delete) call SaveChangesAsync() internally and return final results.
-    /// Mediator-coordinated methods (CheckCapacityAsync) only read — no save needed.
-    /// </summary>
+
     public class TrackService : ITrackService
     {
         private readonly IGeneralRepository<Track> _trackRepository;
@@ -41,13 +31,33 @@ namespace LMS___Mini_Version.Services.Implementations
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            return tracks.Select(t => t.ToDto());
+            return tracks.Select(t => new TrackDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Fees = t.Fees,
+                IsActive = t.IsActive,
+                MaxCapacity = t.MaxCapacity,
+                CurrentEnrollmentCount = t.Enrollments.Count
+            });
         }
 
         public async Task<TrackDto?> GetByIdAsync(int id)
         {
-            var track = await _trackRepository.GetByIdAsync(id).ConfigureAwait(false);
-            return track?.ToDto();
+            var track = await _trackRepository.GetAll()
+                .Include(t => t.Enrollments)
+                .FirstOrDefaultAsync(t => t.Id == id)
+                .ConfigureAwait(false);
+
+            return track is null ? null : new TrackDto
+            {
+                Id = track.Id,
+                Name = track.Name,
+                Fees = track.Fees,
+                IsActive = track.IsActive,
+                MaxCapacity = track.MaxCapacity,
+                CurrentEnrollmentCount = track.Enrollments.Count
+            };
         }
 
         public async Task<TrackDto> CreateAsync(TrackDto dto)
@@ -62,11 +72,17 @@ namespace LMS___Mini_Version.Services.Implementations
 
             _trackRepository.Add(entity);
 
-            // Save so EF populates entity.Id with the DB-generated value
             await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-            // Now entity.Id has the real value — return accurate DTO
-            return entity.ToDto();
+            return new TrackDto
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Fees = entity.Fees,
+                IsActive = entity.IsActive,
+                MaxCapacity = entity.MaxCapacity,
+                CurrentEnrollmentCount = entity.Enrollments.Count
+            };
         }
 
         public async Task<bool> UpdateAsync(int id, TrackDto dto)
@@ -94,10 +110,6 @@ namespace LMS___Mini_Version.Services.Implementations
             return true;
         }
 
-        /// <summary>
-        /// Business Step: checks if the track's active enrollment count is below MaxCapacity.
-        /// Read-only — no save needed.
-        /// </summary>
         public async Task<bool> CheckCapacityAsync(int trackId)
         {
             var activeCount = await _enrollmentRepository

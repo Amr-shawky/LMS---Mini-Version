@@ -1,8 +1,6 @@
 namespace LMS___Mini_Version.ViewModels.Intern
 {
-    /// <summary>
-    /// [Trap 2 Fix] Lightweight view model for intern list endpoints.
-    /// </summary>
+
     public class InternSummaryViewModel
     {
         public int Id { get; set; }

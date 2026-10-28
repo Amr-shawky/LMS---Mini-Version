@@ -1,8 +1,6 @@
 namespace LMS___Mini_Version.ViewModels.Intern
 {
-    /// <summary>
-    /// [Trap 2 Fix] Input view model for updating an Intern.
-    /// </summary>
+
     public class UpdateInternViewModel
     {
         public string FullName { get; set; } = string.Empty;

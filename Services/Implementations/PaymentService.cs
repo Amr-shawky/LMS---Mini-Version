@@ -7,14 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Services.Implementations
 {
-    /// <summary>
-    /// [SRP Fix] Injects IGeneralRepository&lt;Payment&gt; and IUnitOfWork directly.
-    /// 
-    /// Mediator-coordinated methods (CreatePaymentAsync, RefundPaymentAsync, UpdatePaymentAmountAsync)
-    /// only STAGE changes — the Mediator calls UoW.SaveChangesAsync() at the end for atomicity.
-    /// 
-    /// Read methods are unaffected.
-    /// </summary>
+
     public class PaymentService : IPaymentService
     {
         private readonly IGeneralRepository<Payment> _paymentRepository;
@@ -36,7 +29,15 @@ namespace LMS___Mini_Version.Services.Implementations
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            return payments.Select(p => p.ToDto());
+            return payments.Select(p => new PaymentDto
+            {
+                Id = p.Id,
+                EnrollmentId = p.EnrollmentId,
+                Amount = p.Amount,
+                PaymentDate = p.PaymentDate,
+                Method = p.Method,
+                Status = p.Status
+            });
         }
 
         public async Task<PaymentDto?> GetByEnrollmentAsync(int enrollmentId)
@@ -46,13 +47,17 @@ namespace LMS___Mini_Version.Services.Implementations
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
                 .ConfigureAwait(false);
 
-            return payment?.ToDto();
+            return payment is null ? null : new PaymentDto
+            {
+                Id = payment.Id,
+                EnrollmentId = payment.EnrollmentId,
+                Amount = payment.Amount,
+                PaymentDate = payment.PaymentDate,
+                Method = payment.Method,
+                Status = payment.Status
+            };
         }
 
-        /// <summary>
-        /// Stages a new Payment entity in the Change Tracker.
-        /// Does NOT call SaveChanges — the Mediator commits via UoW for atomicity.
-        /// </summary>
         public async Task<PaymentDto> CreatePaymentAsync(PaymentDto dto)
         {
             var entity = new Payment
@@ -65,13 +70,17 @@ namespace LMS___Mini_Version.Services.Implementations
             };
 
             _paymentRepository.Add(entity);
-            return entity.ToDto();
+            return new PaymentDto
+            {
+                Id = entity.Id,
+                EnrollmentId = entity.EnrollmentId,
+                Amount = entity.Amount,
+                PaymentDate = entity.PaymentDate,
+                Method = entity.Method,
+                Status = entity.Status
+            };
         }
 
-        /// <summary>
-        /// Atomic Step: marks the payment associated with an enrollment as Refunded.
-        /// Staged only — no SaveChanges. The Mediator commits via UoW.
-        /// </summary>
         public async Task<bool> RefundPaymentAsync(int enrollmentId)
         {
             var payment = await _paymentRepository
@@ -86,11 +95,6 @@ namespace LMS___Mini_Version.Services.Implementations
             return true;
         }
 
-        /// <summary>
-        /// Atomic Step: updates the payment amount for a given enrollment.
-        /// Used when transferring to a track with different fees.
-        /// Staged only — no SaveChanges. The Mediator commits via UoW.
-        /// </summary>
         public async Task<bool> UpdatePaymentAmountAsync(int enrollmentId, decimal newAmount)
         {
             var payment = await _paymentRepository
@@ -101,7 +105,7 @@ namespace LMS___Mini_Version.Services.Implementations
             if (payment == null) return false;
 
             payment.Amount = newAmount;
-            payment.Status = PaymentStatus.Pending; // Reset to pending after fee adjustment
+            payment.Status = PaymentStatus.Pending;
             _paymentRepository.Update(payment);
             return true;
         }

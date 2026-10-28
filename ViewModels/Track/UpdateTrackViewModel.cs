@@ -1,8 +1,6 @@
 namespace LMS___Mini_Version.ViewModels.Track
 {
-    /// <summary>
-    /// [Trap 2 Fix] Input view model for updating a Track.
-    /// </summary>
+
     public class UpdateTrackViewModel
     {
         public string Name { get; set; } = string.Empty;

@@ -1,18 +1,11 @@
-﻿using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mapping;
+using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Intern;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// [Trap 1 Fix] Depends on IInternService — NOT AppDbContext.
-    /// [SRP Fix] No longer injects IUnitOfWork — the Service owns its own CRUD transactions.
-    /// [Trap 2 Fix] Accepts/returns ViewModels only.
-    /// [Trap 3 Fix] Fully async.
-    /// [Trap 5 Fix] Zero business logic — delegated to InternService.
-    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     public class InternController : ControllerBase
@@ -28,7 +21,14 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
             var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToSummaryViewModel());
+            var viewModels = dtos.Select(d => new InternSummaryViewModel
+            {
+                Id = d.Id,
+                FullName = d.FullName,
+                Email = d.Email,
+                Status = d.Status,
+                TrackName = d.TrackName
+            });
             return Ok(viewModels);
         }
 
@@ -37,7 +37,16 @@ namespace LMS___Mini_Version.Controllers
         {
             var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
             if (dto == null) return NotFound();
-            return Ok(dto.ToDetailViewModel());
+            return Ok(new InternDetailViewModel
+            {
+                Id = dto.Id,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                BirthYear = dto.BirthYear,
+                Status = dto.Status,
+                TrackId = dto.TrackId,
+                TrackName = dto.TrackName
+            });
         }
 
         [HttpPost]
@@ -53,7 +62,14 @@ namespace LMS___Mini_Version.Controllers
             };
 
             var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
-            return Ok(created.ToSummaryViewModel());
+            return Ok(new InternSummaryViewModel
+            {
+                Id = created.Id,
+                FullName = created.FullName,
+                Email = created.Email,
+                Status = created.Status,
+                TrackName = created.TrackName
+            });
         }
 
         [HttpPut("{id}")]

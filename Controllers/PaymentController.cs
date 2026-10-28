@@ -1,14 +1,10 @@
-using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.Services.Interfaces;
 using LMS___Mini_Version.ViewModels.Payment;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
 {
-    /// <summary>
-    /// Read-only controller for Payment data.
-    /// Payments are created through the EnrollInternMediator — not directly.
-    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
@@ -24,7 +20,15 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<IEnumerable<PaymentViewModel>>> GetAll()
         {
             var dtos = await _paymentService.GetAllAsync().ConfigureAwait(false);
-            var viewModels = dtos.Select(d => d.ToViewModel());
+            var viewModels = dtos.Select(d => new PaymentViewModel
+            {
+                Id = d.Id,
+                EnrollmentId = d.EnrollmentId,
+                Amount = d.Amount,
+                PaymentDate = d.PaymentDate,
+                Method = d.Method.ToString(),
+                Status = d.Status.ToString()
+            });
             return Ok(viewModels);
         }
 
@@ -33,7 +37,15 @@ namespace LMS___Mini_Version.Controllers
         {
             var dto = await _paymentService.GetByEnrollmentAsync(enrollmentId).ConfigureAwait(false);
             if (dto == null) return NotFound();
-            return Ok(dto.ToViewModel());
+            return Ok(new PaymentViewModel
+            {
+                Id = dto.Id,
+                EnrollmentId = dto.EnrollmentId,
+                Amount = dto.Amount,
+                PaymentDate = dto.PaymentDate,
+                Method = dto.Method.ToString(),
+                Status = dto.Status.ToString()
+            });
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿using MediatR;
+using MediatR;
 
 namespace LMS___Mini_Version.Feature.Tracks.Commands
 {
     public class CreateTrackCommand : IRequest
     {
-        //string Name, decimal Fees, bool IsActive, int MaxCapacity
+
          public string Name { get; set; } = string.Empty;
          public decimal Fees { get; set; }
          public bool IsActive { get; set; }
