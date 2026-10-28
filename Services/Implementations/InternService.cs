@@ -26,7 +26,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .GetAll()
                 .Include(i => i.Track)
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             return interns.Select(i => new InternDto
             {
@@ -46,7 +46,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .GetAll()
                 .Include(i => i.Track)
                 .FirstOrDefaultAsync(i => i.Id == id)
-                .ConfigureAwait(false);
+                ;
 
             return intern is null ? null : new InternDto
             {
@@ -73,7 +73,7 @@ namespace LMS___Mini_Version.Services.Implementations
 
             _internRepository.Add(entity);
 
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
 
             return new InternDto
             {
@@ -89,7 +89,7 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<bool> UpdateAsync(int id, InternDto dto)
         {
-            var intern = await _internRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var intern = await _internRepository.GetByIdAsync(id);
             if (intern == null) return false;
 
             intern.FullName = dto.FullName;
@@ -99,17 +99,17 @@ namespace LMS___Mini_Version.Services.Implementations
             intern.TrackId = dto.TrackId;
 
             _internRepository.Update(intern);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var intern = await _internRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var intern = await _internRepository.GetByIdAsync(id);
             if (intern == null) return false;
 
             _internRepository.Delete(intern);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

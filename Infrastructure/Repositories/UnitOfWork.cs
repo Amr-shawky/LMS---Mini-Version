@@ -14,7 +14,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         }
 
         public async Task<int> SaveChangesAsync()
-            => await _context.SaveChangesAsync().ConfigureAwait(false);
+            => await _context.SaveChangesAsync();
 
         public void Dispose()
         {

@@ -31,13 +31,13 @@ namespace LMS___Mini_Version.Mediators
         public async Task<EnrollmentResultDto> ExecuteAsync(CreateEnrollmentDto dto)
         {
 
-            var intern = await _internService.GetByIdAsync(dto.InternId).ConfigureAwait(false);
+            var intern = await _internService.GetByIdAsync(dto.InternId);
             if (intern == null)
             {
                 return EnrollmentResultDto.Fail($"Intern with ID {dto.InternId} was not found.");
             }
 
-            var track = await _trackService.GetByIdAsync(dto.TrackId).ConfigureAwait(false);
+            var track = await _trackService.GetByIdAsync(dto.TrackId);
             if (track == null)
             {
                 return EnrollmentResultDto.Fail($"Track with ID {dto.TrackId} was not found.");
@@ -47,15 +47,15 @@ namespace LMS___Mini_Version.Mediators
                 return EnrollmentResultDto.Fail($"Track '{track.Name}' is not currently active.");
             }
 
-            var hasCapacity = await _trackService.CheckCapacityAsync(dto.TrackId).ConfigureAwait(false);
+            var hasCapacity = await _trackService.CheckCapacityAsync(dto.TrackId);
             if (!hasCapacity)
             {
                 return EnrollmentResultDto.Fail($"Track '{track.Name}' has reached its maximum capacity.");
             }
 
-            var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto).ConfigureAwait(false);
+            var enrollment = await _enrollmentService.CreateEnrollmentAsync(dto);
 
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
 
             PaymentDto? payment = null;
             if (track.Fees > 0)
@@ -66,10 +66,10 @@ namespace LMS___Mini_Version.Mediators
                     Amount = track.Fees,
                     Method = PaymentMethod.Cash,
                     Status = PaymentStatus.Pending
-                }).ConfigureAwait(false);
+                });
             }
 
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
 
             return EnrollmentResultDto.Succeed(new EnrollmentDto
             {

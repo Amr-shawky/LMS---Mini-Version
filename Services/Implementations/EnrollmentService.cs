@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .Include(e => e.Intern)
                 .Include(e => e.Track)
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             return enrollments.Select(e => new EnrollmentDto
             {
@@ -49,7 +49,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .Include(e => e.Intern)
                 .Include(e => e.Track)
                 .FirstOrDefaultAsync(e => e.Id == id)
-                .ConfigureAwait(false);
+                ;
 
             return enrollment is null ? null : new EnrollmentDto
             {
@@ -85,7 +85,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .Include(e => e.Intern)
                 .Where(e => e.InternId == internId)
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             return enrollments.Select(e => new EnrollmentDto
             {
@@ -101,7 +101,7 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<bool> UpdateStatusAsync(int enrollmentId, EnrollmentStatus newStatus)
         {
-            var enrollment = await _enrollmentRepository.GetByIdAsync(enrollmentId).ConfigureAwait(false);
+            var enrollment = await _enrollmentRepository.GetByIdAsync(enrollmentId);
             if (enrollment == null) return false;
 
             enrollment.Status = newStatus;
@@ -111,7 +111,7 @@ namespace LMS___Mini_Version.Services.Implementations
 
         public async Task<bool> UpdateTrackAsync(int enrollmentId, int newTrackId)
         {
-            var enrollment = await _enrollmentRepository.GetByIdAsync(enrollmentId).ConfigureAwait(false);
+            var enrollment = await _enrollmentRepository.GetByIdAsync(enrollmentId);
             if (enrollment == null) return false;
 
             enrollment.TrackId = newTrackId;

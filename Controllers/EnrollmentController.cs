@@ -33,7 +33,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
         {
-            var dtos = await _enrollmentService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _enrollmentService.GetAllAsync();
             var viewModels = dtos.Select(d => new EnrollmentViewModel
             {
                 Id = d.Id,
@@ -48,7 +48,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
         {
-            var dto = await _enrollmentService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _enrollmentService.GetByIdAsync(id);
             if (dto == null) return NotFound();
             return Ok(new EnrollmentViewModel
             {
@@ -63,7 +63,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("intern/{internId}")]
         public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
         {
-            var dtos = await _enrollmentService.GetByInternAsync(internId).ConfigureAwait(false);
+            var dtos = await _enrollmentService.GetByInternAsync(internId);
             var viewModels = dtos.Select(d => new EnrollmentViewModel
             {
                 Id = d.Id,
@@ -82,7 +82,7 @@ namespace LMS___Mini_Version.Controllers
             {
                 InternId = vm.InternId,
                 TrackId = vm.TrackId
-            }).ConfigureAwait(false);
+            });
 
             if (!result.IsSuccess)
             {
@@ -103,7 +103,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> Cancel(int id)
         {
-            var result = await _cancelMediator.ExecuteAsync(id).ConfigureAwait(false);
+            var result = await _cancelMediator.ExecuteAsync(id);
 
             if (!result.IsSuccess)
             {
@@ -116,7 +116,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/transfer/{newTrackId}")]
         public async Task<ActionResult> Transfer(int id, int newTrackId)
         {
-            var result = await _transferMediator.ExecuteAsync(id, newTrackId).ConfigureAwait(false);
+            var result = await _transferMediator.ExecuteAsync(id, newTrackId);
 
             if (!result.IsSuccess)
             {

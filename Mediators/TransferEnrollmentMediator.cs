@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.Mediators
         public async Task<MediatorResult> ExecuteAsync(int enrollmentId, int newTrackId)
         {
 
-            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId).ConfigureAwait(false);
+            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId);
             if (enrollment == null)
             {
                 return MediatorResult.Fail($"Enrollment with ID {enrollmentId} was not found.");
@@ -44,7 +44,7 @@ namespace LMS___Mini_Version.Mediators
                 return MediatorResult.Fail("The intern is already enrolled in this track.");
             }
 
-            var newTrack = await _trackService.GetByIdAsync(newTrackId).ConfigureAwait(false);
+            var newTrack = await _trackService.GetByIdAsync(newTrackId);
             if (newTrack == null)
             {
                 return MediatorResult.Fail($"Target Track with ID {newTrackId} was not found.");
@@ -54,7 +54,7 @@ namespace LMS___Mini_Version.Mediators
                 return MediatorResult.Fail($"Target Track '{newTrack.Name}' is not currently active.");
             }
 
-            var hasCapacity = await _trackService.CheckCapacityAsync(newTrackId).ConfigureAwait(false);
+            var hasCapacity = await _trackService.CheckCapacityAsync(newTrackId);
             if (!hasCapacity)
             {
                 return MediatorResult.Fail($"Target Track '{newTrack.Name}' has reached its maximum capacity.");
@@ -62,7 +62,7 @@ namespace LMS___Mini_Version.Mediators
 
             var trackUpdated = await _enrollmentService
                 .UpdateTrackAsync(enrollmentId, newTrackId)
-                .ConfigureAwait(false);
+                ;
 
             if (!trackUpdated)
             {
@@ -73,10 +73,10 @@ namespace LMS___Mini_Version.Mediators
             {
                 await _paymentService
                     .UpdatePaymentAmountAsync(enrollmentId, newTrack.Fees)
-                    .ConfigureAwait(false);
+                    ;
             }
 
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
 
             return MediatorResult.Succeed(
                 $"Enrollment transferred to '{newTrack.Name}' successfully. New fees: {newTrack.Fees:C}.");

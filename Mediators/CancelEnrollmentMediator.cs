@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.Mediators
         public async Task<MediatorResult> ExecuteAsync(int enrollmentId)
         {
 
-            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId).ConfigureAwait(false);
+            var enrollment = await _enrollmentService.GetByIdAsync(enrollmentId);
             if (enrollment == null)
             {
                 return MediatorResult.Fail($"Enrollment with ID {enrollmentId} was not found.");
@@ -41,16 +41,16 @@ namespace LMS___Mini_Version.Mediators
 
             var statusUpdated = await _enrollmentService
                 .UpdateStatusAsync(enrollmentId, EnrollmentStatus.Cancelled)
-                .ConfigureAwait(false);
+                ;
 
             if (!statusUpdated)
             {
                 return MediatorResult.Fail("Failed to update enrollment status.");
             }
 
-            await _paymentService.RefundPaymentAsync(enrollmentId).ConfigureAwait(false);
+            await _paymentService.RefundPaymentAsync(enrollmentId);
 
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync();
 
             return MediatorResult.Succeed("Enrollment cancelled and payment refunded successfully.");
         }

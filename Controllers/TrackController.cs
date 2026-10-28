@@ -81,7 +81,7 @@ namespace LMS___Mini_Version.Controllers
                 MaxCapacity = vm.MaxCapacity
             };
 
-            var updated = await _trackService.UpdateAsync(id, dto).ConfigureAwait(false);
+            var updated = await _trackService.UpdateAsync(id, dto);
             if (!updated) return NotFound();
 
             return NoContent();
@@ -90,7 +90,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _trackService.DeleteAsync(id).ConfigureAwait(false);
+            var deleted = await _trackService.DeleteAsync(id);
             if (!deleted) return NotFound();
 
             return NoContent();

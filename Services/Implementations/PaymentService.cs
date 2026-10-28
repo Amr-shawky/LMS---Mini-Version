@@ -27,7 +27,7 @@ namespace LMS___Mini_Version.Services.Implementations
                 .GetAll()
                 .Include(p => p.Enrollment)
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             return payments.Select(p => new PaymentDto
             {
@@ -45,7 +45,7 @@ namespace LMS___Mini_Version.Services.Implementations
             var payment = await _paymentRepository
                 .GetAll()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             return payment is null ? null : new PaymentDto
             {
@@ -86,7 +86,7 @@ namespace LMS___Mini_Version.Services.Implementations
             var payment = await _paymentRepository
                 .GetAll()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             if (payment == null) return false;
 
@@ -100,7 +100,7 @@ namespace LMS___Mini_Version.Services.Implementations
             var payment = await _paymentRepository
                 .GetAll()
                 .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId)
-                .ConfigureAwait(false);
+                ;
 
             if (payment == null) return false;
 

@@ -20,7 +20,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InternSummaryViewModel>>> GetAll()
         {
-            var dtos = await _internService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _internService.GetAllAsync();
             var viewModels = dtos.Select(d => new InternSummaryViewModel
             {
                 Id = d.Id,
@@ -35,7 +35,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InternDetailViewModel>> GetById(int id)
         {
-            var dto = await _internService.GetByIdAsync(id).ConfigureAwait(false);
+            var dto = await _internService.GetByIdAsync(id);
             if (dto == null) return NotFound();
             return Ok(new InternDetailViewModel
             {
@@ -61,7 +61,7 @@ namespace LMS___Mini_Version.Controllers
                 TrackId = vm.TrackId
             };
 
-            var created = await _internService.CreateAsync(dto).ConfigureAwait(false);
+            var created = await _internService.CreateAsync(dto);
             return Ok(new InternSummaryViewModel
             {
                 Id = created.Id,
@@ -84,7 +84,7 @@ namespace LMS___Mini_Version.Controllers
                 TrackId = vm.TrackId
             };
 
-            var updated = await _internService.UpdateAsync(id, dto).ConfigureAwait(false);
+            var updated = await _internService.UpdateAsync(id, dto);
             if (!updated) return NotFound();
 
             return NoContent();
@@ -93,7 +93,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var deleted = await _internService.DeleteAsync(id).ConfigureAwait(false);
+            var deleted = await _internService.DeleteAsync(id);
             if (!deleted) return NotFound();
 
             return NoContent();

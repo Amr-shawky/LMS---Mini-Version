@@ -19,7 +19,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PaymentViewModel>>> GetAll()
         {
-            var dtos = await _paymentService.GetAllAsync().ConfigureAwait(false);
+            var dtos = await _paymentService.GetAllAsync();
             var viewModels = dtos.Select(d => new PaymentViewModel
             {
                 Id = d.Id,
@@ -35,7 +35,7 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("enrollment/{enrollmentId}")]
         public async Task<ActionResult<PaymentViewModel>> GetByEnrollment(int enrollmentId)
         {
-            var dto = await _paymentService.GetByEnrollmentAsync(enrollmentId).ConfigureAwait(false);
+            var dto = await _paymentService.GetByEnrollmentAsync(enrollmentId);
             if (dto == null) return NotFound();
             return Ok(new PaymentViewModel
             {
