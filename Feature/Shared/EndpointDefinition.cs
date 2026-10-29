@@ -95,7 +95,7 @@ namespace LMS___Mini_Version.Feature.Shared
 
             try
             {
-                await unitOfWork.ExecuteAsync(async (CancellationToken cancellationToken) =>
+                await unitOfWork.ExecuteAsync(async  cancellationToken =>
                 {
                     result = await handler();
 
@@ -104,7 +104,7 @@ namespace LMS___Mini_Version.Feature.Shared
                         // Business failure: signal rollback to UnitOfWork
                         throw new BusinessRollbackException();
                     }
-                });
+                }, httpContext.RequestAborted);
 
                 return result;
             }

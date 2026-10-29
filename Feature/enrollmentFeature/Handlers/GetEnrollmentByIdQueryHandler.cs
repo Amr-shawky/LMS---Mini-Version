@@ -16,31 +16,26 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
         {
             _enrollmentrepository = enrollmentrepo;
         }
-
         public async Task<RequestResponse<EnrollmentDto>> Handle(GetEnrollmentByIdQuery request, CancellationToken cancellationToken)
         {
-            var enrollmententity = await _enrollmentrepository.GetAll()
-                .Include(e => e.Intern)
-                .Include(e => e.Track)
-                .FirstOrDefaultAsync(e => e.Id == request.EnrollmentId, cancellationToken);
-
-            if (enrollmententity == null)
-            {
+            var enrollmentDto = await _enrollmentrepository.GetAll()
+                .Where(e => e.Id == request.EnrollmentId)
+                .Select(e => new EnrollmentDto
+                {
+                    Id = e.Id,
+                    InternId = e.InternId,
+                    InternName = e.Intern != null ? e.Intern.FullName: string.Empty,
+                    TrackId = e.TrackId,
+                    TrackName = e.Track != null? e.Track.Name: string.Empty,
+                    EnrollmentDate = e.EnrollmentDate,
+                    Status = e.Status
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+           
+            if (enrollmentDto== null)
                 return RequestResponse<EnrollmentDto>.Fail($"Enrollment with ID {request.EnrollmentId} not found", 404);
-            }
-
-            var enrollmentdto = new EnrollmentDto
-            {
-                Id = enrollmententity.Id,
-                InternId = enrollmententity.InternId,
-                InternName = enrollmententity.Intern?.FullName ?? string.Empty,
-                TrackId = enrollmententity.TrackId,
-                TrackName = enrollmententity.Track?.Name ?? string.Empty,
-                EnrollmentDate = enrollmententity.EnrollmentDate,
-                Status = enrollmententity.Status
-            };
-
-            return RequestResponse<EnrollmentDto>.Ok(enrollmentdto);
+            
+            return RequestResponse<EnrollmentDto>.Ok(enrollmentDto);
         }
     }
 }

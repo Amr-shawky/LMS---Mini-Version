@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators
 {
-    public record EnrollInternOrchestrator(int InternId, int TrackId) : IRequest<RequestResponse<EnrollmentDto>>;
+    public record EnrollInternOrchestrator(int InternId, int TrackId) : IRequest<RequestResponse<int>>;
 }
