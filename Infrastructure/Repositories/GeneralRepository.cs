@@ -30,9 +30,36 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
+       
         public void SaveInclude(T entity, params string[] Includedproperties)
         {
-            throw new NotImplementedException();
+            // 1. Check if the entity is already tracked :
+            var localEntity =  _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id);
+
+            Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T> entry;
+
+            //2. If the entity is not tracked, attach it to the context:
+            if(localEntity == null)
+            {
+                _context.Set<T>().Attach(entity);
+                entry = _context.Entry(entity);
+            }
+            //3. If the entity is already tracked, update its values:
+            else
+            {
+                entry = _context.Entry(localEntity);
+                entry.CurrentValues.SetValues(entity);
+            }
+
+            // 4. Mark only the specified properties as modified :
+            foreach(var property in entry.Properties)
+            {
+                if (property.Metadata.IsPrimaryKey())
+                    continue; // Skip primary key properties
+
+                // Mark the property as modified only if it's in the Includedproperties list
+                property.IsModified = Includedproperties.Contains(property.Metadata.Name);
+            }
         }
 
         public async Task<int> SaveChangesAsync()
@@ -41,5 +68,6 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
             return result;
         }
 
+ 
     }
 }

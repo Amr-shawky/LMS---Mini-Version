@@ -22,6 +22,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             var query = _enrollmentRepository.GetAll();
 
             var dtos = await query
+                .OrderBy(e => e.Id)
                 .Skip(request.PageSize * (request.PageIndex - 1))
                 .Take(request.PageSize)
                 .Select(e => new EnrollmentDto
