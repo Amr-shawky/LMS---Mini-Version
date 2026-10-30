@@ -20,15 +20,11 @@ public static class MassTransitRegistration
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                var username = configuration["RabbitMq:Username"]
-                    ?? throw new InvalidOperationException("Set RabbitMq__Username in environment/user secrets");
-                var password = configuration["RabbitMq:Password"]
-                    ?? throw new InvalidOperationException("Set RabbitMq__Password in environment/user secrets");
 
-                cfg.Host(configuration["RabbitMq:Host"] ?? "localhost", "Elevate", h =>
+                cfg.Host("localhost", "Elevate", h =>
                 {
-                    h.Username(username);
-                    h.Password(password);
+                    h.Username("guest");
+                    h.Password("guest");
                 });
 
                 // Publish topology uses a fanout exchange; each receive endpoint owns a queue.
