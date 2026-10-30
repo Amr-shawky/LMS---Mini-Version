@@ -1,4 +1,5 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Enums;
 
 namespace LMS___Mini_Version.Persistence
@@ -7,7 +8,7 @@ namespace LMS___Mini_Version.Persistence
     {
         public static void Seed(AppDbContext context)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             if (context.Tracks.Any()) return;
 

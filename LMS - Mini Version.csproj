@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	  <PropertyGroup>
 		    <TargetFramework>net8.0</TargetFramework>
@@ -31,4 +31,9 @@
 		    <Folder Include="Domain\Enums\" />
 		 
 	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.3.6" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.6" />
+        <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.3.6" />
+    </ItemGroup>
 </Project>

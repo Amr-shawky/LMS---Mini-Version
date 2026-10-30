@@ -19,26 +19,21 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 
         public async Task<RequestResponse<EnrollmentDto>> Handle(GetEnrollmentByIdQuery request, CancellationToken cancellationToken)
         {
-            var enrollmententity = await _enrollmentrepository.GetAll()
-                .Include(e => e.Intern)
-                .Include(e => e.Track)
-                .FirstOrDefaultAsync(e => e.Id == request.EnrollmentId, cancellationToken);
+            var enrollmentdto = await _enrollmentrepository.GetAll()
+                .Where(e => e.Id == request.EnrollmentId)
+                .Select(e => new EnrollmentDto
+                {
+                    Id = e.Id,
+                    InternId = e.InternId,
+                    InternName = e.Intern.FullName,
+                    TrackId = e.TrackId,
+                    TrackName = e.Track.Name,
+                    EnrollmentDate = e.EnrollmentDate,
+                    Status = e.Status
+                }).SingleOrDefaultAsync(cancellationToken);
 
-            if (enrollmententity == null)
-            {
+            if (enrollmentdto is null)
                 return RequestResponse<EnrollmentDto>.Fail($"Enrollment with ID {request.EnrollmentId} not found", 404);
-            }
-
-            var enrollmentdto = new EnrollmentDto
-            {
-                Id = enrollmententity.Id,
-                InternId = enrollmententity.InternId,
-                InternName = enrollmententity.Intern?.FullName ?? string.Empty,
-                TrackId = enrollmententity.TrackId,
-                TrackName = enrollmententity.Track?.Name ?? string.Empty,
-                EnrollmentDate = enrollmententity.EnrollmentDate,
-                Status = enrollmententity.Status
-            };
 
             return RequestResponse<EnrollmentDto>.Ok(enrollmentdto);
         }

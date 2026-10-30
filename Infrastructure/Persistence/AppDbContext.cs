@@ -1,4 +1,5 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using MassTransit;
+using LMS___Mini_Version.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -13,10 +14,22 @@ namespace LMS___Mini_Version.Persistence
         public DbSet<Intern> Interns { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<RefundHistory> RefundHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
+
+            modelBuilder.Entity<RefundHistory>().HasOne(h => h.Payment)
+                .WithMany().HasForeignKey(h => h.PaymentId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RefundHistory>().HasOne(h => h.Enrollment)
+                .WithMany().HasForeignKey(h => h.EnrollmentId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RefundHistory>().Property(h => h.PreviousStatus).HasConversion<string>();
+            modelBuilder.Entity<RefundHistory>().Property(h => h.NewStatus).HasConversion<string>();
+            modelBuilder.Entity<RefundHistory>().HasIndex(h => h.PaymentId).IsUnique();
 
             // Enrollment → Intern (many-to-one)
             modelBuilder.Entity<Enrollment>()

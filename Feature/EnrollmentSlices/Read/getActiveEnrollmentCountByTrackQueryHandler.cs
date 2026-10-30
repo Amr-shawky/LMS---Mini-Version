@@ -1,12 +1,13 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using MediatR;
+using exam_system.Features.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 {
-    public class getActiveEnrollmentCountByTrackQueryHandler : IRequestHandler<getActiveEnrollmentCountByTrackQuery, int>
+    public class getActiveEnrollmentCountByTrackQueryHandler : IRequestHandler<getActiveEnrollmentCountByTrackQuery, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentrepo;
 
@@ -15,13 +16,13 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             _enrollmentrepo = enrollmentrepo;
         }
 
-        public async Task<int> Handle(getActiveEnrollmentCountByTrackQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<int>> Handle(getActiveEnrollmentCountByTrackQuery request, CancellationToken cancellationToken)
         {
             var activeEnrollmentTrackCount = await _enrollmentrepo.GetAll()
                 .Where(e => e.TrackId == request.TrackID &&
                 e.Status == Domain.Enums.EnrollmentStatus.Active).CountAsync();
 
-            return activeEnrollmentTrackCount ;
+            return RequestResponse<int>.Ok(activeEnrollmentTrackCount);
         }
     }
 }
