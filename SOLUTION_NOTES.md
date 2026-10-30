@@ -19,7 +19,7 @@
 ## Setup
 
 1. Use SQL Server and **a new database** (the previous `EnsureCreated` databases are not compatible with automatic migration history). Runtime connection string comes from `ConnectionStrings__DefaultConnection` or appsettings.
-2. Apply EF migrations (or allow `DbInitializer.Seed` to call `Database.Migrate()` on application startup). The provided design-time factory is for EF tooling only.
+2. Apply EF migrations (or allow `DbInitializer.Seed` to call `Database.Migrate()` on application startup).
 3. Set up RabbitMQ and create the **`Elevate`** virtual host; grant your RabbitMQ user permissions there.
 4. Provide credentials via environment variables or user secrets; never commit passwords:
    - `RabbitMq__Host` (optional, defaults to `localhost`)
