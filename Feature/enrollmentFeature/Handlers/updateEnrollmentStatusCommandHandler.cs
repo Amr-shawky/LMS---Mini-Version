@@ -31,16 +31,3 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
         }
     }
 }
-
-            //var enrollmententity = _mediator.Send(new GetEnrollmentByIdQuery(request.enrollmentId));
-            //Enrollment updatedEnrollmentEntity = new Enrollment
-            //{
-            //    Id = request.enrollmentId,
-            //    Status = request.Status
-            //};
-            //if (updatedEnrollmentEntity != null)
-            //{
-            //    _enrollmentrepo.Update(updatedEnrollmentEntity);
-            //    await _unitOfWork.CompleteAsync();
-            //}
-            //  return Unit.Value;

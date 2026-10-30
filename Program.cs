@@ -62,6 +62,7 @@ namespace LMS___Mini_Version
             app.MapGetAllEnrollmentsEndpoint();
             app.MapGetEnrollmentByIdEndpoint();
             app.MapCreateEnrollmentEndpoint();
+            app.MapCancelEnrollmentEndpoint();
 
             // ─── Intern Minimal API v2 Endpoints ───────────────────────
             app.MapGetAllInternsEndpoint();

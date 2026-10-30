@@ -119,6 +119,32 @@ namespace LMS___Mini_Version.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("LMS___Mini_Version.Domain.Entities.RefundHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EnrollmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EnrollmentId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("refundHistories");
+                });
+
             modelBuilder.Entity("LMS___Mini_Version.Domain.Entities.Track", b =>
                 {
                     b.Property<int>("Id")
@@ -185,6 +211,25 @@ namespace LMS___Mini_Version.Migrations
                         .IsRequired();
 
                     b.Navigation("Enrollment");
+                });
+
+            modelBuilder.Entity("LMS___Mini_Version.Domain.Entities.RefundHistory", b =>
+                {
+                    b.HasOne("LMS___Mini_Version.Domain.Entities.Enrollment", "Enrollment")
+                        .WithMany()
+                        .HasForeignKey("EnrollmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS___Mini_Version.Domain.Entities.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Enrollment");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("LMS___Mini_Version.Domain.Entities.Enrollment", b =>

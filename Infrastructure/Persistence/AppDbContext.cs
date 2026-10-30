@@ -13,6 +13,7 @@ namespace LMS___Mini_Version.Persistence
         public DbSet<Intern> Interns { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<RefundHistory> refundHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
