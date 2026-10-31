@@ -7,9 +7,10 @@ using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
 {
-    public record CreateEnrollmentCommand(int InternId, int TrackId) : IRequest<RequestResponse<EnrollmentDto>>;
+    public record CreateEnrollmentCommand(int InternId, int TrackId)
+        : IRequest<RequestResponse<int>>;
 
-    public class CreateEnrollmentCommandHandler : IRequestHandler<CreateEnrollmentCommand, RequestResponse<EnrollmentDto>>
+    public class CreateEnrollmentCommandHandler : IRequestHandler<CreateEnrollmentCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
 
@@ -18,7 +19,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
             _enrollmentRepository = enrollmentRepository;
         }
 
-        public async Task<RequestResponse<EnrollmentDto>> Handle(CreateEnrollmentCommand request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<int>> Handle(CreateEnrollmentCommand request, CancellationToken cancellationToken)
         {
             var enrollment = new Enrollment
             {
@@ -40,7 +41,8 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
                 Status = enrollment.Status
             };
 
-            return RequestResponse<EnrollmentDto>.Created(dto);
+            return RequestResponse<int>.Created(enrollment.Id); 
+
         }
     }
 }
