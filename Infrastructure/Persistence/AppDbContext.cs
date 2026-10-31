@@ -1,4 +1,5 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -13,6 +14,9 @@ namespace LMS___Mini_Version.Persistence
         public DbSet<Intern> Interns { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Payment> Payments { get; set; }
+
+        // Added for R23: stores a row for every successful refund
+        public DbSet<RefundHistory> RefundHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +64,28 @@ namespace LMS___Mini_Version.Persistence
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+
+            // RefundHistory relationships (R23)
+            modelBuilder.Entity<RefundHistory>()
+                .HasOne(r => r.Payment)
+                .WithMany()
+                .HasForeignKey(r => r.PaymentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RefundHistory>()
+                .HasOne(r => r.Enrollment)
+                .WithMany()
+                .HasForeignKey(r => r.EnrollmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // MassTransit EF Core Transactional Bus Outbox tables (R22).
+            // These register the three outbox entity types that MassTransit needs:
+            //   OutboxMessage  -- the serialized messages waiting to be delivered to RabbitMQ
+            //   OutboxState    -- tracks delivery progress per saga/send
+            //   InboxState     -- optional consumer inbox for deduplication
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
         }
     }
-}
+}
