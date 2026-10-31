@@ -4,12 +4,12 @@
 		    <TargetFramework>net8.0</TargetFramework>
 		    <Nullable>enable</Nullable>
 		    <ImplicitUsings>enable</ImplicitUsings>
-		    <RootNamespace>LMS___Mini_Version</RootNamespace>
+		    <RootNamespace>LMS___Mini_Version</RootNamespace><UserSecretsId>bc0e0f86-3b8a-41a9-8db3-2b06255caa81</UserSecretsId><DockerDefaultTargetOS>Linux</DockerDefaultTargetOS><DockerfileContext>.</DockerfileContext>
 		 
 	</PropertyGroup>
 
 	  <ItemGroup>
-		    <PackageReference Include="MediatR" Version="10.0.1" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		    <PackageReference Include="MediatR" Version="10.0.1" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" /><PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 		 
 	</ItemGroup>
 	<ItemGroup>
