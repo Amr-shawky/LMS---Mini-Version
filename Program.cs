@@ -74,12 +74,17 @@ namespace LMS___Mini_Version
             // Remaining Enrollment v2 endpoint (outside the assignment scope).
             app.MapGetEnrollmentsByInternEndpoint();
 
-            app.MapGet("api/v4/test", async (IMediator mediator) => {
+            //assignment\enrollment v2 - registeration
+            app.MapListEnrollmentsEndpoint();
 
-                var tracks = await mediator.Send(new GetAllTrackQuery());
-                return tracks;
-            }).WithTags("Track")
-            .WithSummary("get all track minimal api");
+            app.MapGetEnrollmentByIdEndpoint();
+
+            //app.MapGet("api/v4/test", async (IMediator mediator) => {
+
+            //    var tracks = await mediator.Send(new GetAllTrackQuery());
+            //    return tracks;
+            //}).WithTags("Track")
+            //.WithSummary("get all track minimal api");
 
 
             app.MapUpdateTrackEndpoint();
