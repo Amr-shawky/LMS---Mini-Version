@@ -78,7 +78,7 @@ namespace LMS___Mini_Version
             app.MapListEnrollmentsEndpoint();
 
             app.MapGetEnrollmentByIdEndpoint();
-
+            app.MapEnrollInternEndpoint();
             //app.MapGet("api/v4/test", async (IMediator mediator) => {
 
             //    var tracks = await mediator.Send(new GetAllTrackQuery());
