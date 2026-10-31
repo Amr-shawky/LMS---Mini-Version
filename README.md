@@ -1,69 +1,107 @@
-# LMS - Mini Version
+﻿# LMS Mini — Enrollment Refactoring & Messaging
 
-##  Overview
+## What was refactored
 
-The **LMS - Mini Version** is an educational .NET 8 Web API project designed for mentorship and bootcamp environments. It serves as a practical playground for students to explore **RESTful APIs**, **Entity Framework Core**, and common architectural patterns.
+The Enrollment module was rebuilt as a set of Vertical Slice / feature-first handlers
+inside `Feature/enrollmentFeature/`. Each operation is split into one of three roles:
 
-Unlike "perfect" production code, this repository is intentionally built with "legacy-style" practices—such as synchronous blocking calls and tight coupling—to provide a hands-on refactoring experience for junior developers.
+- **Query handler** — reads data through a single `IGeneralRepository<TEntity>`, returns a DTO.
+- **Command handler** — writes data through a single `IGeneralRepository<TEntity>`.
+- **Orchestrator handler** — coordinates multiple queries and commands through `IMediator`;
+  never touches a repository directly.
 
----
+Five Minimal API v2 endpoints were added under `api/Enrollment/v2`:
 
-##  Tech Stack
+| Method | Route | Handler |
+|--------|-------|---------|
+| GET | `/api/Enrollment/v2` | GetAllEnrollmentsQuery (paginated) |
+| GET | `/api/Enrollment/v2/{id}` | GetEnrollmentByIdQuery |
+| POST | `/api/Enrollment/v2` | EnrollInternOrchestrator → returns enrollment ID |
+| POST | `/api/Enrollment/v2/{id}/cancel` | cancelEnrollmentOrchestrator |
+| POST | `/api/Enrollment/v2/{id}/transfer/{newTrackId}` | TransferEnrollmentOrchestrator |
 
-* **Framework:** .NET 8.0.
-* **Database:** SQL Server via Entity Framework Core.
-* **Architecture:** Monolithic (Folder-based separation).
-* **Documentation:** Swagger/OpenAPI.
+The legacy `EnrollmentController` and `GetEnrollmentsByIntern` endpoint were kept intact (R4).
 
----
+`SaveInclude` in `GeneralRepository<T>` was implemented: it attaches a detached entity to the
+EF change tracker, then marks only the named property columns as `Modified`. This produces a
+targeted SQL `UPDATE` that writes only those columns instead of every column (R11).
 
-##  Project Structure
+A `RefundHistory` entity was added (R23): every successful refund records one row with
+PaymentId, EnrollmentId, PreviousStatus, NewStatus, and RefundedAt.
 
-Following the structure of the original "CarRentalApp" reference, this project is organized into clear domains:
+## Messaging and Outbox setup
 
-* **Domain/Entities:** Contains core models like `Track` and `Intern`.
-* **Persistence:** Handles database context (`AppDbContext`) and data seeding.
-* **Infrastructure/Repositories:** Implements a generic repository (currently with intentional design flaws for learning).
-* **Controllers:** Traditional API controllers using direct dependency injection.
+**MassTransit 8.3.6** is used with **RabbitMQ** on virtual host `Elevate`.
 
----
+RabbitMQ must be running locally with the management plugin enabled, and virtual host `Elevate`
+must exist with permissions granted to the connecting user. Example setup commands:
 
-## 📝 Key Features (Learning Modules)
-
-1. **Track Management:** Manage training paths (e.g., .NET, Cyber Security, Angular).
-2. **Intern Management:** Handle student enrollments and status tracking.
-3. **Data Seeding:** Includes a `DbInitializer` with pre-configured data to test filtering and business logic.
-
----
-
-## ⚠️ Educational Note: Intentional Flaws
-
-This project contains several "Bad Practices" by design to facilitate mentor-led discussions:
-
-* **Synchronous Methods:** All DB operations are currently synchronous (`ToList`, `Find`, `SaveChanges`) to demonstrate thread-pool starvation.
-* **Direct Context Access:** Controllers originally communicated directly with the `DbContext`.
-* **Generic Repository Issues:** The repository currently returns `IQueryable`, leaking database logic into the API layer.
-* **Lack of DTOs:** The API exposes raw database entities, showcasing security and over-posting risks.
-
----
-
-## ⚙️ Getting Started
-
-1. **Clone the repository.**
-2. **Configure Database:** Update the connection string in `appsettings.json`.
-3. **Run Migrations:**
-```powershell
-Add-Migration InitialCreate
-Update-Database
-
+```bash
+rabbitmqctl add_vhost Elevate
+rabbitmqctl set_permissions -p Elevate <your-user> ".*" ".*" ".*"
 ```
 
+Credentials are NOT committed to Git. Supply them with user-secrets:
 
-4. **Run Project:** Press `F5` to launch the API and explore via Swagger.
+```bash
+dotnet user-secrets init
+dotnet user-secrets set "RabbitMQ:Username" "your-rabbitmq-username"
+dotnet user-secrets set "RabbitMQ:Password" "your-rabbitmq-password"
+```
 
----
+Apply the migration before running the app:
 
-## 👨‍🏫 Mentorship
+```bash
+dotnet ef database update
+```
 
-This project is maintained by **Amr Mohamed** . The goal is to evolve this code from a "Dirty" state to a "Clean Architecture" state throughout the bootcamp.
+The **EF Core Transactional Bus Outbox** (R22) is configured with `AddEntityFrameworkOutbox<AppDbContext>`.
+When `Publish` is called inside `UnitOfWork.ExecuteAsync`, MassTransit writes the serialized
+message to the `OutboxMessage` table in the same SQL transaction. If the DB transaction rolls
+back, the message row is also gone — no spurious event is ever sent. After a successful commit,
+MassTransit's background delivery service picks up the row and forwards it to RabbitMQ.
+This means a RabbitMQ outage does not require rolling back a committed transfer; the row stays
+in the outbox until the broker is reachable.
 
+**Fanout pattern (R18):** Two separate receive endpoints consume the same `EnrollmentTransferred`
+event independently:
+- `lms-enrollment-refund-queue` → `RefundConsumer`
+- `lms-enrollment-notification-queue` → `NotificationConsumer`
+
+## Retry strategy
+
+`RefundConsumer` has an interval retry configured on its receive endpoint:
+
+```
+e.UseMessageRetry(r => r.Interval(retryCount, TimeSpan.FromSeconds(intervalSeconds)));
+```
+
+Defaults (from `appsettings.json`): 3 retries, 5-second interval.
+Values are configurable via `Messaging:Retry:RetryCount` and `Messaging:Retry:IntervalSeconds`.
+
+To test retry behavior, set `Messaging:Testing:RefundConsumerFailures` to a positive integer.
+The consumer will throw an injected exception for the first N deliveries, exercising the retry
+path. **Default is 0** — no failures are injected in a normal run.
+
+## Why the savepoint is where it is (R25)
+
+Inside `RefundConsumer.Consume`, the UOF transaction contains two writes in sequence:
+1. `refundPaymentCommand` — marks the Payment as Refunded.
+2. `CreateRefundHistoryCommand` — records the RefundHistory row.
+
+The savepoint is placed **after step 1, before step 2**:
+
+```
+AddSavePointAsync("after-refund")   // savepoint here
+CreateRefundHistoryCommand           // step 2 -- may throw
+```
+
+If step 2 throws:
+- We call `RollbackToSavePointAsync("after-refund")` to undo any partial history write.
+- We then **rethrow** the exception — we do NOT swallow it.
+- The rethrow causes the UOF outer `catch` to roll back the entire transaction (including the
+  refund from step 1).
+- MassTransit sees the exception, applies the configured retry, and redelivers the message.
+
+This guarantees that a payment is never left in `Refunded` state without a corresponding
+`RefundHistory` row (R24), and that MassTransit retries when history creation fails (R25).

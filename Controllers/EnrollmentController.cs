@@ -60,15 +60,15 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<EndpointResponse<EnrollmentViewModel>>> Enroll(EnrollInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse<int>>> Enroll(EnrollInternViewModel vm)
         {
             var result = await _mediator.Send(new EnrollInternOrchestrator(vm.InternId, vm.TrackId));
-            if (!result.Success || result.Data == null)
+            if (!result.Success)
             {
-                return StatusCode(result.StatusCode, EndpointResponse<EnrollmentViewModel>.Fail(result.Message, result.StatusCode, result.Errors));
+                return StatusCode(result.StatusCode, EndpointResponse<int>.Fail(result.Message, result.StatusCode, result.Errors));
             }
 
-            return Ok(EndpointResponse<EnrollmentViewModel>.Created(result.Data.ToViewModel(), "Enrollment created successfully"));
+            return StatusCode(201, EndpointResponse<int>.Created(result.Data, "Enrollment created successfully"));
         }
 
         [HttpPost("{id}/cancel")]
