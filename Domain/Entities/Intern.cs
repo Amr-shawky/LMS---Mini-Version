@@ -1,6 +1,6 @@
 ﻿namespace LMS___Mini_Version.Domain.Entities
 {
-    public class Intern : baseEntity
+    public class Intern : BaseEntity
     {
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

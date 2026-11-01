@@ -5,7 +5,7 @@ namespace LMS___Mini_Version.Domain.Entities
     /// <summary>
     /// Tracks the financial transaction for a paid track enrollment.
     /// </summary>
-    public class Payment : baseEntity
+    public class Payment : BaseEntity
     {
         public int EnrollmentId { get; set; }
         public Enrollment Enrollment { get; set; } = null!;

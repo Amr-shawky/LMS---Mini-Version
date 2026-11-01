@@ -1,6 +1,6 @@
 ﻿namespace LMS___Mini_Version.Domain.Entities
 {
-    public class Track : baseEntity
+    public class Track : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public decimal Fees { get; set; }

@@ -2,7 +2,7 @@
 
 namespace LMS___Mini_Version.Domain.Repositories
 {
-    public interface IGeneralRepository<T> where T : baseEntity
+    public interface IGeneralRepository<T> where T : BaseEntity
     {
         Task<IEnumerable<T>> GetAllAsync();
 

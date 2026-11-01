@@ -6,7 +6,7 @@ namespace LMS___Mini_Version.Domain.Entities
     /// Resolves the Many-to-Many relationship between Intern and Track.
     /// Each enrollment represents a single intern joining a single track.
     /// </summary>
-    public class Enrollment  : baseEntity
+    public class Enrollment  : BaseEntity
     {
         public int InternId { get; set; }
         public Intern Intern { get; set; } = null!;
