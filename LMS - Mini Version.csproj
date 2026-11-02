@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	  <ItemGroup>
-		    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		    <PackageReference Include="MassTransit" Version="9.2.5" /><PackageReference Include="MassTransit.RabbitMQ" Version="9.2.5" /><PackageReference Include="MediatR" Version="10.0.1" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 		 
 	</ItemGroup>
 	<ItemGroup>
@@ -25,10 +25,9 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
-	  <ItemGroup>
-		    
-		    <Folder Include="Domain\Enums\" />
-		 
+	<ItemGroup>
+	  <Folder Include="Features\Enrollment\TransferEnrollment\Command\" />
 	</ItemGroup>
+
+	  
 </Project>
