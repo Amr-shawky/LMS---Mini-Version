@@ -1,6 +1,11 @@
 using exam_system.Features.Shared;
-using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
-using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
+
+using LMS___Mini_Version.Feature.enrollmentFeature.ListEnrollments;
+using LMS___Mini_Version.Feature.enrollmentFeature.GetEnrollmentById;
+using LMS___Mini_Version.Feature.enrollmentFeature.GetEnrollmentsByIntern;
+using LMS___Mini_Version.Feature.enrollmentFeature.EnrollIntern;
+using LMS___Mini_Version.Feature.enrollmentFeature.CancelEnrollment;
+using LMS___Mini_Version.Feature.enrollmentFeature.TransferEnrollment;
 using LMS___Mini_Version.Mapping;
 using LMS___Mini_Version.ViewModels.Enrollment;
 using MediatR;
@@ -60,15 +65,15 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<EndpointResponse<EnrollmentViewModel>>> Enroll(EnrollInternViewModel vm)
+        public async Task<ActionResult<EndpointResponse<int>>> Enroll(EnrollInternViewModel vm)
         {
             var result = await _mediator.Send(new EnrollInternOrchestrator(vm.InternId, vm.TrackId));
-            if (!result.Success || result.Data == null)
+            if (!result.Success)
             {
-                return StatusCode(result.StatusCode, EndpointResponse<EnrollmentViewModel>.Fail(result.Message, result.StatusCode, result.Errors));
+                return StatusCode(result.StatusCode, EndpointResponse<int>.Fail(result.Message, result.StatusCode, result.Errors));
             }
 
-            return Ok(EndpointResponse<EnrollmentViewModel>.Created(result.Data.ToViewModel(), "Enrollment created successfully"));
+            return Ok(EndpointResponse<int>.Created(result.Data, "Enrollment created successfully"));
         }
 
         [HttpPost("{id}/cancel")]

@@ -2,11 +2,10 @@ using exam_system.Features.Shared;
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
+namespace LMS___Mini_Version.Feature.enrollmentFeature.GetEnrollmentsByIntern
 {
     public class GetEnrollmentsByInternQueryHandler : IRequestHandler<GetEnrollmentsByInternQuery, RequestResponse<PaginatedResult<EnrollmentDto>>>
     {

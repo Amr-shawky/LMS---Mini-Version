@@ -1,10 +1,9 @@
-﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
+namespace LMS___Mini_Version.Feature.enrollmentFeature.EnrollIntern
 {
     public class getActiveEnrollmentCountByTrackQueryHandler : IRequestHandler<getActiveEnrollmentCountByTrackQuery, int>
     {
@@ -19,9 +18,10 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
         {
             var activeEnrollmentTrackCount = await _enrollmentrepo.GetAll()
                 .Where(e => e.TrackId == request.TrackID &&
-                e.Status == Domain.Enums.EnrollmentStatus.Active).CountAsync();
+                            e.Status == Domain.Enums.EnrollmentStatus.Active)
+                .CountAsync(cancellationToken);
 
-            return activeEnrollmentTrackCount ;
+            return activeEnrollmentTrackCount;
         }
     }
 }

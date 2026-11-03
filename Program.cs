@@ -7,7 +7,14 @@ using LMS___Mini_Version.Feature.Tracks.endpoints;
 using LMS___Mini_Version.Feature.Tracks.endpoints.test;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Feature.internFeature.endpoints;
-using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
+using LMS___Mini_Version.Feature.enrollmentFeature.ListEnrollments;
+using LMS___Mini_Version.Feature.enrollmentFeature.GetEnrollmentById;
+using LMS___Mini_Version.Feature.enrollmentFeature.GetEnrollmentsByIntern;
+using LMS___Mini_Version.Feature.enrollmentFeature.EnrollIntern;
+using LMS___Mini_Version.Feature.enrollmentFeature.CancelEnrollment;
+using LMS___Mini_Version.Feature.enrollmentFeature.TransferEnrollment;
+using LMS___Mini_Version.Feature.enrollmentFeature.Consumers;
+using MassTransit;
 using LMS___Mini_Version.Feature.paymentFeature.endpoints;
 namespace LMS___Mini_Version
 {
@@ -29,6 +36,44 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
+
+            builder.Services.AddMassTransit(x =>
+            {
+                x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                {
+                    o.UseSqlServer();
+                    o.UseBusOutbox();
+                });
+
+                x.AddConsumer<RefundConsumer>();
+                x.AddConsumer<TransferNotificationConsumer>();
+
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    var rabbitConfig = builder.Configuration.GetSection("RabbitMQ");
+                    var host = rabbitConfig["Host"] ?? "localhost";
+                    var username = rabbitConfig["Username"] ?? "guest";
+                    var password = rabbitConfig["Password"] ?? "guest";
+
+                    cfg.Host(host, "Elevate", h =>
+                    {
+                        h.Username(username);
+                        h.Password(password);
+                    });
+
+                    cfg.ReceiveEndpoint("transfer-refund-queue", e =>
+                    {
+                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(2)));
+                        e.ConfigureConsumer<RefundConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint("transfer-notification-queue", e =>
+                    {
+                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(2)));
+                        e.ConfigureConsumer<TransferNotificationConsumer>(context);
+                    });
+                });
+            });
 
 
             var app = builder.Build();
@@ -72,9 +117,15 @@ namespace LMS___Mini_Version
 
             // ─── Enrollment Minimal API v2 Endpoints ───────────────────
             // Remaining Enrollment v2 endpoint (outside the assignment scope).
+            app.MapGetAllEnrollmentsEndpoint();
+            app.MapGetEnrollmentByIdEndpoint();
             app.MapGetEnrollmentsByInternEndpoint();
+            app.MapEnrollInternEndpoint();
+            app.MapCancelEnrollmentEndpoint();
+            app.MapTransferEnrollmentEndpoint();
 
-            app.MapGet("api/v4/test", async (IMediator mediator) => {
+            app.MapGet("api/v4/test", async (IMediator mediator) =>
+            {
 
                 var tracks = await mediator.Send(new GetAllTrackQuery());
                 return tracks;
