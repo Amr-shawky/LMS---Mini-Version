@@ -12,6 +12,7 @@ using LMS___Mini_Version.Feature.paymentFeature.endpoints;
 using MassTransit;
 using LMS___Mini_Version.Feature.enrollmentFeature.Consumers;
 using System.Security.Cryptography;
+using LMS___Mini_Version.Messages;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -39,6 +40,19 @@ namespace LMS___Mini_Version
                 });
                 x.UsingRabbitMq((context, cfg) =>
                 {
+                    // CHANGE: Configure the refund event to use the Direct Exchange.
+                    cfg.Message<EnrollmentTransferred>(m=>
+                    m.SetEntityName("enrollment-refund-exchange"));
+
+                    // CHANGE: Set the refund routing key.
+                    cfg.Publish<EnrollmentTransferred>(p =>
+                    {
+                        p.ExchangeType = "direct";
+                    });
+
+                    cfg.Send<EnrollmentTransferred>(s=>
+                    s.UseRoutingKeyFormatter(_=> "enrollment.refund"));
+
                     cfg.Host("localhost", "Elevate", h =>
                     {
                         h.Username("guest");
@@ -46,13 +60,27 @@ namespace LMS___Mini_Version
                     });
                     cfg.ReceiveEndpoint("enrollment-refund-queue", e =>
                     {
+                        e.ConfigureConsumeTopology = false;
                         e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
                         e.ConfigureConsumer<EnrollmentTransferredRefundConsumer>(context);
+                        e.Bind("enrollment-refund-exchange", s =>
+                        {
+                            s.RoutingKey = "enrollment.refund";
+                            s.ExchangeType = "direct";
+                        }); 
                     });
 
                     cfg.ReceiveEndpoint("enrollment-notification-queue", e =>
                     {
-                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                        // CHANGE: Disable automatic message topology binding.
+                        e.ConfigureConsumeTopology = false; 
+                        e.UseMessageRetry(r=>r.Interval(3, TimeSpan.FromSeconds(5)));
+                        // CHANGE: Bind notification queue to the Direct Exchange.
+                        e.Bind("enrollment-notification-exchange", s =>
+                        {
+                            s.RoutingKey = "enrollment.notification";
+                            s.ExchangeType = "direct";
+                        });
                         e.ConfigureConsumer<EnrollmentTransferredNotificationConsumer>(context);
                     });
                 });
