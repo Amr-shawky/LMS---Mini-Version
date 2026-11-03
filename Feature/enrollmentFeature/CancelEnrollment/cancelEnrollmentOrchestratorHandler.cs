@@ -1,12 +1,10 @@
 using exam_system.Features.Shared;
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
-using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
-using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
+using LMS___Mini_Version.Feature.enrollmentFeature.GetEnrollmentById;
 using MediatR;
 
-namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
+namespace LMS___Mini_Version.Feature.enrollmentFeature.CancelEnrollment
 {
     public class cancelEnrollmentOrchestratorHandler : IRequestHandler<cancelEnrollmentOrchestrator, RequestResponse>
     {
@@ -21,7 +19,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 
         public async Task<RequestResponse> Handle(cancelEnrollmentOrchestrator request, CancellationToken cancellationToken)
         {
-            // step 1 check if enrollment exists
+            // Step 1: Check if enrollment exists
             var enrollmentResponse = await _mediator.Send(new GetEnrollmentByIdQuery(request.enrollmentID), cancellationToken);
 
             if (!enrollmentResponse.Success || enrollmentResponse.Data == null)
@@ -36,11 +34,24 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
                 return RequestResponse.Fail("Enrollment is already cancelled", 400);
             }
 
-            // step 2 & 3 execute updates within transaction
+            // Step 2: Execute updates atomically within UnitOfWork transaction
             await _unitOfWork.ExecuteAsync(async () =>
             {
+                // 2a. Update enrollment status to Cancelled
                 await _mediator.Send(new updateEnrollmentStatusCommand(request.enrollmentID, EnrollmentStatus.Cancelled), cancellationToken);
-                await _mediator.Send(new refundPaymentCommand(request.enrollmentID), cancellationToken);
+
+                // 2b. Process refund if eligible (PaymentStatus == Completed)
+                var refundResponse = await _mediator.Send(new refundPaymentCommand(request.enrollmentID), cancellationToken);
+
+                // 2c. Record RefundHistory if an eligible payment was refunded
+                if (refundResponse.Success && refundResponse.Data != null && refundResponse.Data.IsEligible)
+                {
+                    await _mediator.Send(new CreateRefundHistoryCommand(
+                        refundResponse.Data.PaymentId,
+                        request.enrollmentID,
+                        refundResponse.Data.PreviousStatus,
+                        PaymentStatus.Refunded), cancellationToken);
+                }
             });
 
             return RequestResponse.Ok("Enrollment cancelled successfully");

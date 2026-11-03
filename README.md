@@ -67,3 +67,44 @@ Update-Database
 
 This project is maintained by **Amr Mohamed** . The goal is to evolve this code from a "Dirty" state to a "Clean Architecture" state throughout the bootcamp.
 
+
+
+---
+
+## 🚀 Assignment Refactoring & Messaging Summary
+
+### 1. Architectural Refactoring (Vertical Slicing / Feature-First)
+The Enrollment module was refactored from horizontal folders (`Commands`, `Handlers`, `Queries`) into feature-first vertical slices under `Feature/enrollmentFeature/`:
+- **`ListEnrollments/`**: `GET /api/Enrollment/v2` — Paginated DTO query returning `EndpointResponse<PaginatedResult<EnrollmentViewModel>>`.
+- **`GetEnrollmentById/`**: `GET /api/Enrollment/v2/{id}` — Single-record DTO query returning `EndpointResponse<EnrollmentViewModel>`.
+- **`GetEnrollmentsByIntern/`**: `GET /api/Enrollment/v2/intern/{internId}` — Preserved outside endpoint returning paginated DTOs.
+- **`EnrollIntern/`**: `POST /api/Enrollment/v2` — Coordinates intern, track, duplicate, and capacity validation via MediatR; atomically creates Enrollment and Payment via `IUnitOfWork.ExecuteAsync()`; returns created ID `EndpointResponse<int>.Created(enrollmentId)`.
+- **`CancelEnrollment/`**: `POST /api/Enrollment/v2/{id}/cancel` — Validates state, cancels enrollment, checks refund eligibility (`PaymentStatus.Completed`), refunds payment, and logs `RefundHistory` synchronously inside UOF transaction.
+- **`TransferEnrollment/`**: `POST /api/Enrollment/v2/{id}/transfer/{newTrackId}` — Validates enrollment and destination track; updates track via `SaveInclude`; atomically writes outbox event within the same SQL transaction.
+- **`Consumers/`**: MassTransit RabbitMQ consumers for Fanout messaging.
+
+### 2. SaveInclude Implementation
+Implemented `GeneralRepository<T>.SaveInclude(T entity, params string[] Includedproperties)` using selective EF Core property tracking (`entry.Property(p).IsModified = true` for specified scalar fields only). Applied to `updateEnrollmentTrackCommandHandler` (and restores `UpdateTrackCommand`), preventing redundant `SELECT` queries and full-entity overwrites.
+
+### 3. Messaging & Transactional EF Core Bus Outbox Setup
+- **Broker & Virtual Host**: Integrated MassTransit v8 with RabbitMQ connecting strictly to the virtual host **`Elevate`**.
+- **EF Core Transactional Bus Outbox**: Configured `AddEntityFrameworkOutbox<AppDbContext>` with `UseBusOutbox()`. When `TransferEnrollmentOrchestratorHandler` publishes `EnrollmentTransferredEvent`, the event record is saved in SQL Server (`OutboxMessage` table) within the same database transaction as the enrollment update.
+- **Fanout Topology**: The `EnrollmentTransferredEvent` exchange broadcasts to two independent receive endpoints/queues:
+  - `transfer-refund-queue` $\rightarrow$ `RefundConsumer`
+  - `transfer-notification-queue` $\rightarrow$ `TransferNotificationConsumer`
+  Neither consumer competes for messages on the same queue.
+
+### 4. Retry Strategy
+Configured an **Interval retry strategy** on consumer endpoints:
+```csharp
+e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(2)));
+```
+Transient failures (e.g. database locks, network timeouts) are automatically retried 3 times with a 2-second interval before faulting.
+
+### 5. RefundHistory, UOF, and Savepoint Location
+- **`RefundHistory`**: Created domain entity inheriting `baseEntity` with fields `PaymentId`, `EnrollmentId`, `PreviousStatus`, `NewStatus`, `CreatedAt`.
+- **Savepoint Location & Rationale**: Inside `RefundConsumer.cs`, a real savepoint `BeforeRefundHistory` is established after the payment refund command and before writing the `RefundHistory` record:
+  ```csharp
+  await _unitOfWork.AddSavePointAsync("BeforeRefundHistory");
+  ```
+  If creating `RefundHistory` fails, the consumer rolls back to the savepoint and rethrows the exception, ensuring the entire consumer transaction rolls back atomically without partial writes, allowing MassTransit retry policy to kick in.
