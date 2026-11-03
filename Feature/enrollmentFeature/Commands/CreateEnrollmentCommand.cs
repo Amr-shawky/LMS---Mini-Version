@@ -2,14 +2,14 @@ using exam_system.Features.Shared;
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.DTOs;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
 {
-    public record CreateEnrollmentCommand(int InternId, int TrackId) : IRequest<RequestResponse<EnrollmentDto>>;
+    public record CreateEnrollmentCommand(int InternId, int TrackId) : IRequest<RequestResponse<int>>;
 
-    public class CreateEnrollmentCommandHandler : IRequestHandler<CreateEnrollmentCommand, RequestResponse<EnrollmentDto>>
+    public class CreateEnrollmentCommandHandler : IRequestHandler<CreateEnrollmentCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentRepository;
 
@@ -18,8 +18,16 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
             _enrollmentRepository = enrollmentRepository;
         }
 
-        public async Task<RequestResponse<EnrollmentDto>> Handle(CreateEnrollmentCommand request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<int>> Handle(CreateEnrollmentCommand request, CancellationToken cancellationToken)
         {
+            var duplicate = await _enrollmentRepository.GetAll()
+                .AnyAsync(e => e.InternId == request.InternId && e.TrackId == request.TrackId && e.Status != EnrollmentStatus.Cancelled, cancellationToken);
+
+            if (duplicate)
+            {
+                return RequestResponse<int>.Fail("The intern is already enrolled in this track.", 400);
+            }
+
             var enrollment = new Enrollment
             {
                 InternId = request.InternId,
@@ -31,16 +39,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
             _enrollmentRepository.Add(enrollment);
             await _enrollmentRepository.SaveChangesAsync();
 
-            var dto = new EnrollmentDto
-            {
-                Id = enrollment.Id,
-                InternId = enrollment.InternId,
-                TrackId = enrollment.TrackId,
-                EnrollmentDate = enrollment.EnrollmentDate,
-                Status = enrollment.Status
-            };
-
-            return RequestResponse<EnrollmentDto>.Created(dto);
+            return RequestResponse<int>.Created(enrollment.Id);
         }
     }
 }

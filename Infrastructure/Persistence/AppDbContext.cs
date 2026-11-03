@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -13,10 +14,15 @@ namespace LMS___Mini_Version.Persistence
         public DbSet<Intern> Interns { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<RefundHistory> RefundHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
 
             // Enrollment → Intern (many-to-one)
             modelBuilder.Entity<Enrollment>()
@@ -39,6 +45,18 @@ namespace LMS___Mini_Version.Persistence
                 .HasForeignKey<Payment>(p => p.EnrollmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<RefundHistory>()
+                .HasOne(h => h.Payment)
+                .WithMany(p => p.RefundHistories)
+                .HasForeignKey(h => h.PaymentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RefundHistory>()
+                .HasOne(h => h.Enrollment)
+                .WithMany()
+                .HasForeignKey(h => h.EnrollmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Store enums as strings for readability in the DB
             modelBuilder.Entity<Enrollment>()
                 .Property(e => e.Status)
@@ -50,6 +68,14 @@ namespace LMS___Mini_Version.Persistence
 
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<RefundHistory>()
+                .Property(h => h.PreviousStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<RefundHistory>()
+                .Property(h => h.NewStatus)
                 .HasConversion<string>();
 
             // Decimal precision for fees and amounts

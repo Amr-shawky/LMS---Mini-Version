@@ -14,5 +14,6 @@ namespace LMS___Mini_Version.Domain.Entities
         public DateTime PaymentDate { get; set; }
         public PaymentMethod Method { get; set; }
         public PaymentStatus Status { get; set; }
+        public ICollection<RefundHistory> RefundHistories { get; set; } = new List<RefundHistory>();
     }
 }
