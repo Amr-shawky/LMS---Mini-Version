@@ -9,6 +9,9 @@ using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Feature.internFeature.endpoints;
 using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
 using LMS___Mini_Version.Feature.paymentFeature.endpoints;
+using MassTransit;
+using LMS___Mini_Version.Feature.enrollmentFeature.Consumers;
+using System.Security.Cryptography;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -24,6 +27,36 @@ namespace LMS___Mini_Version
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
+            builder.Services.AddMassTransit(x =>
+            {
+                x.AddConsumer<EnrollmentTransferredRefundConsumer>();
+                x.AddConsumer<EnrollmentTransferredNotificationConsumer>();
+
+                x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                {
+                    o.UseSqlServer();
+                    o.UseBusOutbox();
+                });
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host("localhost", "Elevate", h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+                    cfg.ReceiveEndpoint("enrollment-refund-queue", e =>
+                    {
+                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                        e.ConfigureConsumer<EnrollmentTransferredRefundConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint("enrollment-notification-queue", e =>
+                    {
+                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                        e.ConfigureConsumer<EnrollmentTransferredNotificationConsumer>(context);
+                    });
+                });
+            });
 
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -63,6 +96,7 @@ namespace LMS___Mini_Version
             app.MapGetEnrollmentByIdEndpoint();
             app.MapCreateEnrollmentEndpoint();
             app.MapCancelEnrollmentEndpoint();
+            app.MapTransferEnrollmentEndpoint();
 
             // ─── Intern Minimal API v2 Endpoints ───────────────────────
             app.MapGetAllInternsEndpoint();

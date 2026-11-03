@@ -24,6 +24,9 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
                 return RequestResponse<int?>.Ok(null);
   
             payment.Status = PaymentStatus.Refunded;
+            _paymentRepo.SaveInclude(payment, nameof(Payment.Status));
+
+            await _paymentRepo.SaveChangesAsync(cancellationToken);
 
             return RequestResponse<int?>.Ok(payment.Id,"Refund the payment.");            
         }

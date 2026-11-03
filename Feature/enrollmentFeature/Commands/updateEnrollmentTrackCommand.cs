@@ -2,6 +2,5 @@
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
 {
-    public record updateEnrollmentTrackCommand(int EnrollmentID, int TrackID) : IRequest;
-    
+    public record UpdateEnrollmentTrackCommand(int EnrollmentId, int TrackId) : IRequest<Unit>;
 }

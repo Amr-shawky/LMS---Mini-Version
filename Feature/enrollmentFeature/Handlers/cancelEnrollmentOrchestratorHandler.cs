@@ -25,9 +25,8 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             var enrollmentResponse = await _mediator.Send(new GetEnrollmentByIdQuery(request.enrollmentID), cancellationToken);
 
             if (!enrollmentResponse.Success || enrollmentResponse.Data == null)
-            {
                 return RequestResponse.Fail($"Enrollment not found {request.enrollmentID}", 404);
-            }
+            
 
             var enrollment = enrollmentResponse.Data;
            
@@ -39,7 +38,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             // step 2 & 3 execute updates within transaction
             await _unitOfWork.ExecuteAsync(async ct =>
             {
-                await _mediator.Send(new updateEnrollmentStatusCommand(request.enrollmentID, EnrollmentStatus.Cancelled), ct);
+                await _mediator.Send(new UpdateEnrollmentStatusCommand(request.enrollmentID, EnrollmentStatus.Cancelled), ct);
                 var refundResponse = await _mediator.Send(new refundPaymentCommand(request.enrollmentID), ct);
                 if (!refundResponse.Success)
                     throw new InvalidOperationException(refundResponse.Message);

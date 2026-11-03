@@ -4,6 +4,7 @@ using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.DTOs;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Feature.Tracks.Handlers
 {
@@ -18,6 +19,13 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
         public async Task<RequestResponse<TrackDto>> Handle(GetByIdTrackQuery request, CancellationToken cancellationToken)
         {
             var track = await _trackRepository.GetByIdAsync(request.Id);
+            if(track == null)
+                return RequestResponse<TrackDto>.Fail($"Track with ID {request.Id} not found", 404);
+
+            var currentenrollmentCount = await _trackRepository.GetAll()
+                .Where(t => t.Id == request.Id)
+                .Select(t => t.Enrollments.Count)
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (track == null)
                 return RequestResponse<TrackDto>.Fail($"Track with ID {request.Id} not found", 404);
@@ -29,7 +37,7 @@ namespace LMS___Mini_Version.Feature.Tracks.Handlers
                 Fees = track.Fees,
                 IsActive = track.IsActive,
                 MaxCapacity = track.MaxCapacity,
-                CurrentEnrollmentCount = track.Enrollments?.Count ?? 0
+                CurrentEnrollmentCount = currentenrollmentCount
             };
 
             return RequestResponse<TrackDto>.Ok(dto);

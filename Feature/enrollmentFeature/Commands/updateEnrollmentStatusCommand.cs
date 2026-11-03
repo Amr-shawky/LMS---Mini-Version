@@ -2,7 +2,7 @@
 using MediatR;
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Commands
 {
-    public record updateEnrollmentStatusCommand(int enrollmentId , EnrollmentStatus
+    public record UpdateEnrollmentStatusCommand(int enrollmentId , EnrollmentStatus
 Status ) :IRequest;
     
 }

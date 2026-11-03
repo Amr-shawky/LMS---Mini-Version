@@ -5,26 +5,28 @@ using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using MediatR;
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
 {
-    public class updateEnrollmentStatusCommandHandler : IRequestHandler<updateEnrollmentStatusCommand>
+    public class UpdateEnrollmentStatusCommandHandler : IRequestHandler<UpdateEnrollmentStatusCommand>
     {
         private readonly IGeneralRepository<Enrollment> _enrollmentrepo;
         
-        public updateEnrollmentStatusCommandHandler(IGeneralRepository<Enrollment> enrollmentrepo) 
+        public UpdateEnrollmentStatusCommandHandler(IGeneralRepository<Enrollment> enrollmentrepo) 
         {
             _enrollmentrepo = enrollmentrepo;
         }
-        public async Task<Unit> Handle(updateEnrollmentStatusCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateEnrollmentStatusCommand request, CancellationToken cancellationToken)
         {
 
-            Enrollment enrollmententity =await _enrollmentrepo.GetByIdAsync(request.enrollmentId);
+            var enrollmententity = await _enrollmentrepo.GetByIdAsync(request.enrollmentId);
 
             if (enrollmententity == null)
             {
-                throw new KeyNotFoundException($"Enrollment {request.enrollmentId} not found.");
+                throw new KeyNotFoundException($"Enrollment with ID {request.enrollmentId} not found.");
             }
             
             enrollmententity.Status = request.Status;
-            _enrollmentrepo.Update(enrollmententity);
+
+            _enrollmentrepo.SaveInclude(enrollmententity, nameof(Enrollment.Status));
+
             await _enrollmentrepo.SaveChangesAsync(cancellationToken);
             
             return Unit.Value;

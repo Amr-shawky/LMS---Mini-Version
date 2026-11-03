@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -18,7 +19,7 @@ namespace LMS___Mini_Version.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.AddTransactionalOutboxEntities();
             // Enrollment → Intern (many-to-one)
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.Intern)

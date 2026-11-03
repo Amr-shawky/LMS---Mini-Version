@@ -1,5 +1,6 @@
 ﻿using exam_system.Features.Shared;
 using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
 using MediatR;
@@ -19,7 +20,9 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             {
                 EnrollmentId = request.EnrollmentId,
                 PaymentId = request.PaymentId,
-                CreateAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                PreviousStatus = PaymentStatus.Completed,
+                NewStatus= PaymentStatus.Refunded
             };
 
             _refundPaymentRepo.Add(refund);

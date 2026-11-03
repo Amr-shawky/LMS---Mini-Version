@@ -4,8 +4,9 @@ namespace LMS___Mini_Version.Domain.Entities
 {
     public class RefundHistory:baseEntity
     {
-        public DateTime CreateAt { get; set; }
-
+        public DateTime CreatedAt { get; set; }
+        public PaymentStatus PreviousStatus { get; set; }
+        public PaymentStatus NewStatus { get; set; }
         public int EnrollmentId { get; set; }
         public Enrollment Enrollment { get; set; } = null!;
 

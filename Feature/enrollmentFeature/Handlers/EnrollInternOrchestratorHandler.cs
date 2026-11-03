@@ -36,23 +36,20 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
             if (!trackResponse.Success || trackResponse.Data == null)
                 return RequestResponse<int>.Fail($"Track with ID {request.TrackId} was not found.", 404);
             
-
             var track = trackResponse.Data;
             if (!track.IsActive)
                 return RequestResponse<int>.Fail($"Track '{track.Name}' is not currently active.", 400);
-          
+
+            if (track.CurrentEnrollmentCount >= track.MaxCapacity)
+                return RequestResponse<int>.Fail($"Track '{track.Name}' has reached its maximum capacity.", 400);
+
             var existingEnrollmentResponse = await _mediator.Send(new GetEnrollmentByInternAndTrackQuery(request.InternId, request.TrackId), cancellationToken);
-            if (existingEnrollmentResponse.Success == false)
+            if (!existingEnrollmentResponse.Success)
                 return RequestResponse<int>.Fail("Failed to verify existing enrollment.", 500);
 
             if (existingEnrollmentResponse.Data )
                 return RequestResponse<int>.Fail($"Intern with ID {request.InternId} is already enrolled in track '{track.Name}'.", 400);
-            
-            // Step 3: Check track capacity
-            var activeCount = await _mediator.Send(new getActiveEnrollmentCountByTrackQuery(request.TrackId), cancellationToken);
-            if (activeCount >= track.MaxCapacity)
-                return RequestResponse<int>.Fail($"Track '{track.Name}' has reached its maximum capacity.", 400);
-            
+                        
 
             int enrollmentId = 0;
 
