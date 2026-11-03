@@ -19,7 +19,7 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
         {
             var activeEnrollmentTrackCount = await _enrollmentrepo.GetAll()
                 .Where(e => e.TrackId == request.TrackID &&
-                e.Status == Domain.Enums.EnrollmentStatus.Active).CountAsync();
+                e.Status == Domain.Enums.EnrollmentStatus.Active).CountAsync(cancellationToken);
 
             return activeEnrollmentTrackCount ;
         }

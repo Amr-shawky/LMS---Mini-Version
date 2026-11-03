@@ -32,7 +32,13 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
         public void SaveInclude(T entity, params string[] Includedproperties)
         {
-            throw new NotImplementedException();
+            var entry = _context.Entry(entity);
+            entry.State = EntityState.Unchanged;
+
+            foreach (var property in Includedproperties)
+            {
+                entry.Property(property).IsModified = true;
+            }
         }
 
         public async Task<int> SaveChangesAsync()

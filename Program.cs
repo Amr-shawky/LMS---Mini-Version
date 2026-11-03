@@ -4,11 +4,12 @@ using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 using LMS___Mini_Version.Feature.Tracks.endpoints;
-using LMS___Mini_Version.Feature.Tracks.endpoints.test;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Feature.internFeature.endpoints;
 using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
 using LMS___Mini_Version.Feature.paymentFeature.endpoints;
+using LMS___Mini_Version.Feature.enrollmentFeature.Consumers;
+using MassTransit;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -23,6 +24,40 @@ namespace LMS___Mini_Version
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+
+            builder.Services.AddMassTransit(x =>
+            {
+                x.AddConsumer<TransferRefundConsumer>();
+                x.AddConsumer<TransferNotificationConsumer>();
+                x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                {
+                    o.UseSqlServer();
+                    o.UseBusOutbox();
+                });
+
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    var host = builder.Configuration["RabbitMQ:localhost"];
+                    var user = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+                    var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+                    cfg.Host(host, "Elevate", h =>
+                    {
+                        h.Username(user);
+                        h.Password(password);
+                    });
+
+                    cfg.ReceiveEndpoint("enrollment-transfer-refunds", e =>
+                    {
+                        e.ConfigureConsumer<TransferRefundConsumer>(context);
+                        e.UseMessageRetry(r => r.Immediate(3));
+                    });
+                    cfg.ReceiveEndpoint("enrollment-transfer-notifications", e =>
+                    {
+                        e.ConfigureConsumer<TransferNotificationConsumer>(context);
+                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(2)));
+                    });
+                });
+            });
 
 
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
@@ -73,6 +108,7 @@ namespace LMS___Mini_Version
             // ─── Enrollment Minimal API v2 Endpoints ───────────────────
             // Remaining Enrollment v2 endpoint (outside the assignment scope).
             app.MapGetEnrollmentsByInternEndpoint();
+            app.MapEnrollmentV2Endpoints();
 
             app.MapGet("api/v4/test", async (IMediator mediator) => {
 
