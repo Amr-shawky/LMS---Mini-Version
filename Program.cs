@@ -27,7 +27,7 @@ namespace LMS___Mini_Version
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
-
+           
             builder.Services.AddMassTransit(x =>
             {
                 x.AddConsumer<EnrollmentTransferredRefundConsumer>();
@@ -38,50 +38,61 @@ namespace LMS___Mini_Version
                     o.UseSqlServer();
                     o.UseBusOutbox();
                 });
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    // CHANGE: Configure the refund event to use the Direct Exchange.
-                    cfg.Message<EnrollmentTransferred>(m=>
-                    m.SetEntityName("enrollment-refund-exchange"));
+                    // Creates/configures the message exchange named "enrollment-refund-exchange".
+                    // This replaces the default exchange name generated from the message namespace.
+                    cfg.Message<EnrollmentTransferred>(m =>
+                        m.SetEntityName("enrollment-refund-exchange"));
 
-                    // CHANGE: Set the refund routing key.
+                    // Sets the exchange type to Direct instead of the default Fanout.
                     cfg.Publish<EnrollmentTransferred>(p =>
                     {
                         p.ExchangeType = "direct";
                     });
 
-                    cfg.Send<EnrollmentTransferred>(s=>
-                    s.UseRoutingKeyFormatter(_=> "enrollment.refund"));
+                    // Sets the routing key used when sending/publishing this message.
+                    cfg.Send<EnrollmentTransferred>(s =>
+                        s.UseRoutingKeyFormatter(_ => "enrollment.refund"));
 
                     cfg.Host("localhost", "Elevate", h =>
                     {
                         h.Username("guest");
                         h.Password("guest");
                     });
+
+                    // Creates the refund queue named "enrollment-refund-queue".
+                    // Configures it to receive EnrollmentTransferred messages.
                     cfg.ReceiveEndpoint("enrollment-refund-queue", e =>
                     {
                         e.ConfigureConsumeTopology = false;
                         e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
                         e.ConfigureConsumer<EnrollmentTransferredRefundConsumer>(context);
+
+                        // Creates a binding between the Direct Exchange and the refund queue.
+                        // The queue receives messages only when the routing key matches.
                         e.Bind("enrollment-refund-exchange", s =>
                         {
                             s.RoutingKey = "enrollment.refund";
                             s.ExchangeType = "direct";
-                        }); 
+                        });
                     });
 
+                    // Creates the notification queue named "enrollment-notification-queue".
+                    // Configures it to receive EnrollmentTransferred messages.
                     cfg.ReceiveEndpoint("enrollment-notification-queue", e =>
                     {
-                        // CHANGE: Disable automatic message topology binding.
-                        e.ConfigureConsumeTopology = false; 
-                        e.UseMessageRetry(r=>r.Interval(3, TimeSpan.FromSeconds(5)));
-                        // CHANGE: Bind notification queue to the Direct Exchange.
-                        e.Bind("enrollment-notification-exchange", s =>
+                        e.ConfigureConsumeTopology = false;
+                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                        e.ConfigureConsumer<EnrollmentTransferredNotificationConsumer>(context);
+
+                        // Creates a binding between the Direct Exchange and the notification queue.
+                        e.Bind("enrollment-refund-exchange", s =>
                         {
-                            s.RoutingKey = "enrollment.notification";
+                            s.RoutingKey = "enrollment.refund";
                             s.ExchangeType = "direct";
                         });
-                        e.ConfigureConsumer<EnrollmentTransferredNotificationConsumer>(context);
                     });
                 });
             });
