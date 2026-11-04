@@ -1,7 +1,4 @@
-using LMS___Mini_Version.DTOs;
-using LMS___Mini_Version.Mediators;
-using LMS___Mini_Version.Services.Interfaces;
-using LMS___Mini_Version.ViewModels.Enrollment;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -12,118 +9,49 @@ namespace LMS___Mini_Version.Controllers
     public class EnrollmentController : ControllerBase
     {
 
-        private readonly IEnrollmentService _enrollmentService;
-        private readonly EnrollInternMediator _enrollMediator;
-        private readonly CancelEnrollmentMediator _cancelMediator;
-        private readonly TransferEnrollmentMediator _transferMediator;
-
-        public EnrollmentController(
-            IEnrollmentService enrollmentService,
-            EnrollInternMediator enrollMediator,
-            CancelEnrollmentMediator cancelMediator,
-            TransferEnrollmentMediator transferMediator
-            )
+       
+        public EnrollmentController()
         {
-            _enrollmentService = enrollmentService;
-            _enrollMediator = enrollMediator;
-            _cancelMediator = cancelMediator;
-            _transferMediator = transferMediator;
+          
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetAll()
-        {
-            var dtos = await _enrollmentService.GetAllAsync();
-            var viewModels = dtos.Select(d => new EnrollmentViewModel
-            {
-                Id = d.Id,
-                InternName = d.InternName,
-                TrackName = d.TrackName,
-                EnrollmentDate = d.EnrollmentDate,
-                Status = d.Status.ToString()
-            });
-            return Ok(viewModels);
-        }
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<>>> GetAll()
+        //{
+            
+        //}
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EnrollmentViewModel>> GetById(int id)
-        {
-            var dto = await _enrollmentService.GetByIdAsync(id);
-            if (dto == null) return NotFound();
-            return Ok(new EnrollmentViewModel
-            {
-                Id = dto.Id,
-                InternName = dto.InternName,
-                TrackName = dto.TrackName,
-                EnrollmentDate = dto.EnrollmentDate,
-                Status = dto.Status.ToString()
-            });
-        }
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<>> GetById(int id)
+        //{
+           
+        //}
 
-        [HttpGet("intern/{internId}")]
-        public async Task<ActionResult<IEnumerable<EnrollmentViewModel>>> GetByIntern(int internId)
-        {
-            var dtos = await _enrollmentService.GetByInternAsync(internId);
-            var viewModels = dtos.Select(d => new EnrollmentViewModel
-            {
-                Id = d.Id,
-                InternName = d.InternName,
-                TrackName = d.TrackName,
-                EnrollmentDate = d.EnrollmentDate,
-                Status = d.Status.ToString()
-            });
-            return Ok(viewModels);
-        }
+        //[HttpGet("intern/{internId}")]
+        //public async Task<ActionResult<IEnumerable<>>> GetByIntern()
+        //{
+           
+        //}
 
-        [HttpPost]
-        public async Task<ActionResult<EnrollmentViewModel>> Enroll(EnrollInternViewModel vm)
-        {
-            var result = await _enrollMediator.ExecuteAsync(new CreateEnrollmentDto
-            {
-                InternId = vm.InternId,
-                TrackId = vm.TrackId
-            });
+        //[HttpPost]
+        //public async Task<ActionResult<>> Enroll( )
+        //{
+            
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.ErrorMessage });
-            }
+           
+           
+        //}
 
-            var created = result.Enrollment!;
-            return Ok(new EnrollmentViewModel
-            {
-                Id = created.Id,
-                InternName = created.InternName,
-                TrackName = created.TrackName,
-                EnrollmentDate = created.EnrollmentDate,
-                Status = created.Status.ToString()
-            });
-        }
+        //[HttpPost("{id}/cancel")]
+        //public async Task<ActionResult> Cancel()
+        //{
+            
+        //}
 
-        [HttpPost("{id}/cancel")]
-        public async Task<ActionResult> Cancel(int id)
-        {
-            var result = await _cancelMediator.ExecuteAsync(id);
-
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
-        }
-
-        [HttpPost("{id}/transfer/{newTrackId}")]
-        public async Task<ActionResult> Transfer(int id, int newTrackId)
-        {
-            var result = await _transferMediator.ExecuteAsync(id, newTrackId);
-
-            if (!result.IsSuccess)
-            {
-                return BadRequest(new { error = result.Message });
-            }
-
-            return Ok(new { message = result.Message });
-        }
+        //[HttpPost("{id}/transfer/{newTrackId}")]
+        //public async Task<ActionResult> Transfer()
+        //{
+            
+        //}
     }
 }
