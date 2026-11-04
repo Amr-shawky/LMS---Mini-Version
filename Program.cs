@@ -11,6 +11,8 @@ using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
 using LMS___Mini_Version.Feature.paymentFeature.endpoints;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using LMS___Mini_Version.Feature;
+using MassTransit;
 
 namespace LMS___Mini_Version;
 
@@ -29,6 +31,8 @@ public class Program
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddMediatR(typeof(Program).Assembly);
         builder.Services.AddEnrollmentMessaging(builder.Configuration);
+
+
 
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())
@@ -56,6 +60,8 @@ public class Program
         app.MapEnrollmentAssignmentEndpoints();
         app.MapGet("api/v4/test", async (IMediator mediator) => await mediator.Send(new GetAllTrackQuery()));
         app.MapUpdateTrackEndpoint();
+        app.maptestendpoint();
+      
         app.Run();
     }
 }
