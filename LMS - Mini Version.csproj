@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	  <ItemGroup>
-		    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		    <PackageReference Include="MediatR" Version="10.0.1" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 		 
 	</ItemGroup>
 	<ItemGroup>
@@ -28,7 +28,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" />
+		    <Folder Include="Domain\Enums\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" />
 		 
 	</ItemGroup>
 </Project>
