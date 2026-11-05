@@ -1,6 +1,7 @@
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Persistence;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 namespace LMS___Mini_Version
 {
@@ -20,8 +21,9 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            builder.Services.AddMediatR(typeof(Program).Assembly);
 
-
+            //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())

@@ -14,16 +14,6 @@ namespace LMS___Mini_Version.Controllers
             
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<>>> GetAll()
-        //{
-            
-        //}
-
-        //[HttpGet("enrollment/{enrollmentId}")]
-        //public async Task<ActionResult<>> GetByEnrollment()
-        //{
-
-        //}
+        
     }
 }
