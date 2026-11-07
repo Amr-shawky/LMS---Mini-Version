@@ -12,6 +12,14 @@
         public static RequestResponse Fail(int statusCode = 400,
             IDictionary<string, string[]>? errors = null) => new() {StatusCode = statusCode , Errors = errors };
 
+        public static RequestResponse Fail(int statusCode, string key, string message)
+    => new()
+    {
+        StatusCode = statusCode,
+        Success = false,
+        Errors = new Dictionary<string, string[]> { [key] = new[] { message } }
+    };
+
     }
     public class RequestResponse<T> : RequestResponse
     {
@@ -22,5 +30,13 @@
 
         public static new RequestResponse<T> Fail(int statusCode = 400,
             IDictionary<string, string[]>? errors = null) => new() { StatusCode = statusCode, Errors = errors };
+
+        public static new RequestResponse<T> Fail(int statusCode, string key, string message)
+    => new()
+    {
+        StatusCode = statusCode,
+        Success = false,
+        Errors = new Dictionary<string, string[]> { [key] = new[] { message } }
+    };
     }
 }
