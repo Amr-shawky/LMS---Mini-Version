@@ -1,3 +1,4 @@
+using LMS___Mini_Version.contracts;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
 using LMS___Mini_Version.Feature.EnrollmentFeature.endpoints;
@@ -7,7 +8,9 @@ using LMS___Mini_Version.Feature.Tracks.endpoints;
 using LMS___Mini_Version.Feature.Tracks.endpoints.test;
 using LMS___Mini_Version.Feature.Tracks.Query;
 using LMS___Mini_Version.Infrastructure.Repositories;
+using LMS___Mini_Version.Messaging;
 using LMS___Mini_Version.Persistence;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 namespace LMS___Mini_Version
@@ -30,6 +33,9 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
+
+            // MassTransit configuration :
+            builder.Services.AddMessaging();
 
 
             var app = builder.Build();
@@ -78,6 +84,7 @@ namespace LMS___Mini_Version
             app.MapListEnrollmentsEndpoint();
             app.MapGetEnrollmentByIdEndpoint();
             app.MapEnrollInternEndpoint();
+            app.MapCancelEnrollmentEndpoint();
 
             app.MapGet("api/v4/test", async (IMediator mediator) => {
 
@@ -85,8 +92,8 @@ namespace LMS___Mini_Version
                 return tracks;
             }).WithTags("Track")
             .WithSummary("get all track minimal api");
-
-
+            
+            
             app.MapUpdateTrackEndpoint();
             app.Run();
         }

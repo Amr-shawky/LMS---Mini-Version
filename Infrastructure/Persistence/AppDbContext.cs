@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Persistence
@@ -13,6 +14,8 @@ namespace LMS___Mini_Version.Persistence
         public DbSet<Intern> Interns { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Payment> Payments { get; set; }
+
+        public DbSet<RefundHistory> RefundHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +63,25 @@ namespace LMS___Mini_Version.Persistence
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+
+            // RefundHistory → Payment (many-to-one)
+            modelBuilder.Entity<RefundHistory>(e =>
+            {
+                e.HasOne(r => r.Payment)
+                 .WithMany()
+                 .HasForeignKey(r => r.PaymentId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(r => r.Enrollment)
+                 .WithMany()
+                 .HasForeignKey(r => r.EnrollmentId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure MassTransit Inbox and Outbox entities
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
         }
     }
 }

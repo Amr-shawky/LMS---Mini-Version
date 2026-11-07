@@ -4,6 +4,7 @@ using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
 using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
 using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
+using LMS___Mini_Version.Feature.EnrollmentFeature.Commands;
 using MediatR;
 
 namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
@@ -36,13 +37,21 @@ namespace LMS___Mini_Version.Feature.enrollmentFeature.Handlers
                 return RequestResponse.Fail("Enrollment is already cancelled", 400);
             }
 
-            // step 2 & 3 execute updates within transaction
+            // step 2 & 3 execute updates within transaction :
             await _unitOfWork.ExecuteAsync(async () =>
             {
-                await _mediator.Send(new updateEnrollmentStatusCommand(request.enrollmentID, EnrollmentStatus.Cancelled), cancellationToken);
-                await _mediator.Send(new refundPaymentCommand(request.enrollmentID), cancellationToken);
-            });
+                await _mediator.Send(new updateEnrollmentStatusCommand(request.enrollmentID, EnrollmentStatus.Cancelled),cancellationToken);
 
+                var refund = await _mediator.Send(new refundPaymentCommand(request.enrollmentID), cancellationToken);
+
+                if (refund.Success && refund.Data != 0)
+                {
+                    var history = await _mediator.Send(new CreateRefundHistoryCommand( refund.Data, request.enrollmentID,PaymentStatus.Completed, PaymentStatus.Refunded),cancellationToken);
+
+                    if (!history.Success)
+                        throw new InvalidOperationException("Failed to record refund history.");
+                }
+            });
             return RequestResponse.Ok("Enrollment cancelled successfully");
         }
     }

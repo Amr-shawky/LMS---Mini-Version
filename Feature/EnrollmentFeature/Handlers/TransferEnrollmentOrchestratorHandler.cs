@@ -1,9 +1,12 @@
 ﻿using exam_system.Features.Shared;
+using LMS___Mini_Version.contracts;
+using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Feature.enrollmentFeature.Commands;
 using LMS___Mini_Version.Feature.enrollmentFeature.Orchestrators;
 using LMS___Mini_Version.Feature.enrollmentFeature.Queries;
 using LMS___Mini_Version.Feature.Tracks.Query;
+using MassTransit;
 using MediatR;
 
 namespace LMS___Mini_Version.Feature.EnrollmentFeature.Handlers
@@ -12,11 +15,13 @@ namespace LMS___Mini_Version.Feature.EnrollmentFeature.Handlers
     {
         private readonly IMediator _mediator;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public TransferEnrollmentOrchestratorHandler(IMediator mediator, IUnitOfWork unitOfWork)
+        public TransferEnrollmentOrchestratorHandler(IMediator mediator, IUnitOfWork unitOfWork , IPublishEndpoint publishEndpoint)
         {
             _mediator = mediator;
             _unitOfWork = unitOfWork;
+            _publishEndpoint = publishEndpoint;
         }
         public async Task<RequestResponse> Handle(TransferEnrollmentOrchestrator request, CancellationToken cancellationToken)
         {
@@ -27,8 +32,11 @@ namespace LMS___Mini_Version.Feature.EnrollmentFeature.Handlers
             {
                 return RequestResponse.Fail($"Enrollment with ID {request.EnrollmentID} was not found.",404);
             }
+           
 
             var enrollment = enrollmentResponse.Data;
+            if (enrollment.Status == EnrollmentStatus.Cancelled)
+                return RequestResponse.Fail("Cannot transfer a cancelled enrollment.", 400);
 
             // Step 2: Get the existing track :
             var trackResponse = await _mediator.Send(new GetByIdTrackQuery(request.newTrackID), cancellationToken);
@@ -70,9 +78,17 @@ namespace LMS___Mini_Version.Feature.EnrollmentFeature.Handlers
                 await _unitOfWork.ExecuteAsync(async () =>
                 {
                     var updateResult = await _mediator.Send(new UpdateEnrollmentTrackCommand(enrollment.Id, request.newTrackID), cancellationToken);
-
-                    if(!updateResult.Success)
+                    
+                    if (!updateResult.Success)
                         throw new InvalidOperationException("Failed to update enrollment track.");
+
+                    await _publishEndpoint.Publish(new EnrollmentTransferredMessage
+                    {
+                        EnrollmentId = enrollment.Id,
+                        OldTrackId = enrollment.TrackId,
+                        NewTrackId = request.newTrackID,
+                        OccurredAt = DateTime.UtcNow
+                    }, cancellationToken);
 
                     result = RequestResponse.Ok("Enrollment transferred successfully.", 200);
                 });
