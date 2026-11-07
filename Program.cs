@@ -1,14 +1,18 @@
+using LMS___Mini_Version.contracts;
 using LMS___Mini_Version.Domain.Repositories;
-using LMS___Mini_Version.Infrastructure.Repositories;
-using LMS___Mini_Version.Persistence;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
+using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
+using LMS___Mini_Version.Feature.EnrollmentFeature.endpoints;
+using LMS___Mini_Version.Feature.internFeature.endpoints;
+using LMS___Mini_Version.Feature.paymentFeature.endpoints;
 using LMS___Mini_Version.Feature.Tracks.endpoints;
 using LMS___Mini_Version.Feature.Tracks.endpoints.test;
 using LMS___Mini_Version.Feature.Tracks.Query;
-using LMS___Mini_Version.Feature.internFeature.endpoints;
-using LMS___Mini_Version.Feature.enrollmentFeature.endpoints;
-using LMS___Mini_Version.Feature.paymentFeature.endpoints;
+using LMS___Mini_Version.Infrastructure.Repositories;
+using LMS___Mini_Version.Messaging;
+using LMS___Mini_Version.Persistence;
+using MassTransit;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 namespace LMS___Mini_Version
 {
     public class Program
@@ -29,6 +33,9 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
+
+            // MassTransit configuration :
+            builder.Services.AddMessaging();
 
 
             var app = builder.Build();
@@ -73,6 +80,11 @@ namespace LMS___Mini_Version
             // ─── Enrollment Minimal API v2 Endpoints ───────────────────
             // Remaining Enrollment v2 endpoint (outside the assignment scope).
             app.MapGetEnrollmentsByInternEndpoint();
+            app.MapTransferEnrollmentEndpoint();
+            app.MapListEnrollmentsEndpoint();
+            app.MapGetEnrollmentByIdEndpoint();
+            app.MapEnrollInternEndpoint();
+            app.MapCancelEnrollmentEndpoint();
 
             app.MapGet("api/v4/test", async (IMediator mediator) => {
 
@@ -80,8 +92,8 @@ namespace LMS___Mini_Version
                 return tracks;
             }).WithTags("Track")
             .WithSummary("get all track minimal api");
-
-
+            
+            
             app.MapUpdateTrackEndpoint();
             app.Run();
         }
