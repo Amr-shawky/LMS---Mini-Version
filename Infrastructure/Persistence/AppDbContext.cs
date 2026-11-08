@@ -60,6 +60,14 @@ namespace LMS___Mini_Version.Persistence
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<RefundHistory>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.HasOne<Payment>().WithMany()
+                    .HasForeignKey(x => x.PaymentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
