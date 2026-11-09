@@ -25,7 +25,7 @@ namespace LMS___Mini_Version.Controllers
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to get tracks", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get tracks"));
 
             var tracksVM = result.Data.Select(x => new TrackViewModel
             {

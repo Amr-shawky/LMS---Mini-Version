@@ -26,7 +26,7 @@ namespace LMS___Mini_Version.features.InternFeature.BrowseInterns
                     Status = i.Status,
                     TrackName = i.Track.Name
                 });
-            ;
+            
 
             return RequestResponse<IEnumerable<BrowseInternsDto>>.OK(internsDto);
 

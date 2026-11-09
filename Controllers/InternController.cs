@@ -16,15 +16,15 @@ namespace LMS___Mini_Version.Controllers
      
         
         [HttpPost]
-        public async Task<ActionResult<EndpointResponse<int>>> Create([FromBody] RegisterInternCommand registerInternCommand)
+        public async Task<ActionResult<EndpointResponse<RegisterViewModel>>> Create([FromBody] RegisterInternCommand registerInternCommand)
         {
 
-            RequestResponse<int> response = await mediator.Send(registerInternCommand);
+            RequestResponse<RegisterDto> response = await mediator.Send(registerInternCommand);
             if(response.Success)
-                return StatusCode(response.StatusCode, EndpointResponse<int>.OK(response.Data, response.StatusCode));
+                return StatusCode(response.StatusCode, EndpointResponse<RegisterViewModel>.OK( new RegisterViewModel {internId =response.Data.internId }, response.StatusCode));
 
 
-            return StatusCode(response.StatusCode, EndpointResponse<int>.Fail(response.StatusCode, errors:response.Errors));
+            return StatusCode(response.StatusCode, EndpointResponse<RegisterViewModel>.Fail(response.StatusCode, errorCode: response.ErrorCode));
 
         }
 
