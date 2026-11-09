@@ -20,6 +20,7 @@ namespace LMS___Mini_Version
 
             builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+          
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
 

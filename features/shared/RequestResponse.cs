@@ -17,7 +17,7 @@
     {
         public T? Data { get; init; }
 
-        public static RequestResponse<T> OK(T data, int statusCode = 200)
+        public static RequestResponse<T> OK(T? data, int statusCode = 200)
             => new() { Data = data, StatusCode = statusCode, Success = true };
 
         public static new RequestResponse<T> Fail(int statusCode = 400,
