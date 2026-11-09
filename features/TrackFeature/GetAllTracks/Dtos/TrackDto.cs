@@ -2,12 +2,12 @@
 {
     public class TrackDto
     {
-        public int id { set; get;}
+        public int Id { set; get;}
 
-        public string name { set; get; }
+        public string Name { set; get; } = string.Empty;
 
         public int MaxCapacity { get; set; }
 
-        public int? totalenrollment { get; set; } = 0;
+        public int? Totalenrollment { get; set; } = 0;
     }
 }

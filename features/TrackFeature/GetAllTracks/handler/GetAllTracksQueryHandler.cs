@@ -28,10 +28,10 @@ namespace LMS___Mini_Version.features.TrackFeature.GetAllTracks.handler
             new TrackDto
             {
 
-                id = x.Id,
-                name = x.Name,
+                Id = x.Id,
+                Name = x.Name,
                 MaxCapacity = x.MaxCapacity,
-                totalenrollment = x.Enrollments.Count()
+                Totalenrollment = x.Enrollments.Count()
 
             });
 

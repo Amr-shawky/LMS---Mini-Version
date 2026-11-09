@@ -2,9 +2,9 @@
 {
     public class TrackViewModel
     {
-        public int id { set; get; }
+        public int Id { set; get; }
 
-        public string name { set; get; }
+        public string Name { set; get; } = string.Empty;
 
  
     }

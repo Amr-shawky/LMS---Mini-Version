@@ -13,14 +13,14 @@
 		 
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.*" />
 
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.*">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.*">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -28,7 +28,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" />
+		    <Folder Include="features\EnrollmentFeature\Queries\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" />
 		 
 	</ItemGroup>
 </Project>
