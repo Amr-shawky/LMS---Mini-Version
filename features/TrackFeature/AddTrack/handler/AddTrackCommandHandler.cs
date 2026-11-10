@@ -8,21 +8,21 @@ namespace LMS___Mini_Version.features.TrackFeature.AddTrack.handler
 {
     public class AddTrackCommandHandler : IRequestHandler<AddTrackCommand, RequestResponse>
     {
-        private readonly IGeneralRepository<Track> _repository;
+        private readonly IGenericRepository<Track> _repository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddTrackCommandHandler(IGeneralRepository<Track> repository, IUnitOfWork unitOfWork)
+        public AddTrackCommandHandler(IGenericRepository<Track> repository, IUnitOfWork unitOfWork)
         {
             _repository = repository;
             _unitOfWork = unitOfWork;
         }
         public async Task<RequestResponse> Handle(AddTrackCommand request, CancellationToken cancellationToken)
         {
-            var track = new Track { Name = request.name, Fees = request.Fees, MaxCapacity = request.MaxCapacity };
+            var track = new Track { Name = request.Name, Fees = request.Fees, MaxCapacity = request.MaxCapacity };
 
             _repository.Add(track);
 
-            await _unitOfWork.SaveChangesAsync();
+            //await _unitOfWork.SaveChangesAsync();
 
             return RequestResponse.OK();
         }

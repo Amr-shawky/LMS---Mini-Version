@@ -1,13 +1,13 @@
 namespace LMS___Mini_Version.Domain.Entities
 {
-    public class Track : baseEntity
+    public class Track : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public decimal Fees { get; set; }
         public bool IsActive { get; set; }
         public int MaxCapacity { get; set; }
 
-        public List<Intern> Interns { get; set; } = new();
-        public List<Enrollment> Enrollments { get; set; } = new();
+        public List<Intern> Interns { get; set; } = [];
+        public List<Enrollment> Enrollments { get; set; } = [];
     }
 }

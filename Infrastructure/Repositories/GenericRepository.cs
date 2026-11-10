@@ -6,20 +6,8 @@ using Microsoft.EntityFrameworkCore;
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
 
-    public class GeneralRepository<T> : IGeneralRepository<T> where T : baseEntity
+    public class GenericRepository<T>(AppDbContext _context) : IGenericRepository<T> where T : BaseEntity
     {
-        private readonly AppDbContext _context;
-
-        public GeneralRepository(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        public IQueryable<T> GetAll()
-        {
-            return _context.Set<T>();
-        }
-
         public async Task<IEnumerable<T>> GetAllAsync()
             => await _context.Set<T>().ToListAsync();
 
@@ -31,5 +19,7 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
+
+        public IQueryable<T> GetAll() => _context.Set<T>();
     }
 }

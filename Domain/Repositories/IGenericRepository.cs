@@ -3,7 +3,7 @@ using LMS___Mini_Version.Domain.Entities;
 namespace LMS___Mini_Version.Domain.Repositories
 {
 
-    public interface IGeneralRepository<T> where T : baseEntity
+    public interface IGenericRepository<T> where T : BaseEntity
     {
         Task<IEnumerable<T>> GetAllAsync();
 

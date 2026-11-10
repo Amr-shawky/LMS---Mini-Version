@@ -5,12 +5,11 @@
         public bool Success { get; init; }
         public int StatusCode { get; init; }
         public IDictionary<string, string[]>? Errors { get; init; }
-
         public static RequestResponse OK(int statusCode = 200) => new()
-         { StatusCode = statusCode, Success = true };
+        { StatusCode = statusCode, Success = true };
 
         public static RequestResponse Fail(int statusCode = 400,
-            IDictionary<string, string[]>? errors = null) => new() {StatusCode = statusCode , Errors = errors };
+            IDictionary<string, string[]>? errors = null) => new() { StatusCode = statusCode, Errors = errors };
 
     }
     public class RequestResponse<T> : RequestResponse

@@ -18,9 +18,9 @@ namespace LMS___Mini_Version
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepository<>));
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            //AssemblyMarker
             builder.Services.AddMediatR(typeof(Program).Assembly);
 
             var app = builder.Build();
@@ -37,6 +37,9 @@ namespace LMS___Mini_Version
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            //i want each request that changes in the database to have a single place responsible for saveschanges 
+            //A custom attribute would affect a single endpoint which is better for the case because savechanges is hit only in Commandssss
+            //but having a middleware woulld affect every endpoint
 
             app.UseHttpsRedirection();
             app.UseAuthorization();

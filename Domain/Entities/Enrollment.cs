@@ -3,7 +3,7 @@ using LMS___Mini_Version.Domain.Enums;
 namespace LMS___Mini_Version.Domain.Entities
 {
 
-    public class Enrollment : baseEntity
+    public class Enrollment : BaseEntity
     {
 
         public int InternId { get; set; }
