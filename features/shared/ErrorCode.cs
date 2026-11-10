@@ -5,6 +5,7 @@
         None,
         InternNotFound=1,
         InternAlreadyExists = 2,
+        InternHasEnrollment = 3,
         TrackNotFound =1000,
         TrackIsNotActive = 1001,
         EnrollmentNotFound = 2000,

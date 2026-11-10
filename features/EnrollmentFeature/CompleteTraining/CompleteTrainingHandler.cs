@@ -50,7 +50,6 @@ namespace LMS___Mini_Version.features.EnrollmentFeature.CompleteTraining
             //    Status = EnrollmentStatus.Completed
             //};
             enrollment.Status = EnrollmentStatus.Completed;
-         
             _unitOfWork.SaveChangesAsync();
             //  _unitOfWork.SaveIncludesAsync(enrollmentToUpdate, nameof(Enrollment.Status));
 

@@ -1,5 +1,6 @@
 
 using LMS___Mini_Version.features.InternFeature.BrowseInterns;
+using LMS___Mini_Version.features.InternFeature.DeleteIntern;
 using LMS___Mini_Version.features.InternFeature.RegisterIntern;
 using LMS___Mini_Version.features.shared;
 using MediatR;
@@ -13,8 +14,19 @@ namespace LMS___Mini_Version.Controllers
     public class InternController(IMediator mediator) : ControllerBase
     {
 
-     
-        
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+
+            RequestResponse response = await mediator.Send(new DeleteInternCommand(id));
+            if(!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.StatusCode, errorCode: response.ErrorCode));
+            }
+            return StatusCode(response.StatusCode, EndpointResponse.OK(response.StatusCode));
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<EndpointResponse<RegisterViewModel>>> Create([FromBody] RegisterInternCommand registerInternCommand)
         {
@@ -56,10 +68,5 @@ namespace LMS___Mini_Version.Controllers
 
         //}
 
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> Delete()
-        //{
-
-        //}
     }
 }
