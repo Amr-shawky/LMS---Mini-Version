@@ -23,6 +23,10 @@ namespace LMS___Mini_Version.Controllers
         public async Task<ActionResult<EndpointResponse<IEnumerable<InternEnrollmentViewModel>>>> GetByIntern(int internId)
         {
             RequestResponse<IEnumerable<InternEnrollmentDto>> response = await _mediator.Send(new GatInternEnrollmentQuery(internId));
+            if(!response.Success)
+            {
+                return EndpointResponse<IEnumerable<InternEnrollmentViewModel>>.Fail(response.StatusCode, errorCode: response.ErrorCode);
+            }
             IEnumerable < InternEnrollmentViewModel > enrollmentViewModels = response.Data.Select(e => new InternEnrollmentViewModel
             {
                 EnrollmentId = e.EnrollmentId,
