@@ -1,6 +1,6 @@
 ﻿using LMS___Mini_Version.Domain.Enums;
 
-namespace LMS___Mini_Version.features.InternFeature.InternEnrollment
+namespace LMS___Mini_Version.features.EnrollmentFeature.InternEnrollment
 {
     public class InternEnrollmentDto
     {

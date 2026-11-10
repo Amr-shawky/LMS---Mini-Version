@@ -1,5 +1,6 @@
 
-using LMS___Mini_Version.features.InternFeature.InternEnrollment;
+using LMS___Mini_Version.features.EnrollmentFeature.CompleteTraining;
+using LMS___Mini_Version.features.EnrollmentFeature.InternEnrollment;
 using LMS___Mini_Version.features.shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace LMS___Mini_Version.Controllers
 {
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Enrollment")]
     public class EnrollmentController : ControllerBase
     {
 
@@ -36,6 +37,16 @@ namespace LMS___Mini_Version.Controllers
             });
           
             return EndpointResponse<IEnumerable<InternEnrollmentViewModel>>.OK(enrollmentViewModels, 200);
+        }
+        [HttpPost("{id}/complete")]
+        public async Task<ActionResult<EndpointResponse>> CompleteTraining(int id)
+        {
+            RequestResponse response = await _mediator.Send(new CompleteTrainingCommand(id));
+            if (!response.Success)
+            {
+                return EndpointResponse.Fail(response.StatusCode, errorCode: response.ErrorCode);
+            }
+            return EndpointResponse.OK(response.StatusCode);
         }
 
         //[HttpGet]

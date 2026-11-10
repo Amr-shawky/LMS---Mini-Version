@@ -3,7 +3,7 @@ using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.features.shared;
 using MediatR;
 
-namespace LMS___Mini_Version.features.InternFeature.InternEnrollment
+namespace LMS___Mini_Version.features.EnrollmentFeature.InternEnrollment
 {
     public class InternEnrollmentHandler : IRequestHandler<GatInternEnrollmentQuery, RequestResponse<IEnumerable<InternEnrollmentDto>>>
     {
