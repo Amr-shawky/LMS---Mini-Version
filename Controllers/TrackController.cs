@@ -4,6 +4,8 @@ using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Dtos;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
+using LMS___Mini_Version.features.TrackFeature.GetTrackById.Query;
+using LMS___Mini_Version.features.TrackFeature.GetTrackById.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,11 +45,26 @@ namespace LMS___Mini_Version.Controllers
 
         //}
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<>> GetById()
-        //{
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EndpointResponse<GetTrackByIdViewModel>>> GetById(int id)
+        {
+            var result = await _mediator.Send(new GetTrackByIdQuery(id));
 
-        //}
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get track", result.Errors));
+
+            var track = result.Data;
+            var trackVM = new GetTrackByIdViewModel()
+            {
+                Name = track.name,
+                IsActive = track.IsActive,
+                MaxCapacity = track.MaxCapacity,
+            };
+
+            return StatusCode(result.StatusCode, EndpointResponse<GetTrackByIdViewModel>.OK(trackVM, result.StatusCode, "sucess"));
+
+        }
 
         [HttpPost]
         public async Task<ActionResult<EndpointResponse>> Create(

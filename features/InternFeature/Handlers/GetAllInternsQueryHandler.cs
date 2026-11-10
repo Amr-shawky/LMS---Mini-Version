@@ -20,28 +20,21 @@ namespace LMS___Mini_Version.features.InternFeature.Handlers
 
         public async Task<RequestResponse<IEnumerable<GetAllInternsDto>>> Handle(GetAllInternsQuery request, CancellationToken cancellationToken)
         {
-            var interns = await _repository.GetAll()
-                .Include(I => I.Track)
-                .ToListAsync();
-
-            if (interns == null)
-                return RequestResponse<IEnumerable<GetAllInternsDto>>.OK([]);
-
-
-            var internsDtos = interns.Select(x =>
-            new GetAllInternsDto
+            var internsDto = await _repository.GetAll()
+                .Select(x => new GetAllInternsDto
             {
-
                 Id = x.Id,
                 FullName = x.FullName,
                 Email = x.Email,
                 Status = x.Status,
                 TrackName = x.Track.Name
+            }).ToListAsync();
 
-            });
+            
+            return RequestResponse<IEnumerable<GetAllInternsDto>>.OK(internsDto);
+            
 
-            return RequestResponse<IEnumerable<GetAllInternsDto>>.OK(internsDtos);
-
+     
         }
     }
 }

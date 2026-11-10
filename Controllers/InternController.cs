@@ -5,6 +5,8 @@ using LMS___Mini_Version.features.InternFeature.ViewModels;
 using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
+using LMS___Mini_Version.features.TrackFeature.GetTrackById.Query;
+using LMS___Mini_Version.features.TrackFeature.GetTrackById.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,11 +50,27 @@ namespace LMS___Mini_Version.Controllers
 
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<>> GetById(int id)
-        //{
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EndpointResponse<GetInternByIdViewModel>>> GetById(int id)
+        {
+            var result = await _mediator.Send(new GetInternByIdQuery(id));
 
-        //}
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get intern", result.Errors));
+
+            var intern = result.Data;
+            var internVM = new GetInternByIdViewModel()
+            {
+                FullName = intern.FullName,
+                Email = intern.Email,
+                Status = intern.Status,
+                BirthYear = intern.BirthYear,
+            };
+
+            return StatusCode(result.StatusCode, EndpointResponse<GetInternByIdViewModel>.OK(internVM, result.StatusCode, "sucess"));
+
+        }
 
         [HttpPost]
         public async Task<ActionResult<EndpointResponse>> Create(CreateInternViewModel viewModel)

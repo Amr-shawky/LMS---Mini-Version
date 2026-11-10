@@ -18,27 +18,22 @@ namespace LMS___Mini_Version.features.TrackFeature.GetTrackById.Handler
 
         public async Task<RequestResponse<GetTrackByIdDto>> Handle(GetTrackByIdQuery request, CancellationToken cancellationToken)
         {
-            try
+            
+            var track = await _repository.GetByIdAsync(request.id);
+            if (track == null)
             {
-                var track = await _repository.GetByIdAsync(request.id);
-                if (track == null)
-                {
-                    return RequestResponse<GetTrackByIdDto>.Fail();
-                }
-                var trackDto = new GetTrackByIdDto
-                {
-                    id = track.Id,
-                    name = track.Name,
-                    IsActive = track.IsActive,
-                    MaxCapacity = track.MaxCapacity
-                };
+                return RequestResponse<GetTrackByIdDto>.Fail(404, "TrackId", "Track Not Found");
+            }
+            var trackDto = new GetTrackByIdDto
+            {
+                id = track.Id,
+                name = track.Name,
+                IsActive = track.IsActive,
+                MaxCapacity = track.MaxCapacity
+            };
 
-                return RequestResponse<GetTrackByIdDto>.OK(trackDto);
-            }
-            catch (Exception ex)
-            {
-                return RequestResponse<GetTrackByIdDto>.Fail();
-            }
+            return RequestResponse<GetTrackByIdDto>.OK(trackDto);
+            
         }
     }
 }
