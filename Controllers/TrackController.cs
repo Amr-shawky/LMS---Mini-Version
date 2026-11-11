@@ -1,6 +1,9 @@
 
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
+using LMS___Mini_Version.features.TrackFeature.CheckTrack.Queries;
+using LMS___Mini_Version.features.TrackFeature.CheckTrack.ViewModels;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Dtos;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
@@ -69,6 +72,25 @@ namespace LMS___Mini_Version.Controllers
 
 
         //}
+
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<EndpointResponse<CheckTrackViewModel>>> CheckTrackAvailablity(int id)
+        {
+            var result = await _mediator.Send(new CheckTrackQuery(id));
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get track availability", result.Errors));
+            var track = result.Data;
+            var trackVM = new CheckTrackViewModel
+            {
+                TrackName = track.Name,
+                IsActive = track.IsActive,
+                MaxCapacity = track.MaxCapacity,
+                ReservedSeats = track.ReservedSeats,
+                AvailableSeats = track.AvailableSeats
+            };
+            return StatusCode(result.StatusCode, EndpointResponse<CheckTrackViewModel>.OK(trackVM, result.StatusCode, "success"));
+        }
 
         //[HttpDelete("{id}")]
         //public async Task<ActionResult> Delete()

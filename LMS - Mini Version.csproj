@@ -6,7 +6,16 @@
 		    <ImplicitUsings>enable</ImplicitUsings>
 		    <RootNamespace>LMS___Mini_Version</RootNamespace>
 		 
-	</PropertyGroup>
+	</PropertyGroup><ItemGroup>
+  <Compile Remove="features\TrackFeature\AddTrack\Dtos\**" />
+  <Compile Remove="features\TrackFeature\AddTrack\ViewModels\**" />
+  <Content Remove="features\TrackFeature\AddTrack\Dtos\**" />
+  <Content Remove="features\TrackFeature\AddTrack\ViewModels\**" />
+  <EmbeddedResource Remove="features\TrackFeature\AddTrack\Dtos\**" />
+  <EmbeddedResource Remove="features\TrackFeature\AddTrack\ViewModels\**" />
+  <None Remove="features\TrackFeature\AddTrack\Dtos\**" />
+  <None Remove="features\TrackFeature\AddTrack\ViewModels\**" />
+</ItemGroup>
 
 	  <ItemGroup>
 		    <PackageReference Include="MediatR" Version="10.0.1" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" /><PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
@@ -28,7 +37,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" />
+		    <Folder Include="Domain\Enums\" />
 		 
 	</ItemGroup>
 </Project>
