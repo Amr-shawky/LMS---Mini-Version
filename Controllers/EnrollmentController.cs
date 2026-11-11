@@ -55,6 +55,27 @@ namespace LMS___Mini_Version.Controllers
             }
         }
 
+        [HttpGet("track/{trackId:int}")]
+        public async Task<ActionResult<EndpointResponse<IEnumerable<TrackEnrollmentViewModel>>>> GetTrackEnrollments(int trackId)
+        {
+            var query = new GetTrackEnrollmentsQuery(trackId);
+            var result = await _mediator.Send(query);
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse<IEnumerable<TrackEnrollmentViewModel>>.Fail(result.StatusCode, "Failed to retrieve track enrollments.", result.Errors));
+            }
+            var trackEnrollmentViewModels = result.Data.Select(e => new TrackEnrollmentViewModel
+            {
+                EnrollmentId = e.EnrollementId,
+                InternFullName = e.InternFullName,
+                EnrollmentDate = e.EnrollmentDate,
+                EnrollmentStatus = e.enrollementStatus,
+                PaymentAmount = e.PaymentAmount,
+                PaymentStatus = e.PaymentStatus
+            });
+            return StatusCode(result.StatusCode, EndpointResponse<IEnumerable<TrackEnrollmentViewModel>>.OK(trackEnrollmentViewModels, result.StatusCode, "Track enrollments retrieved successfully."));
+        }
+
         //[HttpGet]
         //public async Task<ActionResult<IEnumerable<>>> GetAll()
         //{
