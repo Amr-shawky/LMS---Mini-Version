@@ -1,3 +1,5 @@
+using LMS___Mini_Version.features.shared;
+
 namespace LMS___Mini_Version.Domain.Repositories
 {
 
@@ -5,5 +7,9 @@ namespace LMS___Mini_Version.Domain.Repositories
     {
 
         Task<int> SaveChangesAsync();
+        
+        Task<TResponse> ExecuteInTransactionAsync<TResponse>(
+            Func<Task<TResponse>> operation,
+            CancellationToken ct = default) where TResponse : RequestResponse;
     }
 }

@@ -1,3 +1,4 @@
+using LMS___Mini_Version.Domain.Constants;
 using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.features.shared;
@@ -14,7 +15,9 @@ public class CreateInternCommandHandler(
 {
     public async Task<RequestResponse<int>> Handle(CreateInternCommand request, CancellationToken cancellationToken)
     {
-        // get track by id
+
+
+        // track must exist
         var track = await trackRepository.GetByIdAsync(request.TrackId);
         if (track is null)
             return RequestResponse<int>.Fail(404, new Dictionary<string, string[]>
@@ -22,14 +25,14 @@ public class CreateInternCommandHandler(
                 { "TrackId", ["Track not found"] }
             });
 
-        // check if track is active
+        // track must be active
         if (!track.IsActive)
             return RequestResponse<int>.Fail(400, new Dictionary<string, string[]>
             {
                 { "TrackId", ["Track is not active"] }
             });
 
-        // check if email already exists (case-insensitive)
+        // email must be unique (case-insensitive)
         var email = request.Email.Trim().ToLower();
         var emailExist = await internRepository.GetAll()
             .AnyAsync(i => i.Email.ToLower() == email, cancellationToken);
@@ -39,17 +42,15 @@ public class CreateInternCommandHandler(
                 { "Email", ["Email is already registered."] }
             });
 
-        // build intern object
         var intern = new Intern
         {
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
             BirthYear = request.BirthYear,
             TrackId = request.TrackId,
-            Status = "Pending"
+            Status = InternStatus.Pending
         };
 
-        // create intern
         internRepository.Add(intern);
         await unitOfWork.SaveChangesAsync();
 

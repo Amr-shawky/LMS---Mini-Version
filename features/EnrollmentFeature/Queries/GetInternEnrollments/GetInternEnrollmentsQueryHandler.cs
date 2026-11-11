@@ -15,19 +15,20 @@ public class GetInternEnrollmentsQueryHandler(
     public async Task<RequestResponse<List<EnrollmentDto>>> Handle(
         GetInternEnrollmentsQuery request, CancellationToken cancellationToken)
     {
-        // check if intern exist
-        var intern = await internRepository.GetByIdAsync(request.InternId);
-        if (intern is null)
+        // intern must exist 
+        var internExists = await internRepository.GetAll()
+            .AnyAsync(i => i.Id == request.InternId, cancellationToken);
+        if (!internExists)
             return RequestResponse<List<EnrollmentDto>>.Fail(404, new Dictionary<string, string[]>
             {
                 { "InternId", ["Intern not found"] }
             });
-        
-        // get enrollments
+
 
         var enrollments = await enrollmentRepository.GetAll()
             .Where(e => e.InternId == request.InternId)
             .OrderByDescending(e => e.EnrollmentDate)
+            .ThenByDescending(e => e.Id)
             .Select(e => new EnrollmentDto(
                 e.Id,
                 e.TrackId,
@@ -35,7 +36,7 @@ public class GetInternEnrollmentsQueryHandler(
                 e.EnrollmentDate,
                 e.Status.ToString()))
             .ToListAsync(cancellationToken);
-        
+
         return RequestResponse<List<EnrollmentDto>>.OK(enrollments);
     }
 }
