@@ -55,6 +55,9 @@ namespace LMS___Mini_Version.Persistence
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<Intern>()
+                .Property(x => x.Status)
+                .HasConversion<string>();
         }
     }
 }
