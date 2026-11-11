@@ -1,6 +1,7 @@
 
 using Azure;
 using LMS___Mini_Version.features.InternFeature.Commands;
+using LMS___Mini_Version.features.InternFeature.Queries;
 using LMS___Mini_Version.features.InternFeature.ViewModels;
 using LMS___Mini_Version.features.shared;
 using MediatR;
@@ -22,7 +23,25 @@ namespace LMS___Mini_Version.Controllers
 
 
 
-
+        [HttpGet]
+        public async Task<ActionResult<EndpointResponse<IEnumerable<InternViewModel>>>> GetAll()
+        {
+            var query = new BrowseInternsQuery();
+            var result = await _mediator.Send(query);
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse<IEnumerable<InternViewModel>>.Fail(result.StatusCode, "Cannot Get Interns", result.Errors));
+            }
+            var internsViewModel = result.Data!.Select(i => new InternViewModel()
+            {
+                Id = i.Id,
+                FullName = i.FullName,
+                Email = i.Email,
+                Status = i.Status,
+                TrackName = i.TrackName
+            });
+            return StatusCode(result.StatusCode, EndpointResponse<IEnumerable<InternViewModel>>.OK(internsViewModel , result.StatusCode, "Interns retrieved successfully"));
+        }
 
 
 

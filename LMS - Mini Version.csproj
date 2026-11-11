@@ -28,7 +28,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" /><Folder Include="features\InternFeature\Queries\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" /><Folder Include="features\TrackFeature\GetActiveTracks\ViewModels\" />
+		    <Folder Include="Domain\Enums\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" /><Folder Include="features\TrackFeature\GetActiveTracks\ViewModels\" />
 		 
 	</ItemGroup>
 </Project>
