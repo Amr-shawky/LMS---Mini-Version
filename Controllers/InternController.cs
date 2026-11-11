@@ -2,6 +2,7 @@
 using LMS___Mini_Version.features.InternFeature.AddIntern.Command;
 using LMS___Mini_Version.features.InternFeature.BrowseInterns.Query;
 using LMS___Mini_Version.features.InternFeature.BrowseInterns.ViewModels;
+using LMS___Mini_Version.features.InternFeature.DeleteIntern.Command;
 using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
@@ -78,10 +79,16 @@ namespace LMS___Mini_Version.Controllers
 
         //}
 
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> Delete()
-        //{
+        [HttpDelete("{internId}")]
+        public async Task<ActionResult<EndpointResponse>> Delete(int internId)
+        {
+            var result = await _mediator.Send(new DeleteInternCommand(internId));
+            if(!result.Success)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse.Fail(result.StatusCode, "Failed to delete intern.", result.Errors));
+            }
 
-        //}
+            return StatusCode(result.StatusCode, EndpointResponse.OK(result.StatusCode, "Intern deleted successfully."));
+        }
     }
 }
