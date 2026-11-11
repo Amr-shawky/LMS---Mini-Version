@@ -1,9 +1,9 @@
-
 using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
-using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Dtos;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
+using LMS___Mini_Version.features.TrackFeature.GetTrackAvailability.Query;
+using LMS___Mini_Version.features.TrackFeature.GetTrackAvailability.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,7 +51,7 @@ namespace LMS___Mini_Version.Controllers
 
         [HttpPost]
         public async Task<ActionResult<EndpointResponse>> Create(
-    [FromBody] AddTrackCommand command)
+        [FromBody] AddTrackCommand command)
         {
             var result = await _mediator.Send(command);
 
@@ -75,6 +75,56 @@ namespace LMS___Mini_Version.Controllers
         //{
 
         //}
+
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<EndpointResponse<TrackAvailabilityViewModel>>> GetAvailability(
+            int id,
+            CancellationToken cancellationToken)
+        {
+            if (id <= 0)
+            {
+                return BadRequest(
+                    EndpointResponse.Fail(
+                        400,
+                        errors: new Dictionary<string, string[]>
+                        {
+                            ["TrackId"] = new[]
+                            {
+                        "TrackId must be greater than zero."
+                            }
+                        }));
+            }
+
+            var result = await _mediator.Send(
+                new GetTrackAvailabilityQuery(id),
+                cancellationToken);
+
+            if (!result.Success)
+            {
+                return StatusCode(
+                    result.StatusCode,
+                    EndpointResponse.Fail(
+                        result.StatusCode,
+                        "Failed to get track availability",
+                        result.Errors));
+            }
+
+            var viewModel = new TrackAvailabilityViewModel
+            {
+                TrackName = result.Data!.TrackName,
+                IsActive = result.Data.IsActive,
+                MaxCapacity = result.Data.MaxCapacity,
+                ReservedSeats = result.Data.ReservedSeats,
+                AvailableSeats = result.Data.AvailableSeats
+            };
+
+            return Ok(
+                EndpointResponse<TrackAvailabilityViewModel>.OK(
+                    viewModel,
+                    200,
+                    "Track availability retrieved successfully"));
+        }
+
 
     }
 }
