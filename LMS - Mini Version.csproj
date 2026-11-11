@@ -4,7 +4,7 @@
 		    <TargetFramework>net8.0</TargetFramework>
 		    <Nullable>enable</Nullable>
 		    <ImplicitUsings>enable</ImplicitUsings>
-		    <RootNamespace>LMS___Mini_Version</RootNamespace>
+		    <RootNamespace>LMS___Mini_Version</RootNamespace><UserSecretsId>c976b5a9-01c5-4766-aa21-153479c9100b</UserSecretsId>
 		 
 	</PropertyGroup>
 
@@ -28,7 +28,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\AddTrack\ViewModels\" />
+		    <Folder Include="Domain\Enums\" /><Folder Include="features\EnrollmentFeature\CompleteEnrollment\Dtos\" /><Folder Include="features\EnrollmentFeature\CompleteEnrollment\ViewModels\" /><Folder Include="features\InternFeature\ApproveAndRegisterIntern\Dtos\" /><Folder Include="features\InternFeature\CreateIntern\Dtos\" /><Folder Include="features\InternFeature\DeleteUnusedIntern\Dtos\" /><Folder Include="features\InternFeature\DeleteUnusedIntern\ViewModles\" /><Folder Include="features\TrackFeature\AddTrack\Dtos\" /><Folder Include="features\TrackFeature\GetTrackById\ViewModels\" />
 		 
 	</ItemGroup>
 </Project>
