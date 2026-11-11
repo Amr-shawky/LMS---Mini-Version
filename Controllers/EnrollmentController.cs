@@ -1,5 +1,6 @@
 
 using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.features.EnrollmentFeature.CompleteEnrollment.Command;
 using LMS___Mini_Version.features.EnrollmentFeature.GetInternEnrollmentHistory.Dtos;
 using LMS___Mini_Version.features.EnrollmentFeature.GetInternEnrollmentHistory.Query;
 using LMS___Mini_Version.features.EnrollmentFeature.GetInternEnrollmentHistory.ViewModules;
@@ -60,6 +61,29 @@ namespace LMS___Mini_Version.Controllers
 
 
             return StatusCode(result.StatusCode, response);
+        }
+
+        [HttpPost("{id}/complete")]
+        public async Task<ActionResult<EndpointResponse>> CompleteEnrollment(int id)
+        {
+            var result = await _mediator.Send(new CompleteEnrollmentCommand(id));
+            if (!result.Success)
+            {
+                var response = EndpointResponse.Fail(
+                    result.StatusCode,
+                    "Failed to complete enrollment.",
+                    result.Errors
+                );
+
+                return StatusCode(result.StatusCode, response);
+            }
+
+            var successResponse = EndpointResponse.OK(
+                    result.StatusCode,
+                    "Enrollment completed successfully."
+                );
+
+            return StatusCode(result.StatusCode, successResponse);
         }
 
         //[HttpPost]
