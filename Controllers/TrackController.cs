@@ -1,9 +1,11 @@
 
+using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Dtos;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
+using LMS___Mini_Version.features.TrackFeature.GetTrackAvailability;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,11 +39,22 @@ namespace LMS___Mini_Version.Controllers
 
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<>>> GetAll()
-        //{
-
-        //}
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<EndpointResponse<TrackAvailabilityViewModel>>> GetAll(int id)
+        {
+            RequestResponse<TrackAvailabilityDto> result = await _mediator.Send(new TrackAvailabilityQuery(id));
+            if(!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get track availability"));
+            return StatusCode(result.StatusCode, EndpointResponse<TrackAvailabilityViewModel>.OK(new TrackAvailabilityViewModel
+            {
+                TrackName = result.Data.TrackName,
+                IsActive = result.Data.IsActive,
+                MaxCapacity = result.Data.MaxCapacity,
+                ReservedSeats = result.Data.ReservedSeats,
+                AvailableSeats = result.Data.AvailableSeats
+            }, result.StatusCode, "success"));
+        }
 
         //[HttpGet("{id}")]
         //public async Task<ActionResult<>> GetById()

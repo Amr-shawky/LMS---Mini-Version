@@ -7,7 +7,8 @@
         public IDictionary<string, string[]>? Errors { get; init; }
         public string? Message { get; init; } = "";
         public DateTime TimeStamp { get; init; } = DateTime.UtcNow;
-        public ErrorCode ErrorCode { get; set; } = ErrorCode.None;
+        public ErrorCode ErrorCode { 
+            get; set; } = ErrorCode.None;
         public static EndpointResponse OK(int statusCode = 200, string msg = "") => new()
         { StatusCode = statusCode, Success = true, Message = msg };
 
