@@ -1,6 +1,10 @@
 
+using Azure;
 using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
+using LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.DTOs;
+using LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.Queries;
+using LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.ViewModels;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Dtos;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
@@ -60,6 +64,31 @@ namespace LMS___Mini_Version.Controllers
             );
 
             return StatusCode(response.StatusCode, response);
+        }
+
+
+        [HttpGet("{id:int}/availability")]
+        public async Task<ActionResult<EndpointResponse<CheckTrackAvaiabilityViewModel>>> CheckAvailability(int id)
+        {
+            var result = await _mediator.Send(new CheckTrackAvaiabilityQuery(id));
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, EndpointResponse<CheckTrackAvaiabilityViewModel>.Fail(result.StatusCode, "Failed to check Track Avaiabiliity", result.Errors));
+            }
+            else
+            {
+                var trackAvailabilityVM = new CheckTrackAvaiabilityViewModel
+                {
+                    TrackName = result.Data.TrackName,
+                    MaxCapacity = result.Data.MaxCapacity,
+                    ReservedSeats = result.Data.ReservedSeats,
+                    AvailableSeats = result.Data.AvailableSeats,
+                    IsActive = result.Data.IsActive
+                };
+                return StatusCode(result.StatusCode, EndpointResponse<CheckTrackAvaiabilityViewModel>.OK(trackAvailabilityVM, result.StatusCode, "Success"));
+
+            }
         }
 
         //[HttpPut("{id}")]
