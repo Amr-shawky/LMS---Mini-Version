@@ -1,5 +1,6 @@
 
 using Azure;
+using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.features.InternFeature.Commands;
 using LMS___Mini_Version.features.InternFeature.Queries;
 using LMS___Mini_Version.features.InternFeature.ViewModels;
@@ -83,6 +84,37 @@ namespace LMS___Mini_Version.Controllers
             }
         }
 
+
+
+
+        [HttpPost("{internId}/approve-and-register")]
+        public async Task<ActionResult<EndpointResponse<int>>> ApproveAndRegister(
+            int internId,
+            [FromBody] PaymentMethod method,
+            CancellationToken cancellationToken)
+        {
+          
+
+            var result = await _mediator.Send(
+                new ApproveAndRegisterCommand(internId, method));
+
+            if (!result.Success)
+            {
+                return StatusCode(
+                    result.StatusCode,
+                    EndpointResponse<bool>.Fail(
+                        result.StatusCode,
+                        "Failed to approve and register intern",
+                        result.Errors));
+            }
+
+            return StatusCode(
+                result.StatusCode,
+                EndpointResponse<bool>.OK(
+                    result.Data,
+                    result.StatusCode,
+                    "Intern approved and registered successfully"));
+        }
 
         //[HttpGet]
         //public async Task<ActionResult<IEnumerable<>>> GetAll()
