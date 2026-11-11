@@ -1,8 +1,10 @@
 
+using LMS___Mini_Version.features.EnrollmentsFeature.Commands;
 using LMS___Mini_Version.features.EnrollmentsFeature.Queries;
 using LMS___Mini_Version.features.EnrollmentsFeature.ViewModels;
 using LMS___Mini_Version.features.shared;
 using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS___Mini_Version.Controllers
@@ -37,6 +39,20 @@ namespace LMS___Mini_Version.Controllers
                 EnrollmentStatus = e.EnrollmentStatus.ToString()
             });
            return StatusCode(result.StatusCode, EndpointResponse<IEnumerable<InternEnrollmentHistoryViewModel>>.OK(enrollmentHistoryViewModels, result.StatusCode, "Enrollment history retrieved successfully."));
+        }
+
+        [HttpPost("{enrollmentId}/complete")]
+        public async Task<ActionResult<EndpointResponse>> CompleteEnrollemnent([FromRoute] int enrollmentId)
+        {
+            var response = await _mediator.Send(new CompleteEnrollmentCommand(enrollmentId));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.StatusCode, "Cannot Complete the EnrollementionCompletion ", response.Errors));
+            }
+            else
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.OK(response.StatusCode, "The Enrollement Completed Sucessfully"));
+            }
         }
 
         //[HttpGet]
