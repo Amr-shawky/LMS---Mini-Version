@@ -28,7 +28,7 @@
 
 	  <ItemGroup>
 		    
-		    <Folder Include="Domain\Enums\" />
+		    <Folder Include="Domain\Enums\" /><Folder Include="Features\InternFeature\Commands\" /><Folder Include="Features\InternFeature\ViewModels\" />
 		 
 	</ItemGroup>
 </Project>
