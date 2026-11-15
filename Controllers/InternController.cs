@@ -1,4 +1,6 @@
 
+using LMS___Mini_Version.Domain.Enums;
+using LMS___Mini_Version.features.InternFeature.ApproveRegisterIntern;
 using LMS___Mini_Version.features.InternFeature.BrowseInterns;
 using LMS___Mini_Version.features.InternFeature.DeleteIntern;
 using LMS___Mini_Version.features.InternFeature.RegisterIntern;
@@ -53,6 +55,16 @@ namespace LMS___Mini_Version.Controllers
                 TrackName = i.TrackName
             }), response.StatusCode));
 
+        }
+        [HttpPost("/{internId}/approve-and-register")]
+        public async Task<ActionResult<EndpointResponse>> ApproveAndRegister(int internId , PaymentMethod method)
+        {
+            RequestResponse response = await mediator.Send(new ApproveRegisterInternOrchestrator(internId,method));
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, EndpointResponse.Fail(response.StatusCode, errorCode: response.ErrorCode));
+            }
+            return StatusCode(response.StatusCode, EndpointResponse.OK(response.StatusCode));
         }
 
         //[HttpGet("{id}")]
