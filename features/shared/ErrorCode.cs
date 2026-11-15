@@ -17,5 +17,6 @@
         EnrollmentIsNotActive = 2002,
         EnrollmentPaymentCompleted = 2003,
         EnrollmentIsCancelled = 2004,
+        EnrollmentPaymentNotFound = 2005,
     }
 }

@@ -27,7 +27,7 @@ namespace LMS___Mini_Version.features.InternFeature.DeleteIntern
                 return RequestResponse.Fail(400, ErrorCode.InternHasEnrollment);
 
             _internRepository.Delete(intern);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return RequestResponse.OK();
 
 

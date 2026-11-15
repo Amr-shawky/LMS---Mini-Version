@@ -3,6 +3,8 @@ using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.features.shared;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 
 namespace LMS___Mini_Version.features.InternFeature.RegisterIntern
 {
@@ -12,14 +14,16 @@ namespace LMS___Mini_Version.features.InternFeature.RegisterIntern
         public async Task<RequestResponse<RegisterDto>> Handle(RegisterInternCommand request, CancellationToken cancellationToken)
         {
             Track track = _trackRepo.GetAll().FirstOrDefault(t => t.Id == request.trackId);
-            Intern intern = _internRepo.GetAll().FirstOrDefault(i => i.Email == request.email);
-            
+            var email = request.email.Trim().ToLowerInvariant();
+            bool IsIntern = await _internRepo.GetAll().AnyAsync(i => i.Email == request.email); 
+
+
 
             if (track == null)
                 return RequestResponse<RegisterDto>.Fail(404, ErrorCode.TrackNotFound);
             else if(track.IsActive == false)
                 return RequestResponse<RegisterDto>.Fail(400, ErrorCode.TrackIsNotActive);
-            if (intern != null)
+            if (!IsIntern)
                 return RequestResponse<RegisterDto>.Fail(400, ErrorCode.InternAlreadyExists);
 
 

@@ -28,7 +28,7 @@ namespace LMS___Mini_Version.features.EnrollmentFeature.CompleteTraining
             var result = _enrollmentRepository.GetAll().Where(e => e.Id == request.enrollmentId).Select(e => new
             {
                 Enrollment = e,
-                PaymentStatus = e.Payment.Status,
+                Payment = e.Payment!,
             }).FirstOrDefault();
 
             if (result == null)
@@ -41,7 +41,9 @@ namespace LMS___Mini_Version.features.EnrollmentFeature.CompleteTraining
                 return RequestResponse.Fail(400,ErrorCode.EnrollmentIsCancelled);
             if(enrollment.Status != EnrollmentStatus.Active)
                 return RequestResponse.Fail(400, ErrorCode.EnrollmentIsNotActive);
-            if(result.PaymentStatus != PaymentStatus.Completed)
+            if(result.Payment is null)
+                return RequestResponse.Fail(400, ErrorCode.EnrollmentPaymentNotFound);
+            if (result.Payment.Status != PaymentStatus.Completed)
                 return RequestResponse.Fail(400, ErrorCode.EnrollmentPaymentCompleted);
 
             //Enrollment enrollmentToUpdate = new Enrollment
@@ -50,7 +52,7 @@ namespace LMS___Mini_Version.features.EnrollmentFeature.CompleteTraining
             //    Status = EnrollmentStatus.Completed
             //};
             enrollment.Status = EnrollmentStatus.Completed;
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             //  _unitOfWork.SaveIncludesAsync(enrollmentToUpdate, nameof(Enrollment.Status));
 
             return RequestResponse.OK();
