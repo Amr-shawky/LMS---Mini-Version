@@ -29,7 +29,7 @@ namespace LMS___Mini_Version.features.TrackFeature.GetAllTracks.handler
             {
 
                 id = x.Id,
-                name = x.Name,
+                Name = x.Name,
                 MaxCapacity = x.MaxCapacity,
                 totalenrollment = x.Enrollments.Count()
 

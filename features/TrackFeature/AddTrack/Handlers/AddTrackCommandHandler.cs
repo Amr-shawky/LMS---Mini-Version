@@ -4,7 +4,7 @@ using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
 using MediatR;
 
-namespace LMS___Mini_Version.features.TrackFeature.AddTrack.handler
+namespace LMS___Mini_Version.features.TrackFeature.AddTrack.Handlers
 {
     public class AddTrackCommandHandler : IRequestHandler<AddTrackCommand, RequestResponse>
     {
