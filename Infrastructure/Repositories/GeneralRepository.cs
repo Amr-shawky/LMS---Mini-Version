@@ -1,10 +1,11 @@
-﻿using LMS___Mini_Version.Domain.Repositories;
+﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
-    public class GeneralRepository<T> : IGeneralRepository<T> where T : class
+    public class GeneralRepository<T> : IGeneralRepository<T> where T : baseEntity
     {
         private readonly AppDbContext _context;
 

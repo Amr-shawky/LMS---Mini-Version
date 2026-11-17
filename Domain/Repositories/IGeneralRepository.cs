@@ -1,6 +1,8 @@
-﻿namespace LMS___Mini_Version.Domain.Repositories
+﻿using LMS___Mini_Version.Domain.Entities;
+
+namespace LMS___Mini_Version.Domain.Repositories
 {
-    public interface IGeneralRepository<T> where T : class
+    public interface IGeneralRepository<T> where T : baseEntity
     {
         IEnumerable<T> GetAll();
 

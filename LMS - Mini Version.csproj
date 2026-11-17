@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	  <ItemGroup>
-		    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		    <PackageReference Include="MediatR" Version="10.0.1" /><PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" /><PackageReference Include="Swashbuckle.AspNetCore" Version="11.0.0" />
 		 
 	</ItemGroup>
 	<ItemGroup>
@@ -24,11 +24,13 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+
+		<PackageReference Include="System.Text.Json" Version="8.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Features\Tracks\Commands\" />
+	  <Folder Include="Migrations\" />
 	</ItemGroup>
 
-	  <ItemGroup>
-		    
-		    <Folder Include="Domain\Enums\" />
-		 
-	</ItemGroup>
+	  
 </Project>
