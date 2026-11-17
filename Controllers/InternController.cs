@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LMS___Mini_Version.Domain.Entities;
+﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Features.Interns.Commands;
+using LMS___Mini_Version.Features.Interns.DTOs;
+using LMS___Mini_Version.Features;
 using LMS___Mini_Version.Persistence;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using LMS___Mini_Version.Features.Interns.Queries;
+using LMS___Mini_Version.Features.Shared.LMS___Mini_Version.features.shared;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -8,64 +14,79 @@ namespace LMS___Mini_Version.Controllers
     [Route("api/[controller]")]
     public class InternController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator Mediator;
 
-        public InternController(AppDbContext context)
+        public InternController(IMediator mediator)
         {
-            _context = context;
+            this.Mediator = mediator;
         }
 
         [HttpGet]
-        public IEnumerable<Intern> GetAll()
+        public async Task<ActionResult<IEnumerable<GetAllinternsDTO>>> GetAll(CancellationToken cancellationToken)
         {
-            return _context.Interns.ToList();
+            var Interns = await Mediator.Send(new GetAllInternsQuery(), cancellationToken);
+            return Ok(Interns);
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<Intern> GetById(int id)
+        //[HttpGet("{id}")]
+        //public ActionResult<Intern> GetById(int id)
+        //{
+        //    var intern = _context.Interns.Find(id);
+
+        //    if (intern == null) return NotFound();
+
+        //    return intern;
+        //}
+
+
+        //[HttpPut("{id}")]
+        //public ActionResult Update(int id, Intern updatedIntern)
+        //{
+        //    var intern = _context.Interns.Find(id);
+        //    if (intern == null) return NotFound();
+
+        //    intern.FullName = updatedIntern.FullName;
+        //    intern.Email = updatedIntern.Email;
+        //    intern.BirthYear = updatedIntern.BirthYear;
+        //    intern.Status = updatedIntern.Status;
+        //    intern.TrackId = updatedIntern.TrackId;
+
+        //    _context.SaveChanges();
+        //    return NoContent();
+        //}
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<EndpointResponse>> Delete(int id,CancellationToken cancellationToken)
         {
-            var intern = _context.Interns.Find(id);
-
-            if (intern == null) return NotFound();
-
-            return intern;
+            var result = await Mediator.Send(new DeleteUnsendInternRecordCommand(id), cancellationToken);
+            if (result.StatusCode==404)
+                return new EndpointResponse
+                {
+                    StatusCode = 404,
+                    Message = "intern is not found",
+                    Success = false,
+                    TimeStamp = DateTime.UtcNow,
+                    Errors = result.Errors
+                };
+            if (result.StatusCode == 409)
+                return new EndpointResponse
+                {
+                    StatusCode = 409,
+                    Message = "Can't delete the intern cause it has enrollments",
+                    Success = false,
+                    TimeStamp = DateTime.UtcNow,
+                    Errors = result.Errors
+                };
+            return Ok(result);
         }
 
         [HttpPost]
-        public ActionResult Create(Intern intern)
+        public async Task<ActionResult<int>> Create(CreateInternCommand command,CancellationToken cancellationToken)
         {
-            _context.Interns.Add(intern);
-            _context.SaveChanges();
+            var InternId = await Mediator.Send(command, cancellationToken);
 
-            return Ok(intern);
-        }
+            return Ok(InternId);
 
-        [HttpPut("{id}")]
-        public ActionResult Update(int id, Intern updatedIntern)
-        {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
-
-            intern.FullName = updatedIntern.FullName;
-            intern.Email = updatedIntern.Email;
-            intern.BirthYear = updatedIntern.BirthYear;
-            intern.Status = updatedIntern.Status;
-            intern.TrackId = updatedIntern.TrackId;
-
-            _context.SaveChanges();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
-        {
-            var intern = _context.Interns.Find(id);
-            if (intern == null) return NotFound();
-
-            _context.Interns.Remove(intern);
-            _context.SaveChanges();
-
-            return NoContent();
         }
     }
 }
