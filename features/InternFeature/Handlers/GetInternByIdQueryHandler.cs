@@ -22,7 +22,7 @@ namespace LMS___Mini_Version.features.InternFeature.Handlers
             var intern = await _repository.GetByIdAsync(request.id);
             if (intern == null)
             {
-                return RequestResponse<GetInternByIdDto>.Fail(404, "InternId", "Intern Not Found");
+                return RequestResponse<GetInternByIdDto>.Fail(ErrorCode.InternNotFound, 404);
             }
             var internDto = new GetInternByIdDto()
             {

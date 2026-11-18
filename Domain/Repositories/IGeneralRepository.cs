@@ -16,5 +16,7 @@ namespace LMS___Mini_Version.Domain.Repositories
         void Update(T entity);
 
         void Delete(T entity);
+
+        Task<bool> ExistsAsync(int id);
     }
 }

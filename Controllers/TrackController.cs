@@ -27,7 +27,7 @@ namespace LMS___Mini_Version.Controllers
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to get tracks", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get tracks", result.ErrorCode.ToString()));
 
             var tracksVM = result.Data.Select(x => new TrackViewModel
             {
@@ -52,7 +52,7 @@ namespace LMS___Mini_Version.Controllers
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to get track", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get track", result.ErrorCode.ToString()));
 
             var track = result.Data;
             var trackVM = new GetTrackByIdViewModel()

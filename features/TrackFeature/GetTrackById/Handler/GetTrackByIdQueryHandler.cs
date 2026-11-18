@@ -22,7 +22,7 @@ namespace LMS___Mini_Version.features.TrackFeature.GetTrackById.Handler
             var track = await _repository.GetByIdAsync(request.id);
             if (track == null)
             {
-                return RequestResponse<GetTrackByIdDto>.Fail(404, "TrackId", "Track Not Found");
+                return RequestResponse<GetTrackByIdDto>.Fail(ErrorCode.TrackNotFound, 404);
             }
             var trackDto = new GetTrackByIdDto
             {

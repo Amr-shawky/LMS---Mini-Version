@@ -1,5 +1,6 @@
 
 using LMS___Mini_Version.features.EnrollmentFeature.Commands;
+using LMS___Mini_Version.features.EnrollmentFeature.Orchestrator;
 using LMS___Mini_Version.features.EnrollmentFeature.Queries;
 using LMS___Mini_Version.features.EnrollmentFeature.ViewModels;
 using LMS___Mini_Version.features.shared;
@@ -40,11 +41,11 @@ namespace LMS___Mini_Version.Controllers
         [HttpGet("intern/{internId}")]
         public async Task<ActionResult<EndpointResponse<IEnumerable<InternEnrollmentViewModel>>>> GetByIntern(int internId)
         {
-            var result = await _mediator.Send(new GetInternEnrollmentHistoryQuery(internId));
+            var result = await _mediator.Send(new EnrollmentHistoryOrchestrator(internId));
 
-            if (!result.Success)
+            if (!result.Success || result.Data is null)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to get enrollments", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get enrollments", result.ErrorCode.ToString()));
 
             var enrollmentVM = result.Data.Select(x => new InternEnrollmentViewModel
             {
@@ -72,11 +73,11 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost("{id}/complete")]
         public async Task<ActionResult<EndpointResponse>> Complete(int id)
         {
-            var result = await _mediator.Send(new CompleteEnrollmentCommand(id));
+            var result = await _mediator.Send(new CompleteEnrollmentOrchestrator(id));
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to complete enrollment", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to complete enrollment", result.ErrorCode.ToString()));
 
 
             return StatusCode(result.StatusCode, EndpointResponse.OK(result.StatusCode, "sucess"));

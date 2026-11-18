@@ -1,5 +1,6 @@
 
 using LMS___Mini_Version.features.InternFeature.Commands;
+using LMS___Mini_Version.features.InternFeature.Orchestrators;
 using LMS___Mini_Version.features.InternFeature.Queries;
 using LMS___Mini_Version.features.InternFeature.ViewModels;
 using LMS___Mini_Version.features.shared;
@@ -31,7 +32,7 @@ namespace LMS___Mini_Version.Controllers
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to get interns", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get interns", result.ErrorCode.ToString()));
 
             if(!result.Data.Any())
                 return StatusCode(result.StatusCode, EndpointResponse<IEnumerable<AllInternsViewModel>>.OK([], result.StatusCode, "no interns found"));
@@ -57,7 +58,7 @@ namespace LMS___Mini_Version.Controllers
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to get intern", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get intern", result.ErrorCode.ToString()));
 
             var intern = result.Data;
             var internVM = new GetInternByIdViewModel()
@@ -75,14 +76,14 @@ namespace LMS___Mini_Version.Controllers
         [HttpPost]
         public async Task<ActionResult<EndpointResponse>> Create(CreateInternViewModel viewModel)
         {
-            var result = await _mediator.Send(new CreateInternCommand(viewModel.FullName,
+            var result = await _mediator.Send(new RegisterInternOrchestrator(viewModel.FullName,
                 viewModel.Email, viewModel.BirthYear, viewModel.TrackId));
             if (!result.Success)
                 return StatusCode(result.StatusCode,
-                    EndpointResponse.Fail(result.StatusCode, "Failed to register intern", result.Errors));
+                    EndpointResponse.Fail(result.StatusCode, "Failed to register intern", result.ErrorCode.ToString()));
 
             var response = EndpointResponse.OK(201,
-                 $"Intern with Id {result.Data.Id} registered successfully");
+                 $"Intern with Id {result.Data!.Id} registered successfully");
 
             return StatusCode(response.StatusCode, response);
 
@@ -95,10 +96,18 @@ namespace LMS___Mini_Version.Controllers
 
         //}
 
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> Delete()
-        //{
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var result = await _mediator.Send(new DeleteInternOrchestrator(id));
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to remove intern", result.ErrorCode.ToString()));
 
-        //}
+            var response = EndpointResponse.OK(200,
+                 $"Intern with Id {id} deleted successfully");
+
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

@@ -2,6 +2,7 @@ using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
@@ -31,5 +32,28 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
+
+        public void SaveIncludes(T entity, params string[] includes)
+        {
+            var local = _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id);
+            EntityEntry<T> entry;
+            if (local is null)
+            {
+                entry = _context.Entry(entity);
+                
+            }
+            else
+            {
+                entry = _context.ChangeTracker.Entries<T>().First(e => e.Entity.Id == entity.Id);
+            }
+            entry.State = EntityState.Modified;
+            foreach (var include in includes)
+            {
+                entry.Property(include).IsModified = true;
+            }
+        }        
+
+        public async Task<bool> ExistsAsync(int id)
+        => await _context.Set<T>().AnyAsync(e => e.Id == id);
     }
 }
