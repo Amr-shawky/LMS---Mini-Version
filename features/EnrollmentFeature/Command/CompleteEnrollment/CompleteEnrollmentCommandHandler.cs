@@ -18,7 +18,7 @@ public class CompleteEnrollmentCommandHandler(
     {
         // enrollment + its payment in one query
         var enrollment = await enrollmentRepository.GetAll()
-            .Include(e => e.Payment)
+            .Include(e => e.Payment!.Status)
             .FirstOrDefaultAsync(e => e.Id == request.EnrollmentId, cancellationToken);
 
         if (enrollment is null)
