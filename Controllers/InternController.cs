@@ -1,5 +1,7 @@
 
 using LMS___Mini_Version.features.InternFeatures.AddIntern.Commands;
+using LMS___Mini_Version.features.InternFeatures.AddIntern.Orchestrator;
+using LMS___Mini_Version.features.InternFeatures.ApproveIntern.Orchestrator;
 using LMS___Mini_Version.features.InternFeatures.ApproveInternRegistration.Command;
 using LMS___Mini_Version.features.InternFeatures.DeleteIntern.Commands;
 using LMS___Mini_Version.features.InternFeatures.GetAllInterns.Query;
@@ -44,7 +46,7 @@ namespace LMS___Mini_Version.Controllers
         //}
 
         [HttpPost]
-        public async Task<ActionResult<EndpointResponse>> CreateIntern(AddInternCommand command)
+        public async Task<ActionResult<EndpointResponse<int>>> CreateIntern(AddInternOrchestrator command)
         {
             var result = await mediator.Send(command);
 
@@ -52,7 +54,7 @@ namespace LMS___Mini_Version.Controllers
             {
                 return StatusCode(
                     result.StatusCode,
-                    EndpointResponse.Fail(
+                    EndpointResponse<int>.Fail(
                         result.StatusCode,
                         "Failed to create intern",
                         result.Errors));
@@ -60,7 +62,7 @@ namespace LMS___Mini_Version.Controllers
 
             return StatusCode(
                 201,
-                EndpointResponse.OK(201, "Intern created successfully"));
+                EndpointResponse<int>.OK(result.Data,result.StatusCode));
         }
 
 
@@ -71,7 +73,7 @@ namespace LMS___Mini_Version.Controllers
         //}
 
         [HttpPost("{id}/approve-and-register")]
-        public async Task<ActionResult<EndpointResponse<int>>> ApproveIntern(int id, [FromBody] ApproveAndRegisterInternCommand command)
+        public async Task<ActionResult<EndpointResponse<int>>> ApproveIntern(int id, [FromBody] ApproveInternOrchestrator command)
         {
             if (id != command.InternId)
             {

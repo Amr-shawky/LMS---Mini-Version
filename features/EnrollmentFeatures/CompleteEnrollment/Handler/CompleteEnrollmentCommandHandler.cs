@@ -16,13 +16,13 @@ namespace LMS___Mini_Version.features.EnrollmentFeatures.CompleteEnrollment.Hand
 
         public async Task<RequestResponse> Handle(CompleteEnrollmentCommand request, CancellationToken cancellationToken)
         {
-            var enrollment = await enrollmentRepo.GetAll()
-                .Select(x=> new Enrollment
+            var enrollment = await enrollmentRepo.GetAll().Where(x=>x.Id == request.EnrollmentId)
+                .Select(x=> new
                 {
-                    Id = x.Id,
-                    Status = x.Status,
-                    Payment = x.Payment
-                }).FirstOrDefaultAsync(x => x.Id == request.EnrollmentId);
+                    Enrollment = x,
+                    EnrollmentStatus = x.Status,
+                    PaymentStatus =x.Payment ==null ? (PaymentStatus?)null : x.Payment.Status,
+                }).FirstOrDefaultAsync();
 
 
             if (enrollment == null)
@@ -32,28 +32,28 @@ namespace LMS___Mini_Version.features.EnrollmentFeatures.CompleteEnrollment.Hand
                     [nameof(request.EnrollmentId)] = new[] { "Enrollment not found" }
                 });
             }
-            if (enrollment.Status == EnrollmentStatus.Completed)
+            if (enrollment.EnrollmentStatus == EnrollmentStatus.Completed)
             {
                 return RequestResponse.Fail(409, new Dictionary<string, string[]>
                 {
                     [nameof(request.EnrollmentId)] = new[] { "Enrollment is already completed" }
                 });
             }
-            if(enrollment.Payment == null || enrollment.Payment.Status != PaymentStatus.Completed)
+            if(enrollment.PaymentStatus == null || enrollment.PaymentStatus != PaymentStatus.Completed)
             {
                 return RequestResponse.Fail(409, new Dictionary<string, string[]>
                 {
                     [nameof(request.EnrollmentId)] = new[] { "Enrollment payment is not completed" }
                 });
             }
-            if(enrollment.Status!=EnrollmentStatus.Active)
+            if(enrollment.EnrollmentStatus!=EnrollmentStatus.Active)
             {
                 return RequestResponse.Fail(409, new Dictionary<string, string[]>
                 {
                     [nameof(request.EnrollmentId)] = new[] { "Enrollment is not active" }
                 });
             }
-            enrollment.Status = EnrollmentStatus.Completed;
+            enrollment.Enrollment.Status = EnrollmentStatus.Completed;
             await UnitOfWork.SaveChangesAsync();
             return RequestResponse.OK();
 

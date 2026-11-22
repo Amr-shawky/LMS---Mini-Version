@@ -5,33 +5,41 @@ using LMS___Mini_Version.features.shared;
 using MediatR;
 using LMS___Mini_Version.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using LMS___Mini_Version.features.InternFeatures.GetAllInterns.Dtos;
 
 namespace LMS___Mini_Version.features.InternFeatures.ApproveIntern.Handler
 {
     public class ApproveAndRegisterInternCommandHandler(IGeneralRepository<Intern> internRepo,
-        IGeneralRepository<Enrollment> enrollmentRepo,
-        IGeneralRepository<Track> trackRepo,
         IUnitOfWork unitOfWork) : IRequestHandler<ApproveAndRegisterInternCommand, RequestResponse<int>>
     {
         private readonly IGeneralRepository<Intern> internRepo = internRepo;
-        private readonly IGeneralRepository<Enrollment> enrollmentRepo = enrollmentRepo;
-        private readonly IGeneralRepository<Track> trackRepo = trackRepo;
-
         private readonly IUnitOfWork unitOfWork = unitOfWork;
 
         public async Task<RequestResponse<int>> Handle(ApproveAndRegisterInternCommand request, CancellationToken cancellationToken)
         {
-           var intern = await internRepo.GetAll().Where(x=>x.Id == request.InternId).FirstOrDefaultAsync();
+           var data = await internRepo.GetAll().Where(x=>x.Id == request.InternId).Select(x=> new 
+           {
+               Intern = x,
+               Track = x.Track,
+               AlreadyEnrolled = x.Enrollments.Any(e =>
+             e.TrackId == x.TrackId &&
+             (e.Status == EnrollmentStatus.Pending ||
+              e.Status == EnrollmentStatus.Active)),
+               ReservedSeats = x.Track.Enrollments.Count(e =>
+                   e.Status == EnrollmentStatus.Pending ||
+                   e.Status == EnrollmentStatus.Active)
+           }).FirstOrDefaultAsync();
+
            
 
-            if (intern == null)
+            if (data?.Intern == null)
             {
                 return RequestResponse<int>.Fail(404, new Dictionary<string, string[]>
                 {
                     [nameof(request.InternId)] = new[] { "Intern not found" }
                 });
             }
-            if(intern.Status!="Pending")
+            if(data.Intern.Status!="Pending")
             {
                 return RequestResponse<int>.Fail(400, new Dictionary<string, string[]>
                 {
@@ -39,34 +47,30 @@ namespace LMS___Mini_Version.features.InternFeatures.ApproveIntern.Handler
                 });
             }
 
-            var track = await trackRepo.GetAll().FirstOrDefaultAsync(x => x.Id == intern.TrackId);
 
-            if (track == null)
+            if (data.Track == null)
             {
                 return RequestResponse<int>.Fail(404, new Dictionary<string, string[]>
                 {
-                    [nameof(intern.TrackId)] = new[] { "Track not found" }
+                    [nameof(data.Track)] = new[] { "Track not found" }
                 });
             }
 
-            if (!track.IsActive)
+            if (!data.Track.IsActive)
             {
                 return RequestResponse<int>.Fail(409, new Dictionary<string, string[]>
                 {
-                    [nameof(intern.TrackId)] = new[] { "Track is not active" }
+                    [nameof(data.Track.Id)] = new[] { "Track is not active" }
                 });
             }
-            var alreadyEnrolled = await enrollmentRepo.GetAll().AnyAsync
-                (x=>x.InternId==intern.Id && x.TrackId==intern.TrackId &&(x.Status == EnrollmentStatus.Pending || x.Status == EnrollmentStatus.Active));
-            if(alreadyEnrolled)
+            if (data.AlreadyEnrolled)
             {
                 return RequestResponse<int>.Fail(400, new Dictionary<string, string[]>
                 {
                     [nameof(request.InternId)] = new[] { "Intern is already enrolled in this track" }
                 });
             }
-            var enrollmentCount = await enrollmentRepo.GetAll().CountAsync(x => x.TrackId == intern.TrackId && (x.Status == EnrollmentStatus.Pending || x.Status == EnrollmentStatus.Active));
-            if (enrollmentCount >= track.MaxCapacity)
+            if (data.ReservedSeats >= data.Track.MaxCapacity)
             {
                 return RequestResponse<int>.Fail(400, new Dictionary<string, string[]>
                 {
@@ -82,27 +86,25 @@ namespace LMS___Mini_Version.features.InternFeatures.ApproveIntern.Handler
                 });
             }
 
-            intern.Status = "Accepted";
+            data.Intern.Status = "Accepted";
             var enrollment = new Enrollment
             {
-                InternId = intern.Id,
-                TrackId = intern.TrackId,
+                InternId = data.Intern.Id,
+                TrackId = data.Intern.TrackId,
                 EnrollmentDate = DateTime.UtcNow,
                 Status = EnrollmentStatus.Active,
                 Payment= new Payment
                 {
                     Method = request.PaymentMethod,
-                    Amount = track.Fees,
+                    Amount = data.Intern.Track.Fees,
                     PaymentDate = DateTime.UtcNow,
                     Status = PaymentStatus.Completed
                 }
             };
 
-            enrollmentRepo.Add(enrollment);
+            data.Intern.Enrollments.Add(enrollment);
             await unitOfWork.SaveChangesAsync();
             return RequestResponse<int>.OK(enrollment.Id);
-
-
         }
     }
 }
