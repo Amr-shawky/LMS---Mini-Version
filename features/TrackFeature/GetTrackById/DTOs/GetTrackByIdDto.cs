@@ -2,11 +2,13 @@
 {
     public class GetTrackByIdDto
     {
-        public int id { set; get; }
+        public int Id { set; get; }
 
-        public string name { set; get; } = String.Empty;
+        public string Name { set; get; } = String.Empty;
 
         public int MaxCapacity { get; set; }
         public bool IsActive { get; set; }
+        public decimal Fees { get; set; }
+
     }
 }

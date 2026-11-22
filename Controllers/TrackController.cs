@@ -6,6 +6,8 @@ using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
 using LMS___Mini_Version.features.TrackFeature.GetTrackById.Query;
 using LMS___Mini_Version.features.TrackFeature.GetTrackById.ViewModels;
+using LMS___Mini_Version.features.TrackFeature.Orchestrators;
+using LMS___Mini_Version.features.TrackFeature.Orchestrators.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +41,30 @@ namespace LMS___Mini_Version.Controllers
 
         }
 
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<EndpointResponse<TrackAvailabilityViewModel>>> GetTrackAvailability(int id)
+        {
+            var result = await _mediator.Send(new TrackAvailabilityOrchestrator(id));
+
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get track availability", result.ErrorCode.ToString()));
+
+            var track = result.Data;
+            var trackVM = new TrackAvailabilityViewModel()
+            {
+                TrackName = track.TrackName,
+                IsActive = track.IsActive,
+                MaxCapacity = track.MaxCapacity,
+                ReservedSeats = track.ReservedSeats,
+                AvailabeSeats = track.AvailabeSeats,
+            };
+
+            return StatusCode(result.StatusCode, EndpointResponse<TrackAvailabilityViewModel>.OK(trackVM, result.StatusCode, "sucess"));
+
+        }
+
+
         //[HttpGet]
         //public async Task<ActionResult<IEnumerable<>>> GetAll()
         //{
@@ -57,7 +83,7 @@ namespace LMS___Mini_Version.Controllers
             var track = result.Data;
             var trackVM = new GetTrackByIdViewModel()
             {
-                Name = track.name,
+                Name = track.Name,
                 IsActive = track.IsActive,
                 MaxCapacity = track.MaxCapacity,
             };

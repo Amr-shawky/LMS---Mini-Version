@@ -18,5 +18,6 @@ namespace LMS___Mini_Version.Domain.Repositories
         void Delete(T entity);
 
         Task<bool> ExistsAsync(int id);
+        public void SaveIncludes(T entity, params string[] includes);
     }
 }

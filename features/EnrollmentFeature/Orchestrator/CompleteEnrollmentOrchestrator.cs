@@ -26,6 +26,8 @@ namespace LMS___Mini_Version.features.EnrollmentFeature.Orchestrator
                 return RequestResponse<EnrollmentDto>.Fail(ErrorCode.InvalidEnrollmentId);
 
             var enrollment = await _mediator.Send(new GetEnrollmentQuery(request.id), cancellationToken);
+            if(!enrollment.Success)
+                return RequestResponse.Fail(ErrorCode.InvalidEnrollmentId);
 
             if (enrollment.Data!.EnrollmentStatus != EnrollmentStatus.Active)
                 return RequestResponse.Fail(ErrorCode.EnrollmentNotActive, 400);

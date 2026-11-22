@@ -26,8 +26,8 @@ namespace LMS___Mini_Version.features.TrackFeature.GetTrackById.Handler
             }
             var trackDto = new GetTrackByIdDto
             {
-                id = track.Id,
-                name = track.Name,
+                Id = track.Id,
+                Name = track.Name,
                 IsActive = track.IsActive,
                 MaxCapacity = track.MaxCapacity
             };

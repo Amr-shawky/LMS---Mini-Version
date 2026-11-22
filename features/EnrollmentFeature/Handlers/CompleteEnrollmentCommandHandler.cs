@@ -23,6 +23,9 @@ namespace LMS___Mini_Version.features.EnrollmentFeature.Handlers
         public async Task<RequestResponse> Handle(CompleteEnrollmentCommand request, CancellationToken cancellationToken)
         {
             var enrollment = await _repository.GetByIdAsync(request.id);
+            if (enrollment == null)
+                return RequestResponse.Fail(ErrorCode.InvalidEnrollmentId);
+
             enrollment!.Status = EnrollmentStatus.Completed;
             await _unitOfWork.SaveChangesAsync();
 

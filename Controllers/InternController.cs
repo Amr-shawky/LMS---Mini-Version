@@ -26,9 +26,9 @@ namespace LMS___Mini_Version.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AllInternsViewModel>>> GetAll()
+        public async Task<ActionResult<IEnumerable<AllInternsViewModel>>> GetAll([FromQuery] BrowseInternsViewModel viewModel)
         {
-            var result = await _mediator.Send(new GetAllInternsQuery());
+            var result = await _mediator.Send(new GetAllInternsQuery(viewModel.PageIndex, viewModel.PageSize));
 
             if (!result.Success)
                 return StatusCode(result.StatusCode,
@@ -84,6 +84,22 @@ namespace LMS___Mini_Version.Controllers
 
             var response = EndpointResponse.OK(201,
                  $"Intern with Id {result.Data!.Id} registered successfully");
+
+            return StatusCode(response.StatusCode, response);
+
+
+        }
+
+        [HttpPost("{InternId}/approve-and-register")]
+        public async Task<ActionResult<EndpointResponse>> Approve(int InternId, [FromQuery] ApproveInternViewModel viewModel)
+        {
+            var result = await _mediator.Send(new ApproveAndRegisterInternOrchestrator(InternId, viewModel.PaymentMethod));
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to Approve intern", result.ErrorCode.ToString()));
+
+            var response = EndpointResponse.OK(201,
+                 $"New Enrollment with Id {result.Data!} created successfully");
 
             return StatusCode(response.StatusCode, response);
 

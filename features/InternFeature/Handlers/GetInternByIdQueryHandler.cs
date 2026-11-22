@@ -30,6 +30,7 @@ namespace LMS___Mini_Version.features.InternFeature.Handlers
                 Email = intern.Email,
                 BirthYear = intern.BirthYear,
                 Status = intern.Status,
+                TrackId = intern.TrackId,
             };
 
             return RequestResponse<GetInternByIdDto>.OK(internDto);
