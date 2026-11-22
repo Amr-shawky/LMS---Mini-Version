@@ -6,6 +6,7 @@ using LMS___Mini_Version.features.InternFeature.CreateIntern.ViewModels;
 using LMS___Mini_Version.features.InternFeature.DeleteIntern.Commands;
 using LMS___Mini_Version.features.InternFeature.GetAllInterns.Query;
 using LMS___Mini_Version.features.InternFeature.GetAllInterns.ViewModels;
+using LMS___Mini_Version.features.InternFeature.RegisterInternOrch.Orchestrator;
 using LMS___Mini_Version.features.shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -118,18 +119,23 @@ namespace LMS___Mini_Version.Controllers
 
         //}
 
+
         [HttpPost]
         public async Task<ActionResult<EndpointResponse<int>>> Create(
-            CreateInternViewModel model)
+        [FromBody] CreateInternViewModel model,
+        CancellationToken cancellationToken)
         {
-            var command = new CreateInternCommand(
+            var orchestrator = new RegisterInternOrchestrator(
                 model.FullName,
                 model.Email,
                 model.BirthYear,
                 model.TrackId
             );
 
-            var result = await mediator.Send(command);
+            var result = await mediator.Send(
+                orchestrator,
+                cancellationToken
+            );
 
             if (!result.Success)
             {
@@ -152,6 +158,7 @@ namespace LMS___Mini_Version.Controllers
                 )
             );
         }
+
         //[HttpPut("{id}")]
         //public async Task<ActionResult> Update()
         //{
