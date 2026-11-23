@@ -1,5 +1,6 @@
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Persistence;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LMS___Mini_Version.Infrastructure.Repositories
 {
@@ -20,6 +21,11 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
         {
             _context.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        public async Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken = default)
+        {
+           return  await _context.Database.BeginTransactionAsync(cancellationToken);
         }
     }
 }

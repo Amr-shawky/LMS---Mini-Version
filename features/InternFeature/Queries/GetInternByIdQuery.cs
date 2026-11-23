@@ -7,3 +7,6 @@ namespace LMS___Mini_Version.features.InternFeature.Queries
     public record GetInternByIdQuery(int internId) : IRequest<RequestResponse<GetInternByIdDTO>>;
     
 }
+
+
+

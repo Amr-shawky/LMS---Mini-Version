@@ -1,4 +1,5 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
+using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.features.EnrollementFeature.Commands;
 using LMS___Mini_Version.features.EnrollementFeature.Query;
 using LMS___Mini_Version.features.InternFeature.Commands;
@@ -13,22 +14,26 @@ using MediatR;
 
 namespace LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrchestrator.Handlers
 {
+
     public class ApproveAndCreateInternOrchestratorHandler :IRequestHandler<ApproveandCreateInternOrchestratorCommand,RequestResponse<ApproveAndRegisterDTO>>
     {
         private readonly IMediator mediator;
+        private readonly IUnitOfWork unitOfWork;
 
-        public ApproveAndCreateInternOrchestratorHandler(IMediator mediator)
+        public ApproveAndCreateInternOrchestratorHandler(IMediator mediator , IUnitOfWork unitOfWork)
         {
             this.mediator = mediator;
+            this.unitOfWork = unitOfWork;
         }
 
-        
+
         public async Task<RequestResponse<ApproveAndRegisterDTO>> Handle(ApproveandCreateInternOrchestratorCommand request, CancellationToken cancellationToken)
         {
 
             // get intern
+
             var internResponse = await mediator.Send(new GetInternByIdQuery(request.internId));
-            if(!internResponse.Success || internResponse.Data is null)
+            if (!internResponse.Success || internResponse.Data is null)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(internResponse.StatusCode, internResponse.Errors);
 
@@ -45,13 +50,13 @@ namespace LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrches
 
             // get track 
             var trackResponse = await mediator.Send(new GetTrackByIdQuery(internData.TrackId));
-            if(!trackResponse.Success )
+            if (!trackResponse.Success)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(trackResponse.StatusCode, trackResponse.Errors);
             }
             // track exists and active
             var Track = trackResponse.Data;
-            if(Track == null || !Track.IsActive)
+            if (Track == null || !Track.IsActive)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(400, new Dictionary<string, string[]>
                 {
@@ -61,11 +66,11 @@ namespace LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrches
             }
             // check Avaiability
             var avaiabilityResponse = await mediator.Send(new CheckTrackAvaiabilityQuery(Track.Id));
-            if(!avaiabilityResponse.Success)
+            if (!avaiabilityResponse.Success)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(avaiabilityResponse.StatusCode, avaiabilityResponse.Errors);
             }
-            if(avaiabilityResponse.Data!.AvailableSeats <=0)
+            if (avaiabilityResponse.Data!.AvailableSeats <= 0)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(400, new Dictionary<string, string[]>
                 {
@@ -74,12 +79,12 @@ namespace LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrches
             }
             // enrollement with track id and internId
             var enrollementResponse = await mediator.Send(new GetEnrollementWithInternIdQuery(internData.Id));
-            if(!enrollementResponse.Success || enrollementResponse.Data is null)
+            if (!enrollementResponse.Success || enrollementResponse.Data is null)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(enrollementResponse.StatusCode, enrollementResponse.Errors);
             }
             bool exist = enrollementResponse.Data.Any(x => x.TrackId == internData.TrackId && (x.Status == Domain.Enums.EnrollmentStatus.Pending || x.Status == Domain.Enums.EnrollmentStatus.Active));
-            if(exist)
+            if (exist)
             {
                 return RequestResponse<ApproveAndRegisterDTO>.Fail(400, new Dictionary<string, string[]>
                 {
@@ -88,37 +93,57 @@ namespace LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrches
 
             }
 
-            var approveResponse = await mediator.Send(new ApproveInternCommand(internData.Id));
-            if(!approveResponse.Success)
+            // begin Transaction
+            var tran = await unitOfWork.BeginTransaction();
+            try
             {
-                return RequestResponse<ApproveAndRegisterDTO>.Fail(approveResponse.StatusCode, approveResponse.Errors);
+
+                //approve
+
+                var approveResponse = await mediator.Send(new ApproveInternCommand(internData.Id));
+                if (!approveResponse.Success)
+                {
+                    await tran.RollbackAsync();
+                    return RequestResponse<ApproveAndRegisterDTO>.Fail(approveResponse.StatusCode, approveResponse.Errors);
+
+                }
+                // create enrollment
+                var createEnrollementResponse = await mediator.Send(new CreateEnrollementCommand(internData.Id, internData.TrackId, Domain.Enums.EnrollmentStatus.Active, DateTime.Now)
+
+                    );
+                if (!createEnrollementResponse.Success)
+                {
+                    await tran.RollbackAsync();
+                    return RequestResponse<ApproveAndRegisterDTO>.Fail(createEnrollementResponse.StatusCode, createEnrollementResponse.Errors);
+                }
+                //create payment
+                var enrollId = createEnrollementResponse.Data!.Id;
+                var createPaymentResponse = await mediator.Send(new CreatePaymentCommand(enrollId, Track.Fees, Domain.Enums.PaymentStatus.Completed, request.paymentMethod, DateTime.Now));
+
+                if (!createPaymentResponse.Success)
+                {
+                    await tran.RollbackAsync();
+                    return RequestResponse<ApproveAndRegisterDTO>.Fail(
+                        createPaymentResponse.StatusCode,
+                        createPaymentResponse.Errors);
+                }
+
+                await tran.CommitAsync();
+                return RequestResponse<ApproveAndRegisterDTO>.OK(
+                new ApproveAndRegisterDTO
+                {
+                    EnrollementId = enrollId,
+                },
+                200);
+            }catch
+            {
+                await tran.RollbackAsync();
+                return RequestResponse<ApproveAndRegisterDTO>.Fail(400);
 
             }
-            // create enrollment
-            var createEnrollementResponse = await  mediator.Send(new CreateEnrollementCommand( internData.Id , internData.TrackId, Domain.Enums.EnrollmentStatus.Active, DateTime.Now)
-                
-                );
-            if(!createEnrollementResponse.Success)
-            {
-                return RequestResponse<ApproveAndRegisterDTO>.Fail(createEnrollementResponse.StatusCode, createEnrollementResponse.Errors);
+
+
             }
-            //create payment
-            var enrollId = createEnrollementResponse.Data!.Id;
-            var createPaymentResponse = await mediator.Send(new CreatePaymentCommand(enrollId, Track.Fees, Domain.Enums.PaymentStatus.Completed, request.paymentMethod, DateTime.Now));
-
-            if (!createPaymentResponse.Success)
-                return RequestResponse<ApproveAndRegisterDTO>.Fail(
-                    createPaymentResponse.StatusCode,
-                    createPaymentResponse.Errors);
-
-            return RequestResponse<ApproveAndRegisterDTO>.OK(
-            new ApproveAndRegisterDTO
-            {
-                EnrollementId = enrollId,
-            },
-            200);
-
-
-        }
+            
     }
 }

@@ -30,13 +30,17 @@ namespace LMS___Mini_Version.features.EnrollementFeature.Handler
             };
             enrollementrepo.Add(enrollement);
             var res = await unitOfWork.SaveChangesAsync();
-            int id = await enrollementrepo.GetAll().Where(x => x.InternId == request.internId && x.InternId == request.internId).Select(x => x.Id).FirstOrDefaultAsync();
+            if(res < 0)
+            {
+                RequestResponse<CreateEnrollementDTO>.Fail(400);
+            }
+           
             var dto = new CreateEnrollementDTO()
             {
-                Id = id
+                Id = enrollement.Id
             };
 
-            return res > 0 ? RequestResponse<CreateEnrollementDTO>.OK(dto , 200) : RequestResponse<CreateEnrollementDTO>.Fail(400);
+            return RequestResponse<CreateEnrollementDTO>.OK(dto, 200);
             
         }
     }

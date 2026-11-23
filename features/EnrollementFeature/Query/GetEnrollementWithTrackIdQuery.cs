@@ -4,6 +4,6 @@ using MediatR;
 
 namespace LMS___Mini_Version.features.EnrollementFeature.Query
 {
-    public record GetEnrollementByTrackIdQuery(int trackId) :IRequest<RequestResponse<IEnumerable<EnrollementByTrackIdDTO>>>;
+    public record GetEnrollementWithTrackIdQuery (int trackId): IRequest<RequestResponse<IEnumerable<EnrollementByTrackIdDTO>>>;
     
 }

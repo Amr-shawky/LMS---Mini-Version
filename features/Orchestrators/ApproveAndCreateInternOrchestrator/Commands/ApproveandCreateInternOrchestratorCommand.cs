@@ -8,3 +8,4 @@ namespace LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrches
     public record ApproveandCreateInternOrchestratorCommand (int internId , PaymentMethod paymentMethod): IRequest<RequestResponse<ApproveAndRegisterDTO>>;
     
 }
+

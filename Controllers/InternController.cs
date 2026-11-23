@@ -2,6 +2,7 @@
 using LMS___Mini_Version.Domain.Enums;
 using LMS___Mini_Version.features.InternFeature.Commands;
 using LMS___Mini_Version.features.InternFeature.DTOs;
+using LMS___Mini_Version.features.InternFeature.Orchestrator;
 using LMS___Mini_Version.features.InternFeature.Queries;
 using LMS___Mini_Version.features.InternFeature.ViewModels;
 using LMS___Mini_Version.features.Orchestrators.ApproveAndCreateInternOrchestrator.Commands;
@@ -61,7 +62,7 @@ namespace LMS___Mini_Version.Controllers
         
         public async Task<ActionResult<EndpointResponse<CreateInternViewModel>>> Create ([FromBody]AssignInternWithTrackViewModel intern)
         {
-            var response = await  mediator.Send(new AssignInternIntoTrackCommand(intern.FullName  , intern.Email , intern.BirthYear, intern.TrackId));
+            var response = await  mediator.Send(new AssignInternToEnrollementOrchreatrator(intern.FullName  , intern.Email , intern.BirthYear, intern.TrackId));
             if(!response.Success)
             {
                 return StatusCode(response.StatusCode , EndpointResponse.Fail(response.StatusCode ,"Cannot Assign Intern to track" ,response.Errors));

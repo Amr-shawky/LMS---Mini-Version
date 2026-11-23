@@ -12,6 +12,7 @@ namespace LMS___Mini_Version.features.InternFeature.Handlers
     {
         private readonly IGeneralRepository<Intern> internRepo;
         private readonly IMediator mediator;
+
         private readonly IUnitOfWork unitOfWork;
 
         public DeleteInternCommandHandler(IGeneralRepository<Intern> internRepo, IMediator mediator ,IUnitOfWork unitOfWork )
@@ -51,7 +52,7 @@ namespace LMS___Mini_Version.features.InternFeature.Handlers
             }
            
             
-            internRepo.Delete(intern);
+           internRepo.Delete(intern);
            var res = await  unitOfWork.SaveChangesAsync();
             return res > 0 ? RequestResponse.OK(200) : RequestResponse.Fail(400);
 

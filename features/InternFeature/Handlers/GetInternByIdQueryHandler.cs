@@ -35,6 +35,8 @@ namespace LMS___Mini_Version.features.InternFeature.Handlers
                     Status = intern.Status,
                     TrackId = intern.TrackId,
 
+
+
                 };
                 return RequestResponse<GetInternByIdDTO>.OK( dto, 200);
             }

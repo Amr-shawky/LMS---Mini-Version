@@ -5,22 +5,30 @@ using LMS___Mini_Version.features.shared;
 using LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.DTO;
 using LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.Query;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.Handler
 {
     public class CheckTrackAvaiabilityQueryHandler : IRequestHandler<CheckTrackAvaiabilityQuery, RequestResponse<CheckTrackAvailabilityDTO>>
     {
         private readonly IGeneralRepository<Track> trackRepo;
-        private readonly IMediator mediator;
+        
 
-        public CheckTrackAvaiabilityQueryHandler(IGeneralRepository<Track> trackRepo, IMediator mediator)
+        public CheckTrackAvaiabilityQueryHandler(IGeneralRepository<Track> trackRepo)
         {
             this.trackRepo = trackRepo;
-            this.mediator = mediator;
+            
         }
-        public async  Task<RequestResponse<CheckTrackAvailabilityDTO>> Handle(CheckTrackAvaiabilityQuery request, CancellationToken cancellationToken)
+        public async Task<RequestResponse<CheckTrackAvailabilityDTO>> Handle(CheckTrackAvaiabilityQuery request, CancellationToken cancellationToken)
         {
-            var track = await trackRepo.GetByIdAsync(request.trackId);
+            var track = await trackRepo.GetAll().Where(x => x.Id == request.trackId).Select(x => new
+            {
+                IsActive = x.IsActive,
+                maxCapacity = x.MaxCapacity,
+                trackName = x.Name,
+                reservedSeats = x.Enrollments.Count(e => e.Status == Domain.Enums.EnrollmentStatus.Pending || e.Status==Domain.Enums.EnrollmentStatus.Active),
+                
+            }).FirstOrDefaultAsync();
             if (track == null)
             {
                 IDictionary<string, string[]> errors = new Dictionary<string, string[]>()
@@ -31,39 +39,20 @@ namespace LMS___Mini_Version.features.TrackFeature.CheckTrackAvaiability.Handler
 
             }
 
-
-
-            var entrollemntdResponse = await mediator.Send(new GetEnrollementByTrackIdQuery(request.trackId));
-            if(!entrollemntdResponse.Success)
+           
+            int availableSeats = track.maxCapacity - track.reservedSeats;
+            if(availableSeats < 0)
             {
-                return RequestResponse<CheckTrackAvailabilityDTO>.Fail(entrollemntdResponse.StatusCode, entrollemntdResponse.Errors);
+                availableSeats = 0;
             }
-            int reserveSeats = 0;
-            if (entrollemntdResponse.Data !=null)
-            {
-                var statuses = entrollemntdResponse.Data.Select(x => x.enrollementStatus).ToList();
-              
-                foreach(var status in statuses)
-                {
-                    if(status is Domain.Enums.EnrollmentStatus.Pending || status is Domain.Enums.EnrollmentStatus.Active)
-                    {
-                        reserveSeats++;
-                    }
-                }
-
-            }
-            int AvailableSeats = track.MaxCapacity - reserveSeats;
-            if (AvailableSeats< 0)
-            {
-                AvailableSeats = 0;
-            }
+          
             var dto = new CheckTrackAvailabilityDTO()
             {
-                AvailableSeats = AvailableSeats,
-                MaxCapacity = track.MaxCapacity,
+                AvailableSeats = availableSeats,
+                MaxCapacity = track.maxCapacity,
                 IsActive = track.IsActive,
-                ReservedSeats = reserveSeats,
-                TrackName = track.Name,
+                ReservedSeats = track.reservedSeats,
+                TrackName = track.trackName,
 
             };
             return RequestResponse<CheckTrackAvailabilityDTO>.OK(dto , 200);

@@ -13,18 +13,16 @@ namespace LMS___Mini_Version.features.EnrollementFeature.Handler
     public class GetEnrollementWithInternIdQueryHandler : IRequestHandler<GetEnrollementWithInternIdQuery, RequestResponse<IEnumerable<EnrollementByInternIdDTO>>>
     {
         private readonly IGeneralRepository<Enrollment> enrollementRepo;
-        private readonly IMediator mediator;
+       
 
-        public GetEnrollementWithInternIdQueryHandler(IGeneralRepository<Enrollment> enrollementRepo , IMediator mediator)
+        public GetEnrollementWithInternIdQueryHandler(IGeneralRepository<Enrollment> enrollementRepo )
         {
             this.enrollementRepo = enrollementRepo;
-            this.mediator = mediator;
+            
         }
         public async Task<RequestResponse<IEnumerable<EnrollementByInternIdDTO>>> Handle(GetEnrollementWithInternIdQuery request, CancellationToken cancellationToken)
         {
-            var response = await mediator.Send(new GetInternByIdQuery(request.internId));
-            if (!response.Success || response.Data is null)
-                return RequestResponse<IEnumerable<EnrollementByInternIdDTO>>.Fail(response.StatusCode, response.Errors);
+           
 
           var res = await enrollementRepo.GetAll().Where(x => x.InternId == request.internId).Select(x => new EnrollementByInternIdDTO
             {

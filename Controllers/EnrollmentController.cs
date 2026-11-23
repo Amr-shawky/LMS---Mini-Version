@@ -1,5 +1,6 @@
 
 using LMS___Mini_Version.features.EnrollementFeature.Commands;
+using LMS___Mini_Version.features.EnrollementFeature.Orchestrator;
 using LMS___Mini_Version.features.EnrollementFeature.Query;
 using LMS___Mini_Version.features.EnrollementFeature.ViewModels;
 using LMS___Mini_Version.features.shared;
@@ -26,7 +27,7 @@ namespace LMS___Mini_Version.Controllers
 
        public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollementsByInternIdViewModel>>>> GetAllEnrollemnentsByInternId( [FromRoute]int internId)
         {
-          var response =  await  mediator.Send(new GetEnrollementWithInternIdQuery(internId));
+          var response =  await  mediator.Send(new GetEnrollementWithInternIdOrchestrator(internId));
            if(!response.Success || response.Data is null)
             {
                 return StatusCode(response.StatusCode,EndpointResponse<IEnumerable<EnrollementsByInternIdViewModel>>.Fail(response.StatusCode,"Error Occured when trying to get the data",response.Errors));
@@ -70,7 +71,7 @@ namespace LMS___Mini_Version.Controllers
 
         public async Task<ActionResult<EndpointResponse<IEnumerable<EnrollementByTrackIdViewModel>>>> GetAllEnrollemnentsByTrackId([FromRoute] int trackId)
         {
-            var response = await mediator.Send(new GetEnrollementByTrackIdQuery(trackId));
+            var response = await mediator.Send(new GetEnrollementsWithTrackIdOrchestrator(trackId));
             if (!response.Success || response.Data is null)
             {
                 return StatusCode(response.StatusCode, EndpointResponse<IEnumerable<EnrollementByTrackIdViewModel>>.Fail(response.StatusCode, "Error Occured when trying to get the data", response.Errors));

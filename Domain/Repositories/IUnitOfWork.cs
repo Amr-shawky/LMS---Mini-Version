@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace LMS___Mini_Version.Domain.Repositories
 {
 
@@ -5,5 +7,6 @@ namespace LMS___Mini_Version.Domain.Repositories
     {
 
         Task<int> SaveChangesAsync();
+        Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken = default);
     }
 }
