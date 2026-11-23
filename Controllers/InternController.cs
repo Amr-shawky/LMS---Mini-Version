@@ -1,7 +1,7 @@
 using LMS___Mini_Version.Domain.Enums;
-using LMS___Mini_Version.features.InternFeature.ApproveAndRegisterIntern.Commands;
+using LMS___Mini_Version.features.InternFeature.ApproveAndRegisterIntern.Orchestrators;
 using LMS___Mini_Version.features.InternFeature.ApproveAndRegisterIntern.ViewModels;
-using LMS___Mini_Version.features.InternFeature.CreateIntern.Commands;
+using LMS___Mini_Version.features.InternFeature.CreateIntern.Orchestrators;
 using LMS___Mini_Version.features.InternFeature.CreateIntern.ViewModels;
 using LMS___Mini_Version.features.InternFeature.DeleteUnusedIntern.Commands;
 using LMS___Mini_Version.features.InternFeature.GetAllInterns.Queries;
@@ -71,8 +71,8 @@ namespace LMS___Mini_Version.Controllers
                 return BadRequest(errorResponse);
             }
 
-            var command = new CreateInternCommand(vm.FullName, vm.Email, vm.BirthYear, vm.TrackId);
-            var result = await _mediator.Send(command, cancellationToken);
+            var orchestrator = new CreateInternOrchestrator(vm.FullName, vm.Email, vm.BirthYear, vm.TrackId);
+            var result = await _mediator.Send(orchestrator, cancellationToken);
             if (!result.Success)
             {
                 var errorResponse = EndpointResponse<int>.Fail(result.StatusCode, errors: result.Errors);
@@ -121,8 +121,8 @@ namespace LMS___Mini_Version.Controllers
                 return BadRequest(errorResponse);
             }
 
-            var command = new ApproveAndRegisterInternCommand(internId, vm.Method);
-            var result = await _mediator.Send(command, cancellationToken);
+            var orchestrator = new ApproveAndRegisterInternOrchestrator(internId, vm.Method);
+            var result = await _mediator.Send(orchestrator, cancellationToken);
             if (!result.Success)
             {
                 var errorResponse = EndpointResponse<int>.Fail(result.StatusCode, errors: result.Errors);

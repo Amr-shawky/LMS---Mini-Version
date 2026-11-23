@@ -1,22 +1,21 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.features.InternFeature.CheckInternEmailExists.Queries;
 using LMS___Mini_Version.features.InternFeature.CreateIntern.Commands;
 using LMS___Mini_Version.features.shared;
-using LMS___Mini_Version.features.TrackFeature.GetTrackById.Queries;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace LMS___Mini_Version.features.InternFeature.CreateIntern.handler
 {
     public class CreateInternCommandHandler : IRequestHandler<CreateInternCommand, RequestResponse<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IGeneralRepository<Intern> _internRepository;
+        private readonly IGeneralRepository<Intern> _repository;
         private readonly IMediator _mediator;
-        public CreateInternCommandHandler(IUnitOfWork unitOfWork, IGeneralRepository<Intern> internRepository, IMediator mediator)
+        public CreateInternCommandHandler(IUnitOfWork unitOfWork, IGeneralRepository<Intern> repository, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
-            _internRepository = internRepository;
+            _repository = repository;
             _mediator = mediator;
         }
         public async Task<RequestResponse<int>> Handle(CreateInternCommand request, CancellationToken cancellationToken)
@@ -42,22 +41,15 @@ namespace LMS___Mini_Version.features.InternFeature.CreateIntern.handler
             {
                 return RequestResponse<int>.Fail(400, errors);
             }
-            var trackResponse =await _mediator.Send(new GetTrackByIdQuery(request.TrackId), cancellationToken);
-            if (trackResponse.Data is null)
+            var emailExistsResponse = await _mediator.Send(new CheckInternEmailExistsQuery(request.Email),cancellationToken);
+   
+            if (!emailExistsResponse.Success)
             {
-                return RequestResponse<int>
-                    .Fail(404,new Dictionary<string, string[]>{{ "Track", new[] { "Track data not found" } }});
+                return RequestResponse<int>.Fail(emailExistsResponse.StatusCode,emailExistsResponse.Errors);
             }
-
-            if (!trackResponse.Data.IsActive)
+            if (emailExistsResponse.Data)
             {
-                return RequestResponse<int>
-                    .Fail(409,new Dictionary<string, string[]>{{ "Track", new[] { "Track is inactive" } }});
-            }
-            var emailExists = await _internRepository.GetAll().AnyAsync(i => i.Email.ToLower() == request.Email.ToLower(), cancellationToken);
-            if (emailExists)
-            {
-                return RequestResponse<int>.Fail(409, new Dictionary<string, string[]> { { "Email", new[] { "Email already exists." } } });
+                return RequestResponse<int>.Fail(409,new Dictionary<string, string[]>{ { "Email", new[] { "Email already exists." } }  });
             }
             var intern = new Intern
             {
@@ -67,7 +59,7 @@ namespace LMS___Mini_Version.features.InternFeature.CreateIntern.handler
                 TrackId = request.TrackId,
                 Status = "Pending"
             };
-            _internRepository.Add(intern);
+            _repository.Add(intern);
             await _unitOfWork.SaveChangesAsync();
             return RequestResponse<int>.OK(intern.Id);
         }

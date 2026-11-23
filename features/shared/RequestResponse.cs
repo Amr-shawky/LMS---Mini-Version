@@ -1,6 +1,6 @@
 ﻿namespace LMS___Mini_Version.features.shared
 {
-    public class RequestResponse
+    public class RequestResponse : IResponseStatus
     {
         public bool Success { get; init; }
         public int StatusCode { get; init; }

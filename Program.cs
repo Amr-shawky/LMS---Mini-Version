@@ -1,4 +1,5 @@
 using LMS___Mini_Version.Domain.Repositories;
+using LMS___Mini_Version.features.shared.Behaviors;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Persistence;
 using MediatR;
@@ -22,6 +23,7 @@ namespace LMS___Mini_Version
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddMediatR(typeof(Program).Assembly);
+            builder.Services.AddTransient(typeof(IPipelineBehavior<,>),typeof(TransactionBehavior<,>));
 
             var app = builder.Build();
 
