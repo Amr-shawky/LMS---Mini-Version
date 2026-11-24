@@ -40,7 +40,7 @@ namespace LMS___Mini_Version.features.TrackFeature.Orchestrators
                 
                 foreach (var enrollment in data)
                 {
-                    if (enrollment.EnrollmentStatus is "Pending" or "Completed")
+                    if (enrollment.EnrollmentStatus is "Pending" or "Active")
                         reserved++;
                 }
                 available = track.Data!.MaxCapacity >= reserved ? 

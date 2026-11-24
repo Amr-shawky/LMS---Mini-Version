@@ -15,12 +15,10 @@ namespace LMS___Mini_Version.features.InternFeature.Orchestrators
     public class RegisterInternOrchestratorHandler : IRequestHandler<RegisterInternOrchestrator, RequestResponse<CreateInternDto>>
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public RegisterInternOrchestratorHandler(IMediator mediator, IUnitOfWork unitOfWork)
+        public RegisterInternOrchestratorHandler(IMediator mediator)
         {
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<RequestResponse<CreateInternDto>> Handle(RegisterInternOrchestrator request, CancellationToken cancellationToken)

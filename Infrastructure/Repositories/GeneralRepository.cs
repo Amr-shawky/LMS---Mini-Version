@@ -35,21 +35,14 @@ namespace LMS___Mini_Version.Infrastructure.Repositories
 
         public void SaveIncludes(T entity, params string[] includes)
         {
-            var local = _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id);
-            EntityEntry<T> entry;
-            if (local is null)
+            var tracked = _context.Set<T>().Local.FirstOrDefault(e => e.Id == entity.Id);
+            var entry = tracked is null ? _context.Attach(entity) : _context.Entry(tracked);
+
+            foreach (var name in includes)
             {
-                entry = _context.Entry(entity);
-                
-            }
-            else
-            {
-                entry = _context.ChangeTracker.Entries<T>().First(e => e.Entity.Id == entity.Id);
-            }
-            entry.State = EntityState.Modified;
-            foreach (var include in includes)
-            {
-                entry.Property(include).IsModified = true;
+                var newValue = typeof(T).GetProperty(name)!.GetValue(entity);
+                entry.Property(name).CurrentValue = newValue;   
+                entry.Property(name).IsModified = true;         
             }
         }        
 

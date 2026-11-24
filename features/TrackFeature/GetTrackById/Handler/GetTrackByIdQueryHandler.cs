@@ -29,7 +29,8 @@ namespace LMS___Mini_Version.features.TrackFeature.GetTrackById.Handler
                 Id = track.Id,
                 Name = track.Name,
                 IsActive = track.IsActive,
-                MaxCapacity = track.MaxCapacity
+                MaxCapacity = track.MaxCapacity,
+                Fees = track.Fees,
             };
 
             return RequestResponse<GetTrackByIdDto>.OK(trackDto);

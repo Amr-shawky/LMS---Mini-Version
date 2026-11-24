@@ -26,6 +26,7 @@ namespace LMS___Mini_Version.features.PaymentFeature.Handlers
                 Amount = request.TrackFees,
                 Status = PaymentStatus.Completed,
                 PaymentDate = DateTime.UtcNow,
+                Method = request.Method,
             };
 
             _repository.Add(payment);
