@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using LMS___Mini_Version.Domain.Repositories;
 using LMS___Mini_Version.Infrastructure.Repositories;
 using LMS___Mini_Version.Persistence;
@@ -11,7 +12,10 @@ namespace LMS___Mini_Version
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
+            // Enums (EnrollmentStatus, PaymentStatus, PaymentMethod) are read and written as names, e.g. "Active", "Cash".
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

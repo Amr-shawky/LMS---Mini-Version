@@ -4,6 +4,8 @@ using LMS___Mini_Version.features.TrackFeature.AddTrack.Commands;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Dtos;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.Query;
 using LMS___Mini_Version.features.TrackFeature.GetAllTracks.ViewModels;
+using LMS___Mini_Version.features.TrackFeature.GetTrackAvailability.Dtos;
+using LMS___Mini_Version.features.TrackFeature.GetTrackAvailability.Query;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +37,21 @@ namespace LMS___Mini_Version.Controllers
             
             return StatusCode(result.StatusCode,EndpointResponse<IEnumerable<TrackViewModel>>.OK(tracksVM, result.StatusCode,"sucess"));
 
+        }
+
+        // Task 06 — Seats reserved (Pending/Active enrollments) vs. capacity
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<EndpointResponse<TrackAvailabilityDto>>> GetAvailability(
+            int id, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetTrackAvailabilityQuery(id), cancellationToken);
+
+            if (!result.Success)
+                return StatusCode(result.StatusCode,
+                    EndpointResponse.Fail(result.StatusCode, "Failed to get track availability", result.Errors));
+
+            return StatusCode(result.StatusCode,
+                EndpointResponse<TrackAvailabilityDto>.OK(result.Data!, result.StatusCode, "success"));
         }
 
         //[HttpGet]
