@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using LMS___Mini_Version.Features.Interns.Queries;
 using LMS___Mini_Version.Features.Shared.LMS___Mini_Version.features.shared;
+using LMS___Mini_Version.Domain.Enums;
 
 namespace LMS___Mini_Version.Controllers
 {
@@ -87,6 +88,28 @@ namespace LMS___Mini_Version.Controllers
 
             return Ok(InternId);
 
+        }
+        [HttpPost("{internId}/approve-and-register")]
+        public async Task<EndpointResponse> ApproveRegisteration(int internId,string paymentMethod,CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(new ApproveAndCompleteInternRegistrationCommand(internId, paymentMethod), cancellationToken);
+            if (!result.Success)
+            {
+                return new EndpointResponse
+                {
+                    Message = result.Message,
+                    StatusCode = result.StatusCode,
+                    Success = false,
+                    TimeStamp = DateTime.UtcNow,
+                };
+            }
+            else
+                return new EndpointResponse
+                {
+                    Success = true,
+                    StatusCode = 200,
+                    Message = "Registeration Completed Successfully"
+                };
         }
     }
 }

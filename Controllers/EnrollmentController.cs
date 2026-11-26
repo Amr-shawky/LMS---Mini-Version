@@ -1,6 +1,7 @@
 ﻿using LMS___Mini_Version.Domain.Entities;
 using LMS___Mini_Version.Features.Enrollments.Commands;
 using LMS___Mini_Version.Features.Enrollments.DTOs;
+using LMS___Mini_Version.Features.Enrollments.Orchestrators;
 using LMS___Mini_Version.Features.Enrollments.Queries;
 using LMS___Mini_Version.Features.Enrollments.VMs;
 using LMS___Mini_Version.Features.Shared;
@@ -31,14 +32,28 @@ namespace LMS___Mini_Version.Controllers
                 return NotFound("Intern is not found");
             return Ok(result);
         }
-        [HttpPost]
-        public async Task<ActionResult<RequestResponse>> CompleteEnrollment(CompleteTrainingEnrollmentCommand command,CancellationToken cancellationToken)
+        [HttpPost("{enrollmentId}/complete")]
+        public async Task<EndpointResponse> CompleteEnrollment(int enrollmentId, CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(command, cancellationToken);
-            if (result is null)
-                return NotFound("Enrollment is Unkown or Completed");
-            return result;
+            var result = await Mediator.Send(new CompleteTrainingEnrollmentOrchestrator(enrollmentId), cancellationToken);
+
+            var response = new EndpointResponse
+            {
+                Message = result.Message,
+                StatusCode = result.StatusCode,
+                TimeStamp = DateTime.UtcNow,
+                Success = result.Success,
+            };
+
+            return response;
         }
+        //public async Task<ActionResult<RequestResponse>> CompleteEnrollment(CompleteTrainingEnrollmentCommand command,CancellationToken cancellationToken)
+        //{
+        //    var result = await Mediator.Send(command, cancellationToken);
+        //    if (result is null)
+        //        return NotFound("Enrollment is Unkown or Completed");
+        //    return result;
+        //}
         [HttpGet("track/{trackId}")]
         public async Task<EndpointResponse<IEnumerable<ReviewTrackEnrollmentViewModel>>> GetTrackEnrollments(int trackId, CancellationToken cancellationToken)
         {
